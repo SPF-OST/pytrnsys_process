@@ -35,7 +35,7 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd
     >>> prt_file_path = _test.DATA_DIR_PATH / "BUILDING_MO.Prt"
     >>> _monthly.read_monthly_file(prt_file_path, starting_year=1990)
                  PBuiSol_kW  PBuiGains_KW  ...  PbuiVent_kW  PAcumBui_kW
-    Timestamp                              ...                          
+    Timestamp                              ...
     1990-02-01   780.877209   1855.802086  ... -2449.556250  -185.337733
     1990-03-01  1020.135986   1681.815691  ... -2194.195954   -40.804481
     1990-04-01  1624.960201   1860.622298  ... -2470.592889   -74.430886
@@ -59,11 +59,18 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd
 
     hours = _dt.timedelta(hours=1) * df["Time"]
     start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
-    starts_of_month = start_of_year + hours
+    actual_ends_of_month = start_of_year + hours
+
+    expected_ends_of_months = _pd.date_range(start_of_year, periods=12, freq="M") + _dt.timedelta(days=1)
+
+    if (actual_ends_of_month != expected_ends_of_months).any():
+        raise ValueError(
+            f"The time stamps of the supposedly monthly file '{prt_file_path}' don't fall on the end of each month."
+        )
 
     df = df.drop(columns=["Month", "Time"])
 
-    df["Timestamp"] = starts_of_month
+    df["Timestamp"] = actual_ends_of_month
     df = df.set_index("Timestamp")
 
     return df

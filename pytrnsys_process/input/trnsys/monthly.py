@@ -5,7 +5,7 @@ import pandas as _pd
 import datetime as _dt
 
 
-_N_FOOTER_LINES = 24
+_N_ROWS_USED = 12
 
 
 def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd.DataFrame:
@@ -54,7 +54,7 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd
     Notice how the time stamps are given **at the end of a month**.
 
     """
-    df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", skipfooter=_N_FOOTER_LINES, engine="python")
+    df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", nrows=_N_ROWS_USED)
     df = df.rename(columns=lambda x: x.strip())
 
     hours = _dt.timedelta(hours=1) * df["Time"]

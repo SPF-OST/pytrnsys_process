@@ -1,0 +1,6 @@
+/venv/
+/.eggs/
+/.idea/
+/build/
+pytrnsys_process.egg-info/
+__pycache__/

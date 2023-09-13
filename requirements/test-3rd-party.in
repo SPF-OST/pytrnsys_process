@@ -1,0 +1,13 @@
+-r release-3rd-party.in
+
+wheel
+
+pytest
+pytest-cov
+pytest-html
+mypy
+pylint
+black
+
+sphinx
+numpydoc

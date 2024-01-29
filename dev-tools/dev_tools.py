@@ -251,8 +251,7 @@ def _run_sphinx_build():
 
     cmd = [
         f"{_SCRIPTS_DIR / 'sphinx-build'}",
-        "-M",
-        "html",
+        "-E",
         _DOC_DIR_PATH,
         build_dir_path,
     ]

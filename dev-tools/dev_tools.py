@@ -170,7 +170,7 @@ def _maybe_create_diagrams(arguments):
     if arguments.shallRunAll or arguments.diagramsFormat:
         diagrams_format = arguments.diagramsFormat if arguments.diagramsFormat else "pdf"
         cmd = (
-            f"{_SCRIPTS_DIR / 'pyreverse'} -k -o {diagrams_format} -p process_pytrnsys -d test-results process_pytrnsys"
+            f"{_SCRIPTS_DIR / 'pyreverse'} -k -o {diagrams_format} -p pytrnsys_process -d test-results pytrnsys_process"
         )
         _print_and_run(cmd.split())
 
@@ -195,7 +195,7 @@ def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
     cmd = [
         _SCRIPTS_DIR / "pytest",
         "-v",
-        "--cov=process_pytrnsys",
+        "--cov=pytrnsys_process",
         f"--cov-report=html:{test_results_dir_path / 'coverage-html'}",
         f"--cov-report=lcov:{test_results_dir_path / 'coverage.lcov'}",
         "--cov-report=term",

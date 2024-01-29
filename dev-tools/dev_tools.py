@@ -241,6 +241,8 @@ def _run_apidoc():
 
 
 def _run_sphinx_build():
+    _ensure_empty_local_dir_exists("_build")
+
     cmd = [
         f"{_SCRIPTS_DIR / 'sphinx-build'}",
         "-M",
@@ -250,6 +252,16 @@ def _run_sphinx_build():
     ]
 
     _print_and_run(cmd)
+
+
+def _ensure_empty_local_dir_exists(dir_name):
+    dir_path = pl.Path(dir_name)
+
+    if dir_path.is_dir():
+        sh.rmtree(dir_path)
+        time.sleep(1)
+
+    dir_path.mkdir()
 
 
 def _print_and_run(args: tp.Sequence[str]) -> None:

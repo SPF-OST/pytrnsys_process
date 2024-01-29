@@ -254,9 +254,9 @@ def _run_sphinx_build():
 
 def _print_and_run(args: tp.Sequence[str]) -> None:
     formatted_args = " ".join(str(arg) for arg in args)
-    print(f"Running '{formatted_args}'...")
+    print(f"Running '{formatted_args}'...", flush=True)
     sp.run(args, check=True)
-    print("...DONE.")
+    print("...DONE.", flush=True)
 
 
 if __name__ == "__main__":

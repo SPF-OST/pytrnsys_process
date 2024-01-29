@@ -1,5 +1,5 @@
 [project]
-name = "pytrnsys-process"
+name = "pytrnsys_process"
 version = "0.0.1"
 authors = [
   { name="Damian Birchler", email="damian.birchler@ost.ch" },
@@ -15,8 +15,8 @@ classifiers = [
 dependencies = ["pandas", "pyarrow"]
 
 [project.urls]
-Homepage = "https://github.com/SPF-OST/pytrnsys-process"
-Issues = "https://github.com/SPF-OST/pytrnsys-process/issues"
+Homepage = "https://github.com/SPF-OST/pytrnsys_process"
+Issues = "https://github.com/SPF-OST/pytrnsys_process/issues"
 
 [build-system]
 requires = ["setuptools >= 61.0"]

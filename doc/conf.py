@@ -6,8 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "pytrnsys-process"
-copyright = "2023, SPF Institute of Solar Technology, OST University of Applied Sciences"
+project = "pytrnsys_process"
+copyright = "2024, SPF Institute of Solar Technology, OST University of Applied Sciences"
 author = "SPF Institute of Solar Technology, OST University of Applied Sciences"
 
 # -- General configuration ---------------------------------------------------
@@ -33,4 +33,3 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "alabaster"
-html_static_path = ["_static"]

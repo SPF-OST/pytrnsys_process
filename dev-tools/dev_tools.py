@@ -5,7 +5,6 @@
 # Run from top-level directory
 
 import argparse as ap
-import contextlib as ctx
 import pathlib as pl
 import shutil as sh
 import subprocess as sp
@@ -15,6 +14,10 @@ import time
 import typing as tp
 
 _SCRIPTS_DIR = pl.Path(sc.get_path("scripts"))
+
+_REPO_ROOT_PATH = pl.Path(__file__).parents[1]
+
+_DOC_DIR_PATH = _REPO_ROOT_PATH / "doc"
 
 _SOURCE_DIR_NAMES = ["pytrnsys_process", "tests", "dev-tools"]
 
@@ -222,27 +225,43 @@ def _get_marker_expressions(user_supplied_marker_expressions: str) -> str:
 
 def _maybe_create_documentation(arguments):
     if arguments.shallRunAll or arguments.shallCreateDocumentation:
-        with ctx.chdir("doc"):
-            _create_documentation_in_doc_dir()
+        _run_apidoc()
+        _run_sphinx_build()
 
 
-def _create_documentation_in_doc_dir():
-    build_dir_path = pl.Path("_build")
-    if build_dir_path.is_dir():
-        sh.rmtree(build_dir_path)
-        time.sleep(1)
+def _run_apidoc():
+    cmd = [
+        f"{_SCRIPTS_DIR / 'sphinx-apidoc'}",
+        "-o",
+        _DOC_DIR_PATH / "_apidoc",
+        "pytrnsys_process",
+    ]
 
-    build_dir_path.mkdir()
+    _print_and_run(cmd)
+
+
+def _run_sphinx_build():
+    _ensure_empty_local_dir_exists("_build")
 
     cmd = [
         f"{_SCRIPTS_DIR / 'sphinx-build'}",
         "-M",
         "html",
-        ".",
-        "_build",
+        _DOC_DIR_PATH,
+        _DOC_DIR_PATH / "_build",
     ]
 
     _print_and_run(cmd)
+
+
+def _ensure_empty_local_dir_exists(dir_name):
+    dir_path = pl.Path(dir_name)
+
+    if dir_path.is_dir():
+        sh.rmtree(dir_path)
+        time.sleep(1)
+
+    dir_path.mkdir()
 
 
 def _print_and_run(args: tp.Sequence[str]) -> None:

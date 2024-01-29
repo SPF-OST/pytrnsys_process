@@ -8,8 +8,6 @@
 -r dev-3rd-party.txt
 file:.#egg=pytrnsys_process
     # via -r requirements\dev.in
-pyarrow==15.0.0
-    # via pytrnsys-process
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

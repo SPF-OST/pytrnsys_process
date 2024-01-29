@@ -209,7 +209,7 @@ def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
 
 
 def _run_doctests_with_pytest():
-    cmd = [_SCRIPTS_DIR / "pytest", "--doctest-modules"]
+    cmd = [_SCRIPTS_DIR / "pytest", "--doctest-modules", "pytrnsys_process"]
     _print_and_run(cmd)
 
 

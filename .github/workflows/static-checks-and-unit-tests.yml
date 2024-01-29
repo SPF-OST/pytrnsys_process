@@ -38,13 +38,15 @@ jobs:
         python dev-tools/dev_tools.py --diagram --keep-results
     - name: Test with pytest
       run: python dev-tools/dev_tools.py --unit "not manual and not windows and not tool" --keep-results
+    - name: Build documentation
+      run: venv\Scripts\python dev-tools\dev_tools.py --doc
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v2
       with:
-        name: test-results-and-coverage-report-linux
-        path: test-results
-      # Use always() to always run this step to publish test results when there are test failures
-      if: ${{ always() }}
+        name: pytrnsys-process-build-artifacts-linux
+        path: |
+          test-results
+          doc/_build
 
   test-windows:
 
@@ -71,8 +73,12 @@ jobs:
       run: venv\Scripts\python dev-tools\dev_tools.py --lint --keep-results
     - name: Test with pytest
       run: venv\Scripts\python dev-tools\dev_tools.py --unit "not manual and not linux and not tool" --keep-results
+    - name: Build documentation
+      run: venv\Scripts\python dev-tools\dev_tools.py --doc
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v2
       with:
-        name: test-results-and-coverage-report-windows
-        path: test-results
+        name: pytrnsys-process-build-artifacts-windows
+        path: |
+          test-results
+          doc/_build

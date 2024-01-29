@@ -5,6 +5,7 @@
 # Run from top-level directory
 
 import argparse as ap
+import contextlib as ctx
 import pathlib as pl
 import shutil as sh
 import subprocess as sp
@@ -35,6 +36,8 @@ def main():
     _maybe_create_diagrams(arguments)
 
     _maybe_run_pytest(arguments, test_results_dir_path)
+
+    _maybe_create_documentation(arguments)
 
 
 def _parse_arguments() -> ap.Namespace:
@@ -96,6 +99,13 @@ def _parse_arguments() -> ap.Namespace:
         const="pdf",
         choices=["pdf", "dot"],
         dest="diagramsFormat",
+    )
+    parser.add_argument(
+        "-c",
+        "--doc",
+        help="Create documentation using Sphinx",
+        action="store_true",
+        dest="shallCreateDocumentation",
     )
     parser.add_argument(
         "-a",
@@ -167,11 +177,12 @@ def _maybe_create_diagrams(arguments):
 
 def _maybe_run_pytest(arguments, test_results_dir_path):
     was_called_without_arguments = (
-        not arguments.shallPerformStaticChecks
-        and arguments.mypyArguments is None
-        and arguments.lintArguments is None
-        and arguments.blackArguments is None
-        and arguments.diagramsFormat is None
+            not arguments.shallPerformStaticChecks
+            and arguments.mypyArguments is None
+            and arguments.lintArguments is None
+            and arguments.blackArguments is None
+            and arguments.diagramsFormat is None
+            and not arguments.shallCreateDocumentation
     )
     if arguments.shallRunAll or arguments.pytestMarkersExpression is not None or was_called_without_arguments:
         _run_unit_tests_with_pytest(arguments, test_results_dir_path)
@@ -207,6 +218,31 @@ def _get_marker_expressions(user_supplied_marker_expressions: str) -> str:
         else hard_coded_marker_expressions
     )
     return marker_expressions
+
+
+def _maybe_create_documentation(arguments):
+    if arguments.shallRunAll or arguments.shallCreateDocumentation:
+        with ctx.chdir("doc"):
+            _create_documentation_in_doc_dir()
+
+
+def _create_documentation_in_doc_dir():
+    build_dir_path = pl.Path("_build")
+    if build_dir_path.is_dir():
+        sh.rmtree(build_dir_path)
+        time.sleep(1)
+
+    build_dir_path.mkdir()
+
+    cmd = [
+        f"{_SCRIPTS_DIR / 'sphinx-build'}",
+        "-M",
+        "html",
+        ".",
+        "_build",
+    ]
+
+    _print_and_run(cmd)
 
 
 def _print_and_run(args: tp.Sequence[str]) -> None:

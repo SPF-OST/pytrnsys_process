@@ -230,10 +230,14 @@ def _maybe_create_documentation(arguments):
 
 
 def _run_apidoc():
+    apidoc_output_dir_path = _DOC_DIR_PATH / "_apidoc"
+
+    _ensure_empty_dir_exists(apidoc_output_dir_path)
+
     cmd = [
         f"{_SCRIPTS_DIR / 'sphinx-apidoc'}",
         "-o",
-        _DOC_DIR_PATH / "_apidoc",
+        apidoc_output_dir_path,
         "pytrnsys_process",
     ]
 
@@ -241,23 +245,26 @@ def _run_apidoc():
 
 
 def _run_sphinx_build():
-    _ensure_empty_local_dir_exists("_build")
+    build_dir_path = _DOC_DIR_PATH / "_build"
+
+    _ensure_empty_dir_exists(build_dir_path)
 
     cmd = [
         f"{_SCRIPTS_DIR / 'sphinx-build'}",
         "-M",
         "html",
         _DOC_DIR_PATH,
-        _DOC_DIR_PATH / "_build",
+        build_dir_path,
     ]
 
     _print_and_run(cmd)
 
 
-def _ensure_empty_local_dir_exists(dir_name):
-    dir_path = pl.Path(dir_name)
+def _ensure_empty_dir_exists(dir_path):
+    if dir_path.exists():
+        if not dir_path.is_dir():
+            raise ValueError("Not a directory", dir_path)
 
-    if dir_path.is_dir():
         sh.rmtree(dir_path)
         time.sleep(1)
 

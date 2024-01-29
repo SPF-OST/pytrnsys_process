@@ -6,6 +6,14 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import pathlib as pl
+import sys
+
+_REPOSITORY_ROOT_PATH = pl.Path(__file__).parents[1]
+
+if _REPOSITORY_ROOT_PATH not in sys.path:
+    sys.path.append(str(_REPOSITORY_ROOT_PATH))
+
 project = "pytrnsys_process"
 copyright = "2024, SPF Institute of Solar Technology, OST University of Applied Sciences"
 author = "SPF Institute of Solar Technology, OST University of Applied Sciences"
@@ -27,7 +35,6 @@ trim_doctest_flags = True
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

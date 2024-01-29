@@ -11,3 +11,5 @@ black
 
 sphinx
 numpydoc
+
+pandas-stubs

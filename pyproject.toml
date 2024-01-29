@@ -1,0 +1,31 @@
+[project]
+name = "pytrnsys-process"
+version = "0.0.1"
+authors = [
+  { name="Damian Birchler", email="damian.birchler@ost.ch" },
+]
+description = "Post processing for pytrnsys"
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+dependencies = ["pandas", "pyarrow"]
+
+[project.urls]
+Homepage = "https://github.com/SPF-OST/pytrnsys-process"
+Issues = "https://github.com/SPF-OST/pytrnsys-process/issues"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pytrnsys_process"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning:dateutil.tz.tz:37",
+]

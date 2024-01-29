@@ -1,6 +1,8 @@
-/venv/
+/venv*/
 /.eggs/
 /.idea/
 /build/
 pytrnsys_process.egg-info/
 __pycache__/
+.coverage
+/test-results/

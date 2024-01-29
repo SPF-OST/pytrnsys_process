@@ -1,9 +1,9 @@
 """Functionality to read monthly data from a TRNSYS simulation"""
 
-import pathlib as _pl
-import pandas as _pd
 import datetime as _dt
+import pathlib as _pl
 
+import pandas as _pd
 
 _N_ROWS_USED = 12
 
@@ -57,11 +57,11 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd
     df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", nrows=_N_ROWS_USED)
     df = df.rename(columns=lambda x: x.strip())
 
-    hours = _dt.timedelta(hours=1) * df["Time"]
+    hours = _dt.timedelta(hours=1) * df["Time"]  # type: ignore
     start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
     actual_ends_of_month = start_of_year + hours
 
-    expected_ends_of_months = _pd.date_range(start_of_year, periods=12, freq="M") + _dt.timedelta(days=1)
+    expected_ends_of_months = _pd.date_range(start_of_year, periods=12, freq="ME") + _dt.timedelta(days=1)
 
     if (actual_ends_of_month != expected_ends_of_months).any():
         raise ValueError(

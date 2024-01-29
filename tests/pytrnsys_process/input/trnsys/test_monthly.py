@@ -1,3 +1,5 @@
+# pylint: disable=missing-module-docstring
+
 import pathlib as _pl
 
 import pytrnsys_process.input.trnsys.monthly as _monthly

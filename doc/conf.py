@@ -6,6 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import pathlib as pl
+import sys
+
+_REPO_ROOT_DIR_PATH_STRING = str(pl.Path(__file__).parents[1])
+if _REPO_ROOT_DIR_PATH_STRING not in sys.path:
+    sys.path.insert(0, _REPO_ROOT_DIR_PATH_STRING)
+
 project = "pytrnsys_process"
 copyright = "2024, SPF Institute of Solar Technology, OST University of Applied Sciences"
 author = "SPF Institute of Solar Technology, OST University of Applied Sciences"

@@ -1,7 +1,6 @@
 """Functionality to read monthly data from a TRNSYS simulation"""
 
 import datetime as _dt
-import enum as _enum
 import pathlib as _pl
 
 import pandas as _pd
@@ -9,12 +8,7 @@ import pandas as _pd
 _N_ROWS_USED = 12
 
 
-class MonthlyFileColumnHeaders(_enum.StrEnum):
-    MONTH = "month"
-    TIME = "time"
-
-
-def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001, starting_month: int = 1) -> _pd.DataFrame:
+def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd.DataFrame:
     """Load monthly data written by Type 46 as a `pandas` `DataFrame`.
 
     Parameters
@@ -60,36 +54,23 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001, starti
     Notice how the time stamps are given **at the end of a month**.
 
     """
-    df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", nrows=13)
+    df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", nrows=_N_ROWS_USED)
     df = df.rename(columns=lambda x: x.strip())
-    df = _convertFirstTwoColumnsToLowerCase(df)
 
-    hours = _dt.timedelta(hours=1) * df["time"]  # type: ignore
+    hours = _dt.timedelta(hours=1) * df["Time"]  # type: ignore
     start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
     actual_ends_of_month = start_of_year + hours
-    expected_ends_of_months = _pd.date_range(_dt.datetime(day=1, month=starting_month, year=starting_year), periods=13,
-                                             freq="ME") + _dt.timedelta(days=1)
+
+    expected_ends_of_months = _pd.date_range(start_of_year, periods=12, freq="ME") + _dt.timedelta(days=1)
 
     if (actual_ends_of_month != expected_ends_of_months).any():
         raise ValueError(
             f"The time stamps of the supposedly monthly file '{prt_file_path}' don't fall on the end of each month."
         )
 
-    df = df.drop(columns=["month", "time"])
+    df = df.drop(columns=["Month", "Time"])
 
     df["Timestamp"] = actual_ends_of_month
     df = df.set_index("Timestamp")
 
     return df
-
-
-def _convertFirstTwoColumnsToLowerCase(df: _pd.DataFrame) -> _pd.DataFrame:
-    df.columns = [col.lower() if i < 2 else col for i, col in enumerate(df.columns)]
-    return df
-
-
-def getAllAvailableVariables(prtFilePath: _pl.Path):
-    df = _pd.read_csv(prtFilePath, header=1, nrows=0, delimiter=r"\s+")
-    print("Available columns:")
-    for col in df.columns:
-        print(f"- {col}")

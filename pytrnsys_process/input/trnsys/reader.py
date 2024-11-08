@@ -1,6 +1,9 @@
 import datetime as _dt
 import pathlib as _pl
+
 import pandas as _pd
+
+from pytrnsys_process.input.trnsys.monthly import read_monthly_file
 
 
 class Reader:
@@ -26,6 +29,10 @@ class Reader:
         df["Timestamp"] = actual_ends_of_month
         df = df.set_index("Timestamp")
         return df
+
+    @staticmethod
+    def read_monthly(monthly_file: _pl.Path, starting_year: int = 1990):
+        read_monthly_file(monthly_file, starting_year)
 
 
 class HeaderReader(Reader):

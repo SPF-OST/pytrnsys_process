@@ -6,14 +6,16 @@
 #    pip-compile-multi
 #
 -r test-3rd-party.txt
-build==1.0.3
+build==1.2.2.post1
     # via pip-tools
-pip-compile-multi==2.6.3
+pip-compile-multi==2.6.4
     # via -r requirements\dev-3rd-party.in
-pip-tools==7.3.0
+pip-tools==7.4.1
     # via pip-compile-multi
-pyproject-hooks==1.0.0
-    # via build
+pyproject-hooks==1.2.0
+    # via
+    #   build
+    #   pip-tools
 toposort==1.10
     # via pip-compile-multi
 

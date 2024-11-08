@@ -1,6 +1,6 @@
 import pathlib as _pl
 
-from pytrnsys_process.input.trnsys.Reader import Reader
+from pytrnsys_process.input.trnsys.readers import Reader
 
 
 class TestReader:

@@ -1,17 +1,16 @@
 import pathlib as _pl
+import typing as _tp
 from collections import defaultdict as _defaultdict
+from concurrent.futures import ThreadPoolExecutor
 
-from pytrnsys_process.input.trnsys.Reader import HeaderReader
+from pytrnsys_process.input.trnsys.readers import HeaderReader
 
 
 class Headers:
 
     RESULTS_FOLDER_NAME = "temp"
-    DELIMITER = r"\s+"
-    NUMBER_OF_ROWS_TO_SKIP = 1
-    NUMBER_OF_ROWS = 0
 
-    header_index: _defaultdict[any, list]
+    header_index: _defaultdict[_tp.Any, list]
 
     def __init__(self, path_to_results: _pl.Path):
         self.path_to_results = path_to_results
@@ -21,11 +20,23 @@ class Headers:
         sim_files = self._get_files(self._get_sim_folders())
         for sim_file in sim_files:
             try:
-
                 headers = HeaderReader.read(sim_file)
                 self._index_headers(headers, sim_file.parents[1], sim_file)
             except Exception as e:
                 print(f"Could not read {sim_file}: {e}")
+
+    def init_headers_multi_thread(self):
+        sim_files = self._get_files(self._get_sim_folders())
+
+        def process_sim_file(sim_file):
+            try:
+                headers = HeaderReader.read(sim_file)
+                self._index_headers(headers, sim_file.parents[1], sim_file)
+            except Exception as e:
+                print(f"Could not read {sim_file}: {e}")
+
+        with ThreadPoolExecutor() as executor:
+            executor.map(process_sim_file, sim_files)
 
     def search_header(self, header_name: str):
         if header_name in self.header_index:
@@ -59,4 +70,4 @@ class Headers:
 
 
 class HeadersCsv(Headers):
-    DELIMITER = ","
+    RESULTS_FOLDER_NAME = "temp"

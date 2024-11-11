@@ -35,7 +35,7 @@ class Headers:
             except Exception as e:
                 print(f"Could not read {sim_file}: {e}")
 
-        with ThreadPoolExecutor() as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             executor.map(process_sim_file, sim_files)
 
     def search_header(self, header_name: str):

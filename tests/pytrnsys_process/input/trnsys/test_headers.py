@@ -28,3 +28,8 @@ class TestHeaders:
             Headers(self.PATH_TO_BENCHMARK_RESULTS).init_headers()
         benchmark(init_headers)
 
+    def test_init_headers_benchmark_multi_thread(self, benchmark):
+        def init_headers():
+            Headers(self.PATH_TO_BENCHMARK_RESULTS).init_headers_multi_thread()
+        benchmark(init_headers)
+

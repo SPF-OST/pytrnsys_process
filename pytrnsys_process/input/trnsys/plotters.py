@@ -37,15 +37,14 @@ class ChartBase:
 
 class MonthlyBarChart(ChartBase):
 
-    def plot(
-        self, columns: list[str], **kwargs
-    ) -> Tuple[_plt.Figure | None, _plt.Axes]:
+    def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
         self.df[columns].plot(
             kind="bar", stacked=True, ax=self.ax, colormap="viridis"
         )
 
         self.configure()
         return self.fig, self.ax
+
 
 class Plotter:
 

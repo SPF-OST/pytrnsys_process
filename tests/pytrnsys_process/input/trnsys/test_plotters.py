@@ -29,7 +29,7 @@ class TestPlotter:
         columns = ["QSnk60PauxCondSwitch_kW", "QSnk60dQ"]
         monthly_bar_chart = MonthlyBarChart(df)
         fig, ax  = monthly_bar_chart.plot(columns)
-        fig.savefig("barChart.png")
+        fig.savefig(f"{self.MONTHLY_RESULTS.stem}.png")
 
 
     # def test_create_energy_balance_monthly(self):

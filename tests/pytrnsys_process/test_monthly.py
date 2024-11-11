@@ -2,7 +2,7 @@
 
 import pathlib as _pl
 
-import pytrnsys_process.input.trnsys.monthly as _monthly
+import pytrnsys_process.monthly as _monthly
 
 DATA_DIR_PATH = _pl.Path(__file__).parent / "data" / "monthly" / "damian"
 

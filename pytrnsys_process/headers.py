@@ -3,7 +3,7 @@ import typing as _tp
 from collections import defaultdict as _defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
-from pytrnsys_process.input.trnsys.readers import HeaderReader
+from pytrnsys_process.readers import HeaderReader
 
 
 class Headers:

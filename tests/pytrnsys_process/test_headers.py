@@ -1,6 +1,6 @@
 import pathlib as _pl
 
-from pytrnsys_process.input.trnsys.headers import Headers
+from pytrnsys_process.headers import Headers
 
 
 class TestHeaders:

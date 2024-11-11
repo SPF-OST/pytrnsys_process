@@ -10,13 +10,15 @@ class ChartBase:
     Y_LABEL = "Energy Flows"
     TITLE = ""
     COLOR_MAP = "viridis"
+    SIZE_A4 = (7.8, 3.9)
+    SIZE_A4_HALF = (3.8, 3.9)
 
-    def __init__(self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE):
+    def __init__(self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4):
         self.df = df
         self.x_label = x_label
         self.y_label = y_label
         self.title = title
-        self.fig, self.ax = _plt.subplots(figsize=(10, 6))
+        self.fig, self.ax = _plt.subplots(figsize=size)
 
     def configure(self):
         self.ax.set_xlabel(self.x_label)
@@ -37,7 +39,9 @@ class ChartBase:
 
 class MonthlyBarChart(ChartBase):
 
-    def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
+    def plot(
+        self, columns: list[str]
+    ) -> Tuple[_plt.Figure | None, _plt.Axes]:
         self.df[columns].plot(
             kind="bar", stacked=True, ax=self.ax, colormap="viridis"
         )
@@ -45,6 +49,9 @@ class MonthlyBarChart(ChartBase):
         self.configure()
         return self.fig, self.ax
 
+# class HourlyCurvePlot(ChartBase)
+#
+#     def plot(self,):
 
 class Plotter:
 

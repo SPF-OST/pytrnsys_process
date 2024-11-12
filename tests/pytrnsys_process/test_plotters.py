@@ -57,7 +57,7 @@ class TestPlotter:
         )
 
     def test_create_curve_plot_for_hourly(self):
-        result_data = const.DATA_FOLDER / "hourly" / "Src_hr.Prt"
+        result_data = const.DATA_FOLDER / "hourly/Src_Hr.Prt"
         expected_fig = const.DATA_FOLDER / "plots/curve-plot/expected.png"
         actual_fig = const.DATA_FOLDER / "plots/curve-plot/actual.png"
         df = Reader.read_hourly(result_data)

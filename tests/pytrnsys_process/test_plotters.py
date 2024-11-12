@@ -21,7 +21,7 @@ class TestPlotter:
 
     # TODO figure out why not passing # pylint: disable=fixme
     @pytest.mark.skip(reason="broken")
-    def testMplInstallation(self):
+    def test_mpl_installation(self):
         """Checks whether Inkscape is installed correctly."""
         assert "pdf" in _mpltc.comparable_formats()
         assert "svg" in _mpltc.comparable_formats()
@@ -46,7 +46,7 @@ class TestPlotter:
         ]
 
         monthly_bar_chart = MonthlyBarChart(df)
-        fig, ax = monthly_bar_chart.plot(columns)
+        fig, _ = monthly_bar_chart.plot(columns)
         fig.savefig(actual_file, format="png")
 
         assert (
@@ -64,7 +64,7 @@ class TestPlotter:
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         curve_plot = HourlyCurvePlot(df)
-        fig, ax = curve_plot.plot(columns)
+        fig, _ = curve_plot.plot(columns)
         fig.savefig(actual_fig)
 
         assert (
@@ -89,7 +89,7 @@ class TestPlotter:
     #         _plt.show()
 
 
-# TODO fix, does not work as expected :/
+# TODO fix, does not work as expected :/ # pylint: disable=fixme
 def compare_plots(actual_buf, expected_file, tolerance=0.001):
     with _tf.NamedTemporaryFile(suffix=".png", delete=False) as actual_file:
         actual_file.write(actual_buf.read())

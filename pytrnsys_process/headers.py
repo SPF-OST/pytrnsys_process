@@ -22,7 +22,8 @@ class Headers:
             try:
                 headers = HeaderReader.read(sim_file)
                 self._index_headers(headers, sim_file.parents[1], sim_file)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
+
                 print(f"Could not read {sim_file}: {e}")
 
     def init_headers_multi_thread(self):
@@ -32,7 +33,7 @@ class Headers:
             try:
                 headers = HeaderReader.read(sim_file)
                 self._index_headers(headers, sim_file.parents[1], sim_file)
-            except Exception as e:
+            except Exception as e:  # pylint: disable=broad-exception-caught
                 print(f"Could not read {sim_file}: {e}")
 
         with ThreadPoolExecutor(max_workers=10) as executor:

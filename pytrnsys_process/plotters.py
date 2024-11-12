@@ -25,6 +25,8 @@ class ChartBase:
     LEGEND_FONT_SIZE = 8
     TITLE_FONT_SIZE = 12
 
+    # TODO: discuss if we should we use a dic or a dataclass for config values
+    # pylint: disable=too-many-arguments
     def __init__(
         self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4
     ):
@@ -66,7 +68,7 @@ class MonthlyBarChart(ChartBase):
         self.configure()
         return self.fig, self.ax
 
-    def plotWithoutPandas(
+    def plot_without_pandas(
         self, columns: list[str]
     ) -> Tuple[_plt.Figure | None, _plt.Axes]:
         """The matplot date formatter does not work when using df.plot func.

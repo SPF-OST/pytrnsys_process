@@ -20,7 +20,7 @@ class Reader:
             header=Reader.HEADER,
             delimiter=Reader.DELIMITER,
         )
-        hours = _dt.timedelta(hours=1) * df["TIME"]
+        hours = _dt.timedelta(hours=1) * df["TIME"] # type: ignore
         start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
         actual_ends_of_month = start_of_year + hours
         df = df.drop(columns=["Period", "TIME"])

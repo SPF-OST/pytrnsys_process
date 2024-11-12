@@ -5,6 +5,13 @@ import matplotlib.pyplot as _plt
 import pandas as _pd
 
 
+# TODO: provide A4 and half A4 plots to test sizes in latex # pylint: disable=fixme
+# TODO: provide height as input for plot?  # pylint: disable=fixme
+# TODO: deal with legends (curve names, fonts, colors, linestyles) # pylint: disable=fixme
+# TODO: clean up old stuff by refactoring # pylint: disable=fixme
+# TODO: make issue for docstrings of plotting # pylint: disable=fixme
+
+
 class ChartBase:
     X_LABEL = ""
     Y_LABEL = "Energy Flows"
@@ -12,18 +19,28 @@ class ChartBase:
     COLOR_MAP = "viridis"
     SIZE_A4 = (7.8, 3.9)
     SIZE_A4_HALF = (3.8, 3.9)
+    DATE_FORMAT = "%m-%y"
+    LABEL_FONT_SIZE = 10
+    LEGEND_FONT_SIZE = 8
+    TITLE_FONT_SIZE = 12
 
-    def __init__(self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4):
+
+    def __init__(
+        self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4
+    ):
         self.df = df
         self.x_label = x_label
         self.y_label = y_label
         self.title = title
+
         self.fig, self.ax = _plt.subplots(figsize=size)
 
     def configure(self):
-        self.ax.set_xlabel(self.x_label)
-        self.ax.set_ylabel(self.y_label)
-        self.ax.set_title(self.title)
+        self.ax.set_xlabel(self.x_label, fontsize=self.LABEL_FONT_SIZE)
+        self.ax.set_ylabel(self.y_label, fontsize=self.LABEL_FONT_SIZE)
+        self.ax.set_title(self.title, fontsize=self.TITLE_FONT_SIZE)
+        #TODO This line does not seem to work as excpected, figure out why # pylint: disable=fixme
+        # self.ax.xaxis.set_major_formatter(_mpd.DateFormatter(self.DATE_FORMAT))
         _plt.tight_layout()
 
     @abstractmethod
@@ -32,65 +49,46 @@ class ChartBase:
 
     # makes no sense
     # def _plot(self, df, columns: list[str]):
-    #     # TODO: check if this makes sense.
+    #     # TODO: check if this makes sense. # pylint: disable=fixme
     #     self.plot(df, columns)
     #     self.configure()
 
 
 class MonthlyBarChart(ChartBase):
 
-    def plot(
-        self, columns: list[str]
-    ) -> Tuple[_plt.Figure | None, _plt.Axes]:
-        self.df[columns].plot(
-            kind="bar", stacked=True, ax=self.ax, colormap="viridis"
-        )
+    PLOT_KIND = "bar"
 
+    def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
+        self.df[columns].plot(
+            kind=self.PLOT_KIND,
+            stacked=True,
+            ax=self.ax,
+            colormap=self.COLOR_MAP,
+        )
         self.configure()
         return self.fig, self.ax
 
-# class HourlyCurvePlot(ChartBase)
-#
-#     def plot(self,):
-
-class Plotter:
-
-    @staticmethod
-    def create_bar_chart_for_hourly(df: _pd.DataFrame, columns: list[str]):
-        monthly_data = df.resample("M").sum()
-        monthly_data[columns].plot(
-            kind="bar", stacked=True, figsize=(10, 6), colormap="viridis"
-        )
-        _plt.xlabel("Month")
-        _plt.ylabel("Energy Values")
-        _plt.title("Monthly Energy Consumption by Type")
-        _plt.xticks(rotation=45)
-        _plt.legend(title="Energy Types")
-        _plt.tight_layout()
-        _plt.show()
-
-    @staticmethod
-    def create_bar_chart_for_monthly(
-        df: _pd.DataFrame,
-        columns: list[str],
-    ) -> Tuple[_plt.Figure, _plt.Axes]:
-        ax = df[columns].plot(
-            kind="bar", stacked=True, figsize=(10, 6), colormap="tab20"
-        )
-        _plt.xlabel("Month")
-        _plt.ylabel("Energy Values")
-        _plt.title("Monthly Energy Consumption by Type")
-        _plt.xticks(rotation=45)
-        _plt.legend(title="Energy Types")
-        _plt.tight_layout()
-        _plt.show()
-        return ax.get_figure(), ax
-
+    #TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
     @staticmethod
     def create_energy_balance_monthly(
         df: _pd.DataFrame,
         q_in_columns: list[str],
         q_out_columns: list[str],
         imbalance_column: str,
-    ) -> (_plt.Figure, _plt.Axes):
+    ) -> Tuple[_plt.Figure, _plt.Axes]:
         raise NotImplementedError
+
+
+class HourlyCurvePlot(ChartBase):
+
+    PLOT_KIND = "line"
+
+    def plot(self, columns: list[str], use_legend: bool = True) -> Tuple[_plt.Figure | None, _plt.Axes]:
+        self.df[columns].plot(
+            kind=self.PLOT_KIND,
+            colormap=self.COLOR_MAP,
+            legend=use_legend,
+            ax=self.ax,
+        )
+        self.configure()
+        return self.fig, self.ax

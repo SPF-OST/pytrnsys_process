@@ -39,7 +39,8 @@ class Headers:
         with ThreadPoolExecutor(max_workers=10) as executor:
             executor.map(process_sim_file, sim_files)
 
-    def search_header(self, header_name: str):
+    #TODO: Discuss if something like this is needed # pylint: disable=fixme
+    def search_header(self, header_name: str):# pragma: no cover
         if header_name in self.header_index:
             print(f"Header '{header_name}' found in:")
             for folder, file in self.header_index[header_name]:

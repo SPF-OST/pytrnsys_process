@@ -20,6 +20,19 @@ class TestHeaders:
             ("sim-2", "ENERGY_BALANCE_MO_HP_417.Prt")
         ]
 
+    def test_init_headers_multi_thread(self):
+        headers = Headers(self.PATH_TO_RESULTS)
+
+        headers.init_headers_multi_thread()
+
+        assert headers.header_index.get("QSnk60P") == [
+            ("sim-1", "ENERGY_BALANCE_MO_60_TESS.Prt"),
+            ("sim-2", "ENERGY_BALANCE_MO_60_TESS.Prt"),
+        ]
+        assert headers.header_index.get("QSnk417PauxEvap_kW") == [
+            ("sim-2", "ENERGY_BALANCE_MO_HP_417.Prt")
+        ]
+
 
 class TestBenchmarkHeaders:
     """Initial test have shown multi threading is slower than single thread for this problem.

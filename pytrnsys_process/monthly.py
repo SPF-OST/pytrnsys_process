@@ -32,8 +32,8 @@ def read_monthly_file(
 
     Examples
     --------
-    >>> import pytrnsys_process.input.trnsys.monthly as _monthly
-    >>> import tests.pytrnsys_process.input.trnsys.test_monthly as _test
+    >>> import pytrnsys_process.monthly as _monthly
+    >>> import tests.pytrnsys_process.test_monthly as _test
     >>> prt_file_path = _test.DATA_DIR_PATH / "BUILDING_MO.Prt"
     >>> _monthly.read_monthly_file(prt_file_path, starting_year=1990)
                  PBuiSol_kW  PBuiGains_KW  ...  PbuiVent_kW  PAcumBui_kW

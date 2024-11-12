@@ -52,9 +52,10 @@ class MonthlyBarChart(ChartBase):
     PLOT_KIND = "bar"
 
     def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
+        # TODO: deal with datetime formatting without pandas defaults  # pylint: disable=fixme
         df_for_plotting = self.df
         df_for_plotting.index = [
-            timestamp.strftime("%m-%y") for timestamp in df_for_plotting.index
+            timestamp.strftime(self.DATE_FORMAT) for timestamp in df_for_plotting.index
         ]
         self.df[columns].plot(
             kind=self.PLOT_KIND,
@@ -65,7 +66,7 @@ class MonthlyBarChart(ChartBase):
         self.configure()
         return self.fig, self.ax
 
-    def plot_without_pandas(
+    def plot_without_pandas( # pragma: no cover
         self, columns: list[str]
     ) -> Tuple[_plt.Figure | None, _plt.Axes]:
         """The matplot date formatter does not work when using df.plot func.

@@ -154,7 +154,7 @@ def _maybe_run_pylint(arguments):
 
 def _maybe_run_black(arguments):
     if arguments.shallRunAll or arguments.shallPerformStaticChecks or arguments.blackArguments is not None:
-        cmd = _create_static_checker_command("black", "-l 120")
+        cmd = _create_static_checker_command("black", "-l 79")
         additional_args = "--check" if arguments.blackArguments is None else arguments.blackArguments
 
         _print_and_run([*cmd, *additional_args.split()])

@@ -54,10 +54,7 @@ class Reader:
                 f"The time stamps of the supposedly monthly file '{monthly_file}' don't fall on the end of each month."
             )
         df = df.drop(columns=["Month", "TIME"])
-        formatted_ends_of_month = [
-            timestamp.strftime("%m-%y") for timestamp in actual_ends_of_month
-        ]
-        df["Timestamp"] = formatted_ends_of_month
+        df["Timestamp"] = actual_ends_of_month
         df = df.set_index("Timestamp")
 
         return df

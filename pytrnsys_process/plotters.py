@@ -25,22 +25,15 @@ class ChartBase:
     LEGEND_FONT_SIZE = 8
     TITLE_FONT_SIZE = 12
 
-    # TODO: discuss if we should we use a dic or a dataclass for config values
-    # pylint: disable=too-many-positional-arguments,too-many-arguments
-    def __init__(
-        self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4
-    ):
+    # TODO: discuss if we should we use a dic or a dataclass for config values # pylint: disable=fixme
+    def __init__(self, df, size=SIZE_A4):
         self.df = df
-        self.x_label = x_label
-        self.y_label = y_label
-        self.title = title
-
         self.fig, self.ax = _plt.subplots(figsize=size)
 
     def configure(self):
-        self.ax.set_xlabel(self.x_label, fontsize=self.LABEL_FONT_SIZE)
-        self.ax.set_ylabel(self.y_label, fontsize=self.LABEL_FONT_SIZE)
-        self.ax.set_title(self.title, fontsize=self.TITLE_FONT_SIZE)
+        self.ax.set_xlabel(self.X_LABEL, fontsize=self.LABEL_FONT_SIZE)
+        self.ax.set_ylabel(self.Y_LABEL, fontsize=self.LABEL_FONT_SIZE)
+        self.ax.set_title(self.TITLE, fontsize=self.TITLE_FONT_SIZE)
         _plt.tight_layout()
 
     @abstractmethod
@@ -59,6 +52,10 @@ class MonthlyBarChart(ChartBase):
     PLOT_KIND = "bar"
 
     def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
+        df_for_plotting = self.df
+        df_for_plotting.index = [
+            timestamp.strftime("%m-%y") for timestamp in df_for_plotting.index
+        ]
         self.df[columns].plot(
             kind=self.PLOT_KIND,
             stacked=True,

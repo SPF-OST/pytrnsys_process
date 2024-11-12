@@ -28,7 +28,9 @@ def main():
     arguments = _parse_arguments()
 
     test_results_dir_path = pl.Path("test-results")
-    _prepare_test_results_directory(test_results_dir_path, arguments.shallKeepResults)
+    _prepare_test_results_directory(
+        test_results_dir_path, arguments.shallKeepResults
+    )
 
     _maybe_run_mypy(arguments)
 
@@ -61,7 +63,14 @@ def _parse_arguments() -> ap.Namespace:
         dest="shallPerformStaticChecks",
     )
     parser.add_argument(
-        "-l", "--lint", help="Perform linting", type=str, default=None, const="", nargs="?", dest="lintArguments"
+        "-l",
+        "--lint",
+        help="Perform linting",
+        type=str,
+        default=None,
+        const="",
+        nargs="?",
+        dest="lintArguments",
     )
     parser.add_argument(
         "-b",
@@ -121,9 +130,14 @@ def _parse_arguments() -> ap.Namespace:
     return arguments
 
 
-def _prepare_test_results_directory(test_results_dir_path: pl.Path, shall_keep_results: bool) -> None:
+def _prepare_test_results_directory(
+    test_results_dir_path: pl.Path, shall_keep_results: bool
+) -> None:
     if test_results_dir_path.exists() and not test_results_dir_path.is_dir():
-        print("ERROR: `test-results` exists but is not a directory", file=sys.stderr)
+        print(
+            "ERROR: `test-results` exists but is not a directory",
+            file=sys.stderr,
+        )
         sys.exit(2)
 
     if not shall_keep_results and test_results_dir_path.is_dir():
@@ -138,14 +152,22 @@ def _prepare_test_results_directory(test_results_dir_path: pl.Path, shall_keep_r
 
 
 def _maybe_run_mypy(arguments):
-    if arguments.shallRunAll or arguments.shallPerformStaticChecks or arguments.mypyArguments is not None:
+    if (
+        arguments.shallRunAll
+        or arguments.shallPerformStaticChecks
+        or arguments.mypyArguments is not None
+    ):
         cmd = _create_static_checker_command("mypy", "--show-error-codes")
         additional_args = arguments.mypyArguments or ""
         _print_and_run([*cmd, *additional_args.split()])
 
 
 def _maybe_run_pylint(arguments):
-    if arguments.shallRunAll or arguments.shallPerformStaticChecks or arguments.lintArguments is not None:
+    if (
+        arguments.shallRunAll
+        or arguments.shallPerformStaticChecks
+        or arguments.lintArguments is not None
+    ):
         cmd = _create_static_checker_command("pylint")
         additional_args = arguments.lintArguments or ""
 
@@ -153,14 +175,24 @@ def _maybe_run_pylint(arguments):
 
 
 def _maybe_run_black(arguments):
-    if arguments.shallRunAll or arguments.shallPerformStaticChecks or arguments.blackArguments is not None:
+    if (
+        arguments.shallRunAll
+        or arguments.shallPerformStaticChecks
+        or arguments.blackArguments is not None
+    ):
         cmd = _create_static_checker_command("black", "-l 79")
-        additional_args = "--check" if arguments.blackArguments is None else arguments.blackArguments
+        additional_args = (
+            "--check"
+            if arguments.blackArguments is None
+            else arguments.blackArguments
+        )
 
         _print_and_run([*cmd, *additional_args.split()])
 
 
-def _create_static_checker_command(static_checker_name: str, *args: str) -> tp.Sequence[str]:
+def _create_static_checker_command(
+    static_checker_name: str, *args: str
+) -> tp.Sequence[str]:
     cmd = [
         f"{_SCRIPTS_DIR / static_checker_name}",
         *args,
@@ -171,35 +203,40 @@ def _create_static_checker_command(static_checker_name: str, *args: str) -> tp.S
 
 def _maybe_create_diagrams(arguments):
     if arguments.shallRunAll or arguments.diagramsFormat:
-        diagrams_format = arguments.diagramsFormat if arguments.diagramsFormat else "pdf"
-        cmd = (
-            f"{_SCRIPTS_DIR / 'pyreverse'} -k -o {diagrams_format} -p pytrnsys_process -d test-results pytrnsys_process"
+        diagrams_format = (
+            arguments.diagramsFormat if arguments.diagramsFormat else "pdf"
         )
+        cmd = f"{_SCRIPTS_DIR / 'pyreverse'} -k -o {diagrams_format} -p pytrnsys_process -d test-results pytrnsys_process"
         _print_and_run(cmd.split())
 
 
 def _maybe_run_pytest(arguments, test_results_dir_path):
     was_called_without_arguments = (
-            not arguments.shallPerformStaticChecks
-            and arguments.mypyArguments is None
-            and arguments.lintArguments is None
-            and arguments.blackArguments is None
-            and arguments.diagramsFormat is None
-            and not arguments.shallCreateDocumentation
+        not arguments.shallPerformStaticChecks
+        and arguments.mypyArguments is None
+        and arguments.lintArguments is None
+        and arguments.blackArguments is None
+        and arguments.diagramsFormat is None
+        and not arguments.shallCreateDocumentation
     )
-    if arguments.shallRunAll or arguments.pytestMarkersExpression is not None or was_called_without_arguments:
+    if (
+        arguments.shallRunAll
+        or arguments.pytestMarkersExpression is not None
+        or was_called_without_arguments
+    ):
         _run_unit_tests_with_pytest(arguments, test_results_dir_path)
         _run_doctests_with_pytest()
 
 
 def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
-    marker_expressions = _get_marker_expressions(arguments.pytestMarkersExpression)
+    marker_expressions = _get_marker_expressions(
+        arguments.pytestMarkersExpression
+    )
     additional_args = ["-m", marker_expressions]
     cmd = [
         _SCRIPTS_DIR / "pytest",
         "-v",
-        "--benchmark-skip"
-        "--cov=pytrnsys_process",
+        "--benchmark-skip" "--cov=pytrnsys_process",
         f"--cov-report=html:{test_results_dir_path / 'coverage-html'}",
         f"--cov-report=lcov:{test_results_dir_path / 'coverage.lcov'}",
         "--cov-report=term",

@@ -8,7 +8,9 @@ import pandas as _pd
 _N_ROWS_USED = 12
 
 
-def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd.DataFrame:
+def read_monthly_file(
+    prt_file_path: _pl.Path, starting_year: int = 2001
+) -> _pd.DataFrame:
     """Load monthly data written by Type 46 as a `pandas` `DataFrame`.
 
     Parameters
@@ -54,14 +56,18 @@ def read_monthly_file(prt_file_path: _pl.Path, starting_year: int = 2001) -> _pd
     Notice how the time stamps are given **at the end of a month**.
 
     """
-    df = _pd.read_csv(prt_file_path, header=1, delimiter=r"\s+", nrows=_N_ROWS_USED)
+    df = _pd.read_csv(
+        prt_file_path, header=1, delimiter=r"\s+", nrows=_N_ROWS_USED
+    )
     df = df.rename(columns=lambda x: x.strip())
 
     hours = _dt.timedelta(hours=1) * df["Time"]  # type: ignore
     start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
     actual_ends_of_month = start_of_year + hours
 
-    expected_ends_of_months = _pd.date_range(start_of_year, periods=12, freq="ME") + _dt.timedelta(days=1)
+    expected_ends_of_months = _pd.date_range(
+        start_of_year, periods=12, freq="ME"
+    ) + _dt.timedelta(days=1)
 
     if (actual_ends_of_month != expected_ends_of_months).any():
         raise ValueError(

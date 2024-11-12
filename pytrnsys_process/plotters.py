@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import Tuple
 
+import matplotlib.dates as _mpd
 import matplotlib.pyplot as _plt
 import pandas as _pd
 
@@ -24,7 +25,6 @@ class ChartBase:
     LEGEND_FONT_SIZE = 8
     TITLE_FONT_SIZE = 12
 
-
     def __init__(
         self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4
     ):
@@ -39,8 +39,6 @@ class ChartBase:
         self.ax.set_xlabel(self.x_label, fontsize=self.LABEL_FONT_SIZE)
         self.ax.set_ylabel(self.y_label, fontsize=self.LABEL_FONT_SIZE)
         self.ax.set_title(self.title, fontsize=self.TITLE_FONT_SIZE)
-        #TODO This line does not seem to work as excpected, figure out why # pylint: disable=fixme
-        # self.ax.xaxis.set_major_formatter(_mpd.DateFormatter(self.DATE_FORMAT))
         _plt.tight_layout()
 
     @abstractmethod
@@ -68,7 +66,20 @@ class MonthlyBarChart(ChartBase):
         self.configure()
         return self.fig, self.ax
 
-    #TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
+    def plotWithoutPandas(
+        self, columns: list[str]
+    ) -> Tuple[_plt.Figure | None, _plt.Axes]:
+        """The matplot date formatter does not work when using df.plot func.
+        This is an example to plot a stacked bar chart without df.plot"""
+        bottom = None
+        for col in columns:
+            self.ax.bar(self.df.index, self.df[col], label=col, bottom=bottom)
+            bottom = self.df[col] if bottom is None else bottom + self.df[col]
+        self.ax.xaxis.set_major_formatter(_mpd.DateFormatter(self.DATE_FORMAT))
+        self.configure()
+        return self.fig, self.ax
+
+    # TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
     @staticmethod
     def create_energy_balance_monthly(
         df: _pd.DataFrame,
@@ -83,7 +94,9 @@ class HourlyCurvePlot(ChartBase):
 
     PLOT_KIND = "line"
 
-    def plot(self, columns: list[str], use_legend: bool = True) -> Tuple[_plt.Figure | None, _plt.Axes]:
+    def plot(
+        self, columns: list[str], use_legend: bool = True
+    ) -> Tuple[_plt.Figure | None, _plt.Axes]:
         self.df[columns].plot(
             kind=self.PLOT_KIND,
             colormap=self.COLOR_MAP,

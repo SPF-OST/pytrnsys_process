@@ -15,12 +15,18 @@ if _REPO_ROOT_DIR_PATH_STRING not in sys.path:
 
 project = "pytrnsys_process"
 copyright = "2024, SPF Institute of Solar Technology, OST University of Applied Sciences"
-author = "SPF Institute of Solar Technology, OST University of Applied Sciences"
+author = (
+    "SPF Institute of Solar Technology, OST University of Applied Sciences"
+)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["sphinx.ext.napoleon", "sphinx.ext.autodoc", "sphinx.ext.doctest"]
+extensions = [
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+]
 
 doctest_test_doctest_blocks = "yes"
 

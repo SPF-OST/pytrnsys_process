@@ -58,18 +58,14 @@ class TestPlotter:
 
     def test_create_curve_plot_for_hourly(self):
         result_data = const.DATA_FOLDER / "hourly/Src_hr.Prt"
-        expected_fig = (
-            const.DATA_FOLDER / "plots/curve-plot/expected.png"
-        )
-        actual_fig = (const.DATA_FOLDER / "plots/curve-plot/actual.png")
+        expected_fig = const.DATA_FOLDER / "plots/curve-plot/expected.png"
+        actual_fig = const.DATA_FOLDER / "plots/curve-plot/actual.png"
         df = Reader.read_hourly(result_data)
         columns = ["QSrc1TIn", "QSrc1TOut"]
-
 
         curve_plot = HourlyCurvePlot(df)
         fig, ax = curve_plot.plot(columns)
         fig.savefig(actual_fig)
-
 
         assert (
             _mpltc.compare_images(
@@ -77,7 +73,6 @@ class TestPlotter:
             )
             is None
         )
-
 
     # def test_create_energy_balance_monthly(self):
     #     manual = False

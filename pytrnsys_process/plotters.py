@@ -26,7 +26,7 @@ class ChartBase:
     TITLE_FONT_SIZE = 12
 
     # TODO: discuss if we should we use a dic or a dataclass for config values
-    # pylint: too-many-positional-arguments
+    # pylint: disable=too-many-positional-arguments,too-many-arguments
     def __init__(
         self, df, x_label=X_LABEL, y_label=Y_LABEL, title=TITLE, size=SIZE_A4
     ):

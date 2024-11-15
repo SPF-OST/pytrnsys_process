@@ -23,7 +23,7 @@ class TestHeaders:
     def test_init_headers_multi_thread(self):
         headers = Headers(self.PATH_TO_RESULTS)
 
-        headers.init_headers_multi_thread()
+        headers.init_headers_multi_process()
 
         assert headers.header_index.get("QSnk60P") == [
             ("sim-1", "ENERGY_BALANCE_MO_60_TESS.Prt"),
@@ -46,8 +46,8 @@ class TestBenchmarkHeaders:
 
         benchmark(init_headers)
 
-    def test_init_headers_benchmark_multi_thread(self, benchmark):
+    def test_init_headers_benchmark_multi_process(self, benchmark):
         def init_headers():
-            Headers(self.PATH_TO_RESULTS).init_headers_multi_thread()
+            Headers(self.PATH_TO_RESULTS).init_headers_multi_process()
 
         benchmark(init_headers)

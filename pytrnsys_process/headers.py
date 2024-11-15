@@ -1,9 +1,19 @@
 import pathlib as _pl
 import typing as _tp
+from abc import ABC
 from collections import defaultdict as _defaultdict
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 from pytrnsys_process.readers import HeaderReader
+
+
+def _process_sim_file(sim_file):
+    try:
+        headers = HeaderReader().read(sim_file)
+        return headers, sim_file.parents[1], sim_file
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        print(f"Could not read {sim_file}: {e}")
+        return None
 
 
 class Headers:
@@ -20,27 +30,24 @@ class Headers:
         sim_files = self._get_files(self._get_sim_folders())
         for sim_file in sim_files:
             try:
-                headers = HeaderReader.read(sim_file)
+                headers = HeaderReader().read(sim_file)
                 self._index_headers(headers, sim_file.parents[1], sim_file)
             except Exception as e:  # pylint: disable=broad-exception-caught
 
                 print(f"Could not read {sim_file}: {e}")
 
-    def init_headers_multi_thread(self):
+    def init_headers_multi_process(self):
         sim_files = self._get_files(self._get_sim_folders())
 
-        def process_sim_file(sim_file):
-            try:
-                headers = HeaderReader.read(sim_file)
-                self._index_headers(headers, sim_file.parents[1], sim_file)
-            except Exception as e:  # pylint: disable=broad-exception-caught
-                print(f"Could not read {sim_file}: {e}")
+        with ProcessPoolExecutor() as executor:
+            results = executor.map(_process_sim_file, sim_files)
+            for result in results:
+                if result:
+                    headers, sim_folder, sim_file = result
+                    self._index_headers(headers, sim_folder, sim_file)
 
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            executor.map(process_sim_file, sim_files)
-
-    #TODO: Discuss if something like this is needed # pylint: disable=fixme
-    def search_header(self, header_name: str):# pragma: no cover
+    # TODO: Discuss if something like this is needed # pylint: disable=fixme
+    def search_header(self, header_name: str):  # pragma: no cover
         if header_name in self.header_index:
             print(f"Header '{header_name}' found in:")
             for folder, file in self.header_index[header_name]:
@@ -69,6 +76,29 @@ class Headers:
             ):
                 sim_files.append(sim_file)
         return sim_files
+
+
+class HeaderValidationMixin(ABC):
+    def validate_headers(
+            self, headers: Headers, columns: list[str]
+    ) -> tuple[bool, list[str]]:
+        """Validates that all columns exist in the headers index.
+
+        Args:
+            headers: Headers instance containing the index of available headers
+            columns: List of column names to validate
+
+        Returns:
+            Tuple of (is_valid, missing_columns)
+            - is_valid: True if all columns exist
+            - missing_columns: List of column names that are missing
+        """
+        missing_columns = []
+        for column in columns:
+            if column not in headers.header_index:
+                missing_columns.append(column)
+
+        return len(missing_columns) == 0, missing_columns
 
 
 class HeadersCsv(Headers):

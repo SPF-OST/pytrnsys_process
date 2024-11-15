@@ -7,6 +7,7 @@ import pandas as _pd
 
 @dataclass
 class Reader:
+
     SKIPFOOTER: int = 24
     HEADER: int = 1
     DELIMITER: str = r"\s+"
@@ -22,18 +23,18 @@ class Reader:
             delimiter=self.DELIMITER,
         )
         df.columns.values[1] = df.columns[1].lower()
-
         # Extract timestamp creation to a separate method
-        df["Timestamp"] = self._create_timestamps(df["time"], starting_year)
+        df["Timestamp"] = self._create_timestamps(df["time"].astype(float), starting_year)
         return df.set_index("Timestamp")
 
     def _create_timestamps(
             self, time_series: _pd.Series, starting_year: int
     ) -> _pd.Series:
         """Create timestamps from time series and starting year."""
-        hours = _dt.timedelta(hours=1) * time_series
+        # Convert to list of timedelta
+        hours = [_dt.timedelta(hours=float(h)) for h in time_series]
         start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
-        return start_of_year + hours
+        return _pd.Series([start_of_year + h for h in hours])
 
     def read_hourly(
             self, hourly_file: _pl.Path, starting_year: int = 1990
@@ -55,9 +56,7 @@ class Reader:
         return df.drop(columns=["Period", "time"])
 
     def read_monthly(
-            self,
-        monthly_file: _pl.Path,
-        starting_year: int = 1990,
+            self, monthly_file: _pl.Path, starting_year: int = 1990,
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 
@@ -79,18 +78,20 @@ class Reader:
 
     def _validate_hourly(self, df: _pd.DataFrame) -> None:
         """Validate that timestamps are exactly on the hour."""
-        if not ((df.index.minute == 0) & (df.index.second == 0)).all():
+        index = _pd.to_datetime(df.index)
+        if not ((index.minute == 0) & (index.second == 0)).all():
             raise ValueError(
                 "Timestamps must be exactly on the hour (minutes and seconds must be 0)"
             )
 
     def _validate_monthly(self, df: _pd.DataFrame) -> None:
         """Validate that timestamps are at the start of each month at midnight."""
+        index = _pd.to_datetime(df.index)
         if not (
-                df.index.is_month_start
-                & (df.index.hour == 0)
-                & (df.index.minute == 0)
-                & (df.index.second == 0)
+                index.is_month_start
+                & (index.hour == 0)
+                & (index.minute == 0)
+                & (index.second == 0)
         ).all():
             raise ValueError(
                 "Timestamps must be at the start of each month at midnight"

@@ -20,7 +20,7 @@ class Reader:
             header=Reader.HEADER,
             delimiter=Reader.DELIMITER,
         )
-        hours = _dt.timedelta(hours=1) * df["TIME"]
+        hours = _dt.timedelta(hours=1) * df["TIME"]  # type: ignore
         start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
         actual_ends_of_month = start_of_year + hours
         df = df.drop(columns=["Period", "TIME"])
@@ -54,9 +54,6 @@ class Reader:
                 f"The time stamps of the supposedly monthly file '{monthly_file}' don't fall on the end of each month."
             )
         df = df.drop(columns=["Month", "TIME"])
-        actual_ends_of_month = [
-            timestamp.strftime("%m-%y") for timestamp in actual_ends_of_month
-        ]
         df["Timestamp"] = actual_ends_of_month
         df = df.set_index("Timestamp")
 

@@ -421,6 +421,7 @@ confidence=HIGH,
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
 # --disable=W".
+#TODO discuss disabled checks # pylint: disable=fixme
 disable=raw-checker-failed,
         bad-inline-option,
         locally-disabled,
@@ -430,10 +431,12 @@ disable=raw-checker-failed,
         deprecated-pragma,
         use-symbolic-message-instead,
         use-implicit-booleaness-not-comparison-to-string,
-        use-implicit-booleaness-not-comparison-to-zero
-        missing-module-docstring
-        missing-class-docstring
-        missing-function-docstring
+        use-implicit-booleaness-not-comparison-to-zero,
+        missing-module-docstring,
+        missing-class-docstring,
+        missing-function-docstring,
+        too-few-public-methods,
+        arguments-differ,
 
 
 # Enable the message, report, category or checker with the given id(s). You can

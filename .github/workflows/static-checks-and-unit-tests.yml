@@ -2,7 +2,7 @@ name: Static checks and unit tests
 
 on:
   push:
-    branches: [ main ]
+    branches: '*'
   pull_request:
     branches: [ main ]
 
@@ -15,13 +15,13 @@ jobs:
         python-version: [3.12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Update APT cache
       run: sudo apt-get update
     - name: Install graphviz for class and package diagrams
       run: sudo apt-get install graphviz
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -41,7 +41,7 @@ jobs:
     - name: Build documentation
       run: python dev-tools/dev_tools.py --doc
     - name: Upload test results and coverage reports
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: pytrnsys-process-build-artifacts-linux
         path: |
@@ -54,7 +54,7 @@ jobs:
       - self-hosted
       - spf-windows-gh-runners
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Remove old venv
       run: |
         if (Test-Path -LiteralPath venv) {
@@ -76,7 +76,7 @@ jobs:
     - name: Build documentation
       run: venv\Scripts\python dev-tools\dev_tools.py --doc
     - name: Upload test results and coverage reports
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: pytrnsys-process-build-artifacts-windows
         path: |

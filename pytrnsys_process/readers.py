@@ -7,7 +7,7 @@ import pandas as _pd
 
 @dataclass
 class Reader:
-
+    # pylint: disable=invalid-name
     SKIPFOOTER: int = 24
     HEADER: int = 1
     DELIMITER: str = r"\s+"
@@ -24,7 +24,9 @@ class Reader:
         )
         df.columns.values[1] = df.columns[1].lower()
         # Extract timestamp creation to a separate method
-        df["Timestamp"] = self._create_timestamps(df["time"].astype(float), starting_year)
+        df["Timestamp"] = self._create_timestamps(
+            df["time"].astype(float), starting_year
+        )
         return df.set_index("Timestamp")
 
     def _create_timestamps(
@@ -56,7 +58,9 @@ class Reader:
         return df.drop(columns=["Period", "time"])
 
     def read_monthly(
-            self, monthly_file: _pl.Path, starting_year: int = 1990,
+            self,
+            monthly_file: _pl.Path,
+            starting_year: int = 1990,
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 

@@ -55,6 +55,7 @@ class ChartBase(h.HeaderValidationMixin):
         Raises:
             ValueError: If any columns are missing from the headers index
         """
+        # TODO: Might live somewhere else in the future # pylint: disable=fixme
         is_valid, missing = self.validate_headers(headers, columns)
         if not is_valid:
             missing_details = []
@@ -192,11 +193,11 @@ class LinePlot(ChartBase):
         fig, ax = _plt.subplots(figsize=size)
         ax = self.configure(ax)
         plot_kwargs = {
-            'kind': self.PLOT_KIND,
-            'colormap': self.COLOR_MAP,
-            'legend': use_legend,
-            'ax': ax,
-            **kwargs
+            "kind": self.PLOT_KIND,
+            "colormap": self.COLOR_MAP,
+            "legend": use_legend,
+            "ax": ax,
+            **kwargs,
         }
         df[columns].plot(**plot_kwargs)
         return fig

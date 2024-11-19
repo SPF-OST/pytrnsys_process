@@ -36,7 +36,10 @@ class TestHeaders:
 
 class TestBenchmarkHeaders:
     """Initial test have shown multi threading is slower than single thread for this problem.
-    Rerunning these tests requires a more comprehensive data set"""
+    Rerunning these tests requires a more comprehensive data set
+
+    The ProcessPoolExecutor shows performance gains for this data set
+    """
 
     PATH_TO_RESULTS = _pl.Path(__file__).parent / "data/results"
 

@@ -5,38 +5,38 @@ from dataclasses import dataclass
 import pandas as _pd
 
 
+# TODO: Adjust architecture to separate reading and conversion.  # pylint: disable=fixme
+# TODO: Base reader with PRT and CSV as children.  # pylint: disable=fixme
+# TODO: Describe what to do when file name does not match any known patterns.  # pylint: disable=fixme
+# TODO: Convert single file according to keyword suggestion, and/or automatically?  # pylint: disable=fixme
+# TODO: timestep from first two rows -> if 1 hour, use hourly, otherwise convert to timestep  # pylint: disable=fixme
+# TODO: Message to user about automatic conversion when file name does not match any known patterns.  # pylint: disable=fixme
+
+
 @dataclass
-class Reader:
+class ReaderBase:
+    # ===================================
     # pylint: disable=invalid-name
     SKIPFOOTER: int = 24
     HEADER: int = 1
     DELIMITER: str = r"\s+"
 
-    def _read_common(
-            self, file_path: _pl.Path, starting_year: int = 1990
-    ) -> _pd.DataFrame:
-        """Common reading logic for both hourly and monthly data."""
+    # Pylint complains about these CONSTANTS, because pylint differs with PEP8 on this topic.
+    # https://stackoverflow.com/questions/25184097/pylint-invalid-constant-name/51975811#51975811
+    # ===================================
+
+    def read(self, file_path: _pl.Path) -> _pd.DataFrame:
+        """Common read function for all readers"""
         df = _pd.read_csv(
             file_path,
             skipfooter=self.SKIPFOOTER,
             header=self.HEADER,
             delimiter=self.DELIMITER,
         )
-        df.columns.values[1] = df.columns[1].lower()
-        # Extract timestamp creation to a separate method
-        df["Timestamp"] = self._create_timestamps(
-            df["time"].astype(float), starting_year
-        )
-        return df.set_index("Timestamp")
+        return df
 
-    def _create_timestamps(
-            self, time_series: _pd.Series, starting_year: int
-    ) -> _pd.Series:
-        """Create timestamps from time series and starting year."""
-        # Convert to list of timedelta
-        hours = [_dt.timedelta(hours=float(h)) for h in time_series]
-        start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
-        return _pd.Series([start_of_year + h for h in hours])
+
+class PrtReader(ReaderBase):
 
     def read_hourly(
             self, hourly_file: _pl.Path, starting_year: int = 1990
@@ -53,7 +53,7 @@ class Reader:
         Raises:
             ValueError: If the timestamps are not exactly on the hour (minutes or seconds != 0)
         """
-        df = self._read_common(hourly_file, starting_year)
+        df = self._process_dataframe(self.read(hourly_file), starting_year)
         self._validate_hourly(df)
         return df.drop(columns=["Period", "time"])
 
@@ -75,10 +75,29 @@ class Reader:
             ValueError: If the timestamps are not at the start of each month at midnight
                       (not month start or hours/minutes/seconds != 0)
         """
-        df = self._read_common(monthly_file, starting_year)
+        df = self._process_dataframe(self.read(monthly_file), starting_year)
         df = df.drop(columns=["Month", "time"])
         self._validate_monthly(df)
         return df
+
+    def _process_dataframe(
+            self, df: _pd.DataFrame, starting_year: int
+    ) -> _pd.DataFrame:
+        """Process the dataframe by formatting column names and creating timestamps."""
+        df.columns.values[1] = df.columns[1].lower()
+        df["Timestamp"] = self._create_timestamps(
+            df["time"].astype(float), starting_year
+        )
+
+        return df.set_index("Timestamp")
+
+    def _create_timestamps(
+            self, time_series: _pd.Series, starting_year: int
+    ) -> _pd.Series:
+        """Create timestamps from time series and starting year."""
+        hours = [_dt.timedelta(hours=float(h)) for h in time_series]
+        start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
+        return _pd.Series([start_of_year + h for h in hours])
 
     def _validate_hourly(self, df: _pd.DataFrame) -> None:
         """Validate that timestamps are exactly on the hour."""
@@ -103,11 +122,11 @@ class Reader:
 
 
 @dataclass
-class HeaderReader(Reader):
+class HeaderReader(ReaderBase):
     NUMBER_OF_ROWS_TO_SKIP = 1
     NUMBER_OF_ROWS = 0
 
-    def read(self, sim_file: _pl.Path) -> list[str]:
+    def read_headers(self, sim_file: _pl.Path) -> list[str]:
         df = _pd.read_csv(
             sim_file,
             nrows=self.NUMBER_OF_ROWS,
@@ -115,3 +134,10 @@ class HeaderReader(Reader):
             delimiter=self.DELIMITER,
         )
         return df.columns.tolist()
+
+
+@dataclass
+class CsvReader(ReaderBase):
+    SKIPFOOTER: int = 0
+    HEADER: int = 0
+    DELIMITER: str = ","

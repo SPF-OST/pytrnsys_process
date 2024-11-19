@@ -9,7 +9,7 @@ from pytrnsys_process.readers import HeaderReader
 
 def _process_sim_file(sim_file):
     try:
-        headers = HeaderReader().read(sim_file)
+        headers = HeaderReader().read_headers(sim_file)
         return headers, sim_file.parents[1], sim_file
     except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"Could not read {sim_file}: {e}")
@@ -30,7 +30,7 @@ class Headers:
         sim_files = self._get_files(self._get_sim_folders())
         for sim_file in sim_files:
             try:
-                headers = HeaderReader().read(sim_file)
+                headers = HeaderReader().read_headers(sim_file)
                 self._index_headers(headers, sim_file.parents[1], sim_file)
             except Exception as e:  # pylint: disable=broad-exception-caught
 

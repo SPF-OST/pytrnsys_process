@@ -40,6 +40,11 @@ jobs:
       run: python dev-tools/dev_tools.py --unit "not manual and not windows and not tool" --keep-results
     - name: Build documentation
       run: python dev-tools/dev_tools.py --doc --keep-results
+    - name: Post coverage report to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: test-results/coverage.lcov
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v4
       with:
@@ -75,6 +80,11 @@ jobs:
       run: venv\Scripts\python dev-tools\dev_tools.py --unit "not manual and not linux and not tool" --keep-results
     - name: Build documentation
       run: venv\Scripts\python dev-tools\dev_tools.py --doc --keep-results
+    - name: Post coverage report to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: test-results/coverage.lcov
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v4
       with:

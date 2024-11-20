@@ -39,7 +39,7 @@ jobs:
     - name: Test with pytest
       run: python dev-tools/dev_tools.py --unit "not manual and not windows and not tool" --keep-results
     - name: Build documentation
-      run: python dev-tools/dev_tools.py --doc
+      run: python dev-tools/dev_tools.py --doc --keep-results
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v4
       with:
@@ -74,7 +74,7 @@ jobs:
     - name: Test with pytest
       run: venv\Scripts\python dev-tools\dev_tools.py --unit "not manual and not linux and not tool" --keep-results
     - name: Build documentation
-      run: venv\Scripts\python dev-tools\dev_tools.py --doc
+      run: venv\Scripts\python dev-tools\dev_tools.py --doc --keep-results
     - name: Upload test results and coverage reports
       uses: actions/upload-artifact@v4
       with:

@@ -45,7 +45,7 @@ class TestFileContentDetection:
     def monthly_file(self):
         file_path = (
                 const.DATA_FOLDER
-                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.prt"
+                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return file_path
 

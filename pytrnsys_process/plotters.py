@@ -36,8 +36,16 @@ class ChartBase(h.HeaderValidationMixin):
         _plt.tight_layout()
         return ax
 
-    # TODO: Test validation # pylint: disable=fixme
     def plot(
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            **kwargs,
+    ) -> _plt.Figure:
+        return self._do_plot(df, columns, **kwargs)
+
+    # TODO: Test validation # pylint: disable=fixme
+    def plot_with_column_validation(
             self,
             df: _pd.DataFrame,
             columns: list[str],
@@ -110,16 +118,16 @@ class StackedBarChart(ChartBase):
         """The matplot date formatter does not work when using df.plot func.
         This is an example to plot a stacked bar chart without df.plot"""
         fig, ax = _plt.subplots(figsize=size)
-        x = _np.arange(len(df.index))
+        x = df.index
         bottom = _np.zeros(len(df.index))
         for col in columns:
             ax.bar(x, df[col], label=col, bottom=bottom, width=0.35)
             bottom += df[col]
         if use_legend:
             ax.legend()
-        ax.set_xticklabels(
-            _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
-        )
+        # ax.set_xticklabels(
+        #     _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
+        # )
         self.configure(ax)
         return fig
 

@@ -79,7 +79,7 @@ class TestPlotters:
 
         # Execute
         monthly_bar_chart = plotters.StackedBarChart()
-        fig = monthly_bar_chart.plot(
+        fig = monthly_bar_chart.plot_with_column_validation(
             monthly_data, columns, headers=mock_headers
         )
         fig.savefig(actual_file)
@@ -95,7 +95,9 @@ class TestPlotters:
 
         # Execute
         line_plot = plotters.LinePlot()
-        fig = line_plot.plot(hourly_data, columns, headers=mock_headers)
+        fig = line_plot.plot_with_column_validation(
+            hourly_data, columns, headers=mock_headers
+        )
         fig.savefig(actual_fig)
 
         # Assert
@@ -112,7 +114,9 @@ class TestPlotters:
 
         # Execute
         bar_chart = plotters.BarChart()
-        fig = bar_chart.plot(monthly_data, columns, headers=mock_headers)
+        fig = bar_chart.plot_with_column_validation(
+            monthly_data, columns, headers=mock_headers
+        )
         fig.savefig(actual_file)
 
         # Assert

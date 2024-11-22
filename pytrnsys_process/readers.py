@@ -32,6 +32,7 @@ class ReaderBase:
             skipfooter=self.SKIPFOOTER,
             header=self.HEADER,
             delimiter=self.DELIMITER,
+            engine="python",
         )
         return df
 
@@ -79,6 +80,10 @@ class PrtReader(ReaderBase):
         df = df.drop(columns=["Month", "time"])
         self._validate_monthly(df)
         return df
+
+    def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
+        df = self._process_dataframe(self.read(step_file), starting_year)
+        return df.drop(columns=["Period", "time"])
 
     def _process_dataframe(
             self, df: _pd.DataFrame, starting_year: int
@@ -141,3 +146,7 @@ class CsvReader(ReaderBase):
     SKIPFOOTER: int = 0
     HEADER: int = 0
     DELIMITER: str = ","
+
+    def read_csv(self, csv_file: _pl.Path) -> _pd.DataFrame:
+        df = self.read(csv_file)
+        return df.set_index("Timestamp")

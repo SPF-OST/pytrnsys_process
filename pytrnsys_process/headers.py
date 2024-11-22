@@ -1,9 +1,9 @@
 import pathlib as _pl
-import typing as _tp
 from abc import ABC
 from collections import defaultdict as _defaultdict
 from concurrent.futures import ProcessPoolExecutor
 
+from pytrnsys_process import utils
 from pytrnsys_process.readers import HeaderReader
 
 
@@ -19,15 +19,17 @@ def _process_sim_file(sim_file):
 class Headers:
 
     RESULTS_FOLDER_NAME = "temp"
-
-    header_index: _defaultdict[_tp.Any, list]
+    # TODO adjust type # pylint: disable=fixme
+    header_index: _defaultdict[str, list]
 
     def __init__(self, path_to_results: _pl.Path):
         self.path_to_results = path_to_results
         self.header_index = _defaultdict(list)
 
     def init_headers(self):
-        sim_files = self._get_files(self._get_sim_folders())
+        sim_files = utils.get_files(
+            utils.get_sim_folders(self.path_to_results)
+        )
         for sim_file in sim_files:
             try:
                 headers = HeaderReader().read_headers(sim_file)
@@ -37,7 +39,9 @@ class Headers:
                 print(f"Could not read {sim_file}: {e}")
 
     def init_headers_multi_process(self):
-        sim_files = self._get_files(self._get_sim_folders())
+        sim_files = utils.get_files(
+            utils.get_sim_folders(self.path_to_results)
+        )
 
         with ProcessPoolExecutor() as executor:
             results = executor.map(_process_sim_file, sim_files)
@@ -60,22 +64,6 @@ class Headers:
     ):
         for header in headers:
             self.header_index[header].append((sim_folder.name, sim_file.name))
-
-    def _get_sim_folders(self) -> list[_pl.Path]:
-        sim_folders = []
-        for item in self.path_to_results.glob("*"):
-            if item.is_dir():
-                sim_folders.append(item)
-        return sim_folders
-
-    def _get_files(self, sim_folders: list[_pl.Path]) -> list[_pl.Path]:
-        sim_files = []
-        for sim_folder in sim_folders:
-            for sim_file in (sim_folder / self.RESULTS_FOLDER_NAME).glob(
-                "**/*"
-            ):
-                sim_files.append(sim_file)
-        return sim_files
 
 
 class HeaderValidationMixin(ABC):

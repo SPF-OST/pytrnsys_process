@@ -1,30 +1,19 @@
 import datetime as _dt
 import pathlib as _pl
-from dataclasses import dataclass
-from enum import Enum
 
 import pandas as _pd
 
+from pytrnsys_process import file_matcher as fm
 from pytrnsys_process import readers
 from pytrnsys_process.logger import logger
-
-
-@dataclass
-class FilePattern:
-    patterns: list[str]
-    prefix: str
-
-
-class FileType(Enum):
-    MONTHLY = FilePattern(patterns=["_mo_", "_mo", ".mo"], prefix="mo_")
-    HOURLY = FilePattern(patterns=["_hr_", "_hr", ".hr"], prefix="hr_")
-    TIMESTEP = FilePattern(patterns=["_step"], prefix="timestamp_")
 
 
 class CsvConverter:
 
     @staticmethod
-    def rename_file_with_prefix(file_path: _pl.Path, prefix: FileType) -> None:
+    def rename_file_with_prefix(
+            file_path: _pl.Path, prefix: fm.FileType
+    ) -> None:
         """Rename a file with a given prefix.
 
         Args:
@@ -68,32 +57,26 @@ class CsvConverter:
             if not input_file.is_file():
                 continue
 
-            if self._has_pattern(
-                    input_file.name, FileType.MONTHLY.value.patterns
-            ):
+            if fm.has_pattern(input_file.name, fm.FileType.MONTHLY):
                 df = readers.PrtReader().read_monthly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    FileType.MONTHLY.value.patterns,
-                    FileType.MONTHLY.value.prefix,
+                    fm.FileType.MONTHLY.value.patterns,
+                    fm.FileType.MONTHLY.value.prefix,
                 )
-            elif self._has_pattern(
-                    input_file.name, FileType.HOURLY.value.patterns
-            ):
+            elif fm.has_pattern(input_file.name, fm.FileType.HOURLY):
                 df = readers.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    FileType.HOURLY.value.patterns,
-                    FileType.HOURLY.value.prefix,
+                    fm.FileType.HOURLY.value.patterns,
+                    fm.FileType.HOURLY.value.prefix,
                 )
-            elif self._has_pattern(
-                    input_file.name, FileType.TIMESTEP.value.patterns
-            ):
+            elif fm.has_pattern(input_file.name, fm.FileType.TIMESTEP):
                 df = readers.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    FileType.TIMESTEP.value.patterns,
-                    FileType.TIMESTEP.value.prefix,
+                    fm.FileType.TIMESTEP.value.patterns,
+                    fm.FileType.TIMESTEP.value.prefix,
                 )
             else:
                 logger.warning(
@@ -142,9 +125,3 @@ class CsvConverter:
         for pattern in patterns:
             processed_name = processed_name.replace(pattern, "")
         return f"{prefix}{processed_name}"
-
-    @staticmethod
-    def _has_pattern(filename: str, patterns: list[str]) -> bool:
-        """Check if filename matches any of the given patterns."""
-        filename = filename.lower()
-        return any(pattern in filename for pattern in patterns)

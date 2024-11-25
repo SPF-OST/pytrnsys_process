@@ -37,20 +37,20 @@ class ChartBase(h.HeaderValidationMixin):
         return ax
 
     def plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            **kwargs,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        **kwargs,
     ) -> _plt.Figure:
         return self._do_plot(df, columns, **kwargs)
 
     # TODO: Test validation # pylint: disable=fixme
     def plot_with_column_validation(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            headers: h.Headers,
-            **kwargs,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        headers: h.Headers,
+        **kwargs,
     ) -> _plt.Figure:
         """Base plot method with header validation.
 
@@ -78,12 +78,12 @@ class ChartBase(h.HeaderValidationMixin):
 
     @abstractmethod
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = SIZE_A4,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = SIZE_A4,
+        **kwargs: _tp.Any,
     ) -> _plt.Figure:
         """Implement actual plotting logic in subclasses"""
 
@@ -108,12 +108,12 @@ class StackedBarChart(ChartBase):
 
     # TODO: Add colormap support # pylint: disable=fixme
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = ChartBase.SIZE_A4,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = ChartBase.SIZE_A4,
+        **kwargs: _tp.Any,
     ) -> _plt.Figure:
         """The matplot date formatter does not work when using df.plot func.
         This is an example to plot a stacked bar chart without df.plot"""
@@ -145,12 +145,12 @@ class StackedBarChart(ChartBase):
 class BarChart(ChartBase):
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = ChartBase.SIZE_A4,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = ChartBase.SIZE_A4,
+        **kwargs: _tp.Any,
     ) -> _plt.Figure:
         """Creates a bar chart with multiple columns displayed as grouped bars.
 
@@ -191,12 +191,12 @@ class LinePlot(ChartBase):
     PLOT_KIND = "line"
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = ChartBase.SIZE_A4,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = ChartBase.SIZE_A4,
+        **kwargs: _tp.Any,
     ) -> _plt.Figure:
         fig, ax = _plt.subplots(figsize=size)
         ax = self.configure(ax)
@@ -209,3 +209,38 @@ class LinePlot(ChartBase):
         }
         df[columns].plot(**plot_kwargs)
         return fig
+
+
+class Histogram(ChartBase):
+    def _do_plot(
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = ChartBase.SIZE_A4,
+        **kwargs: _tp.Any,
+    ) -> _plt.Figure:
+        fig, ax = _plt.subplots(figsize=size)
+        ax = self.configure(ax)
+        plot_kwargs = {
+            "kind": "hist",
+            "colormap": self.COLOR_MAP,
+            "legend": use_legend,
+            "ax": ax,
+            **kwargs,
+        }
+        df[columns].plot(**plot_kwargs)
+        return fig
+
+class ScatterPlot(ChartBase):
+    def _do_plot(
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = ChartBase.SIZE_A4,
+        **kwargs: _tp.Any,
+    ) -> _plt.Figure:
+        fig, ax = _plt.subplots(figsize)
+        ax = self.configure
+        pass

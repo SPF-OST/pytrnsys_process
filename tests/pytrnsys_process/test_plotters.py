@@ -121,3 +121,18 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_file, expected_file)
+    
+    def test_create_histogram_for_hourly(self, mock_headers, hourly_data):
+        # Setup
+        expected_file = const.DATA_FOLDER / "plots/histogram/expected.png"
+        actual_file = const.DATA_FOLDER / "plots/histogram/actual.png"
+        columns = ["QSrc1TIn", "QSrc1TOut"]
+
+        # Execute
+        histogram = plotters.Histogram()
+        histogram.Y_LABEL= "Time [h]"
+        fig = histogram.plot_with_column_validation(hourly_data, columns, headers=mock_headers, ylabel="Time [h]")
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)

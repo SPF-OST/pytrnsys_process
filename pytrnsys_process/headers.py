@@ -65,6 +65,7 @@ class Headers:
         for header in headers:
             self.header_index[header].append((sim_folder.name, sim_file.name))
 
+    # TODO: Add function to validate headers and log files with invalid headers  #pylint: disable=fixme
 
 class HeaderValidationMixin(ABC):
     def validate_headers(

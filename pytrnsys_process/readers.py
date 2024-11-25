@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 import pandas as _pd
 
+from pytrnsys_process.logger import logger as log
+
 
 # TODO: Adjust architecture to separate reading and conversion.  # pylint: disable=fixme
 # TODO: Base reader with PRT and CSV as children.  # pylint: disable=fixme
@@ -54,9 +56,13 @@ class PrtReader(ReaderBase):
         Raises:
             ValueError: If the timestamps are not exactly on the hour (minutes or seconds != 0)
         """
-        df = self._process_dataframe(self.read(hourly_file), starting_year)
-        self._validate_hourly(df)
-        return df.drop(columns=["Period", "time"])
+        try:
+            df = self._process_dataframe(self.read(hourly_file), starting_year)
+            self._validate_hourly(df)
+            return df.drop(columns=["Period", "time"])
+        except (ValueError, KeyError) as e:
+            log.error("Error reading hourly file %s: %s", hourly_file, e)
+            raise
 
     def read_monthly(
             self,
@@ -76,10 +82,13 @@ class PrtReader(ReaderBase):
             ValueError: If the timestamps are not at the start of each month at midnight
                       (not month start or hours/minutes/seconds != 0)
         """
-        df = self._process_dataframe(self.read(monthly_file), starting_year)
-        df = df.drop(columns=["Month", "time"])
-        self._validate_monthly(df)
-        return df
+        try:
+            df = self._process_dataframe(self.read(monthly_file), starting_year)
+            self._validate_monthly(df)
+            return df.drop(columns=["Month", "time"])
+        except (ValueError, KeyError) as e:
+            log.error("Error reading monthly file %s: %s", monthly_file, e)
+            raise
 
     def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
         df = self._process_dataframe(self.read(step_file), starting_year)

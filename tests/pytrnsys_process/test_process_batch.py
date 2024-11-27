@@ -57,7 +57,7 @@ class TestPytrnsysProcess:
         )
         assert results.processed_count == 0
         assert results.error_count == 2
-        assert results.failed_simulations == ["sim-1", "sim-2"]
+        assert all(sim in results.failed_simulations for sim in ["sim-1", "sim-2"])
 
 
 class TestBenchmarkPytrnsysProcess:

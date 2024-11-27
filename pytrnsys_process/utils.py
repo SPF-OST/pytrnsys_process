@@ -12,7 +12,7 @@ def get_sim_folders(path_to_results: _pl.Path) -> list[_pl.Path]:
 
 
 def get_files(
-        sim_folders: list[_pl.Path], results_folder_name: str = RESULTS_FOLDER_NAME
+    sim_folders: list[_pl.Path], results_folder_name: str = RESULTS_FOLDER_NAME
 ) -> list[_pl.Path]:
     sim_files = []
     for sim_folder in sim_folders:

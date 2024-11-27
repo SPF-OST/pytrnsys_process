@@ -42,7 +42,7 @@ class ReaderBase:
 class PrtReader(ReaderBase):
 
     def read_hourly(
-            self, hourly_file: _pl.Path, starting_year: int = 1990
+        self, hourly_file: _pl.Path, starting_year: int = 1990
     ) -> _pd.DataFrame:
         """Read hourly TRNSYS output data from a file.
 
@@ -57,17 +57,19 @@ class PrtReader(ReaderBase):
             ValueError: If the timestamps are not exactly on the hour (minutes or seconds != 0)
         """
         try:
-            df = self._process_dataframe(self.read(hourly_file), starting_year)
+            df = self._process_dataframe(
+                self.read(hourly_file), starting_year, "Period"
+            )
             self._validate_hourly(df)
-            return df.drop(columns=["Period", "time"])
+            return df
         except (ValueError, KeyError) as e:
             log.error("Error reading hourly file %s: %s", hourly_file, e)
             raise
 
     def read_monthly(
-            self,
-            monthly_file: _pl.Path,
-            starting_year: int = 1990,
+        self,
+        monthly_file: _pl.Path,
+        starting_year: int = 1990,
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 
@@ -83,35 +85,109 @@ class PrtReader(ReaderBase):
                       (not month start or hours/minutes/seconds != 0)
         """
         try:
-            df = self._process_dataframe(self.read(monthly_file), starting_year)
+            df = self._process_dataframe(
+                self.read(monthly_file), starting_year, "Month"
+            )
             self._validate_monthly(df)
-            return df.drop(columns=["Month", "time"])
+            return df
         except (ValueError, KeyError) as e:
             log.error("Error reading monthly file %s: %s", monthly_file, e)
             raise
 
     def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
-        df = self._process_dataframe(self.read(step_file), starting_year)
-        return df.drop(columns=["Period", "time"])
+        df = self._process_dataframe(
+            self.read(step_file), starting_year, "Period"
+        )
+        return df
 
     def _process_dataframe(
-            self, df: _pd.DataFrame, starting_year: int
+        self, df: _pd.DataFrame, starting_year: int, time_column_name: str
     ) -> _pd.DataFrame:
-        """Process the dataframe by formatting column names and creating timestamps."""
-        df.columns.values[1] = df.columns[1].lower()
-        df["Timestamp"] = self._create_timestamps(
-            df["time"].astype(float), starting_year
-        )
+        """Process the dataframe by formatting column names and creating timestamps.
+
+        Args:
+            df: DataFrame to process
+            starting_year: Year to use as the start of the simulation
+            time_column_name: Name of the time column ('Period' or 'Month')
+        """
+
+        # Create timestamps based on the time column type
+        if time_column_name == "Period":
+            df["Timestamp"] = self._create_hourly_timestamps(
+                df[time_column_name].astype(float), starting_year
+            )
+        elif time_column_name == "Month":
+            df["Timestamp"] = self._create_monthly_timestamps(
+                df[time_column_name], starting_year
+            )
+        else:
+            raise ValueError(
+                f"Invalid time_column_name: {time_column_name}. Must be 'Period' or 'Month'"
+            )
+
+        # Remove time columns
+        if df.columns[1].lower() == "time":
+            df.columns.values[1] = df.columns[1].lower()
+            df = df.drop(columns=["time"])
+        df = df.drop(columns=[time_column_name])
 
         return df.set_index("Timestamp")
 
-    def _create_timestamps(
-            self, time_series: _pd.Series, starting_year: int
+    def _create_hourly_timestamps(
+        self, hours_elapsed: _pd.Series, starting_year: int
     ) -> _pd.Series:
-        """Create timestamps from time series and starting year."""
-        hours = [_dt.timedelta(hours=float(h)) for h in time_series]
+        """Create hourly timestamps from elapsed hours since start of year.
+
+        Args:
+            hours_elapsed: Series containing number of hours since start of year
+            starting_year: Year to use as the start of the simulation
+
+        Returns:
+            Series of datetime objects with hourly intervals
+        """
+        hours = [_dt.timedelta(hours=float(h)) for h in hours_elapsed]
         start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
         return _pd.Series([start_of_year + h for h in hours])
+
+    def _create_monthly_timestamps(
+        self, month_names: _pd.Series, year: int = 1990
+    ) -> _pd.Series:
+        """Create monthly timestamps from month names.
+
+        Args:
+            month_names: Series containing month names (e.g., 'January', 'February')
+            year: Year to use for the timestamps (default: 1990)
+
+        Returns:
+            Series of datetime objects set to the first day of each month
+        """
+        month_map = {
+            month: i
+            for i, month in enumerate(
+                [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                ],
+                1,
+            )
+        }
+
+        # Convert month names to datetime objects
+        timestamps = [
+            _dt.datetime(year=year, month=month_map[name.strip()], day=1)
+            for name in month_names
+        ]
+        return _pd.Series(timestamps)
 
     def _validate_hourly(self, df: _pd.DataFrame) -> None:
         """Validate that timestamps are exactly on the hour."""
@@ -125,10 +201,10 @@ class PrtReader(ReaderBase):
         """Validate that timestamps are at the start of each month at midnight."""
         index = _pd.to_datetime(df.index)
         if not (
-                index.is_month_start
-                & (index.hour == 0)
-                & (index.minute == 0)
-                & (index.second == 0)
+            index.is_month_start
+            & (index.hour == 0)
+            & (index.minute == 0)
+            & (index.second == 0)
         ).all():
             raise ValueError(
                 "Timestamps must be at the start of each month at midnight"

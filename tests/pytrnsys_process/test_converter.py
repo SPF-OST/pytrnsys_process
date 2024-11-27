@@ -49,7 +49,7 @@ class TestConverter:
         ],
     )
     def test_rename_file_with_prefix(
-            self, tmp_path, file_type, expected_prefix
+        self, tmp_path, file_type, expected_prefix
     ):
         """Test file renaming functionality with different prefixes.
 

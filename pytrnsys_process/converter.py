@@ -12,7 +12,7 @@ class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-            file_path: _pl.Path, prefix: fm.FileType
+        file_path: _pl.Path, prefix: fm.FileType
     ) -> None:
         """Rename a file with a given prefix.
 
@@ -36,7 +36,7 @@ class CsvConverter:
         logger.info("Renamed %s to %s", file_path, new_path)
 
     def convert_sim_results_to_csv(
-            self, input_path: _pl.Path, output_dir: _pl.Path
+        self, input_path: _pl.Path, output_dir: _pl.Path
     ) -> None:
         """Convert TRNSYS simulation results to CSV format.
 
@@ -92,7 +92,7 @@ class CsvConverter:
 
     @staticmethod
     def _detect_file_type_via_content(
-            file_path: _pl.Path,
+        file_path: _pl.Path,
     ) -> tuple[str, _pd.DataFrame]:
         """Detect the file type based on the content of the file."""
 
@@ -118,7 +118,7 @@ class CsvConverter:
 
     @staticmethod
     def _refactor_filename(
-            filename: str, patterns: list[str], prefix: str
+        filename: str, patterns: list[str], prefix: str
     ) -> str:
         """Process filename by removing patterns and adding appropriate prefix."""
         processed_name = filename.lower()

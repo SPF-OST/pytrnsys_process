@@ -54,18 +54,18 @@ class TestPlotters:
                 "Plot comparison temporarily disabled during development"
             )
         assert (
-                _mpltc.compare_images(
-                    str(actual_file), str(expected_file), tol=tolerance
-                )
-                is None
+            _mpltc.compare_images(
+                str(actual_file), str(expected_file), tol=tolerance
+            )
+            is None
         )
 
     def test_create_stacked_bar_chart_for_monthly(
-            self, mock_headers, monthly_data
+        self, mock_headers, monthly_data
     ):
         # Setup
         expected_file = (
-                const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+            const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
         )
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [

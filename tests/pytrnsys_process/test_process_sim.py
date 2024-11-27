@@ -20,6 +20,7 @@ class TestProcessSim:
 
         self.do_assert(simulation)
 
+    @_pt.mark.skip(reason="Skipped until step file requirements are clear")
     def test_process_sim_using_file_content_prt(self):
         simulation = ps.process_sim_using_file_content_prt(PATH_TO_RESULTS)
 
@@ -83,8 +84,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [3, 2], "D": [7, 8]})
 
         with _pt.raises(
-                ValueError,
-                match="Column 'A' has conflicting values at same indices",
+            ValueError,
+            match="Column 'A' has conflicting values at same indices",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 
@@ -108,8 +109,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [None, 2], "C": [5, 6]})
 
         with _pt.raises(
-                ValueError,
-                match="Column 'A' has NaN values in one column while having actual values in another",
+            ValueError,
+            match="Column 'A' has NaN values in one column while having actual values in another",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 

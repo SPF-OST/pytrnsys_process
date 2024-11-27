@@ -13,6 +13,7 @@ from pytrnsys_process.logger import logger
 
 @dataclass
 class Simulation:
+    path: _pl.Path
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
     timestep: _pd.DataFrame
@@ -66,7 +67,7 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
 
 
 def process_sim_prt(
-        sim_folder: _pl.Path,
+    sim_folder: _pl.Path,
 ) -> Simulation:
     sim_files = utils.get_files([sim_folder])
     prt_reader = readers.PrtReader()
@@ -84,14 +85,26 @@ def process_sim_prt(
         else:
             logger.warning("Unknown file type: %s", sim_file.name)
 
-    monthly_df = handle_duplicate_columns(_pd.concat(monthly, axis=1))
-    hourly_df = handle_duplicate_columns(_pd.concat(hourly, axis=1))
-    timestep_df = handle_duplicate_columns(_pd.concat(timestep, axis=1))
-    return Simulation(monthly_df, hourly_df, timestep_df)
+    monthly_df = (
+        handle_duplicate_columns(_pd.concat(monthly, axis=1))
+        if monthly
+        else _pd.DataFrame()
+    )
+    hourly_df = (
+        handle_duplicate_columns(_pd.concat(hourly, axis=1))
+        if hourly
+        else _pd.DataFrame()
+    )
+    timestep_df = (
+        handle_duplicate_columns(_pd.concat(timestep, axis=1))
+        if timestep
+        else _pd.DataFrame()
+    )
+    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
 
 
 def process_sim_using_file_content_prt(
-        sim_folder: _pl.Path,
+    sim_folder: _pl.Path,
 ) -> Simulation:
     sim_files = utils.get_files([sim_folder])
     prt_reader = readers.PrtReader()
@@ -113,11 +126,11 @@ def process_sim_using_file_content_prt(
     monthly_df = handle_duplicate_columns(_pd.concat(monthly, axis=1))
     hourly_df = handle_duplicate_columns(_pd.concat(hourly, axis=1))
     timestep_df = handle_duplicate_columns(_pd.concat(step, axis=1))
-    return Simulation(monthly_df, hourly_df, timestep_df)
+    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
 
 
 def process_sim_csv(
-        sim_folder: _pl.Path,
+    sim_folder: _pl.Path,
 ) -> Simulation:
     sim_files = utils.get_files([sim_folder], results_folder_name="converted")
     csv_reader = readers.CsvReader()
@@ -139,4 +152,4 @@ def process_sim_csv(
     hourly_df = handle_duplicate_columns(_pd.concat(hourly, axis=1))
     timestep_df = handle_duplicate_columns(_pd.concat(timestep, axis=1))
 
-    return Simulation(monthly_df, hourly_df, timestep_df)
+    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)

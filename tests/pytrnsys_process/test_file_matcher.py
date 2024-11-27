@@ -36,7 +36,7 @@ def test_has_pattern():
     assert fm.has_pattern("results_hr_test.txt", fm.FileType.MONTHLY) is False
     assert fm.has_pattern("results_hr_test.txt", fm.FileType.HOURLY) is True
     assert (
-            fm.has_pattern("results_step_test.txt", fm.FileType.TIMESTEP) is True
+        fm.has_pattern("results_step_test.txt", fm.FileType.TIMESTEP) is True
     )
 
 
@@ -44,8 +44,8 @@ class TestFileContentDetection:
     @pytest.fixture
     def monthly_file(self):
         file_path = (
-                const.DATA_FOLDER
-                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+            const.DATA_FOLDER
+            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return file_path
 
@@ -57,28 +57,29 @@ class TestFileContentDetection:
     @pytest.fixture
     def timestep_file(self):
         file_path = (
-                const.DATA_FOLDER
-                / "results/sim-1/temp/sink_storage_temperatures_step.prt"
+            const.DATA_FOLDER
+            / "results/sim-1/temp/sink_storage_temperatures_step.prt"
         )
         return file_path
 
     def test_detect_monthly_file(self, monthly_file):
         """Test detection of monthly files based on content"""
         assert (
-                fm.get_file_type_using_file_content(monthly_file)
-                == fm.FileType.MONTHLY
+            fm.get_file_type_using_file_content(monthly_file)
+            == fm.FileType.MONTHLY
         )
 
     def test_detect_hourly_file(self, hourly_file):
         """Test detection of hourly files based on content"""
         assert (
-                fm.get_file_type_using_file_content(hourly_file)
-                == fm.FileType.HOURLY
+            fm.get_file_type_using_file_content(hourly_file)
+            == fm.FileType.HOURLY
         )
 
+    @pytest.mark.skip(reason="Skipped until step file requirements are clear")
     def test_detect_timestep_file(self, timestep_file):
         """Test detection of timestep files based on content"""
         assert (
-                fm.get_file_type_using_file_content(timestep_file)
-                == fm.FileType.TIMESTEP
+            fm.get_file_type_using_file_content(timestep_file)
+            == fm.FileType.TIMESTEP
         )

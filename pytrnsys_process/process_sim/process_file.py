@@ -21,7 +21,7 @@ class Simulation:
 
 
 def process_simulation(
-        sim_folder: _pl.Path, detect_file_using_content: bool = False
+    sim_folder: _pl.Path, detect_file_using_content: bool = False
 ) -> Simulation:
     sim_files = utils.get_files([sim_folder])
     files = []

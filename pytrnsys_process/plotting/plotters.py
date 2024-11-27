@@ -153,21 +153,6 @@ class BarChart(ChartBase):
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
     ) -> _plt.Figure:
-        """Creates a bar chart with multiple columns displayed as grouped bars.
-
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot as bars
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-
-        Returns:
-            matplotlib Figure object
-
-        The bars for each column are grouped together, with each group centered on the x-tick.
-        The bars within a group are positioned side-by-side with a small gap between them.
-        The x-axis shows the datetime index formatted according to self.DATE_FORMAT.
-        """
         fig, ax = _plt.subplots(figsize=size)
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)

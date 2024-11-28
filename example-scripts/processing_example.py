@@ -1,17 +1,15 @@
 import pathlib as _pl
 
-import pytrnsys_process.process_batch as pb
-import pytrnsys_process.process_sim.process_sim as ps
-from pytrnsys_process import plotters as plt
+import pytrnsys_process as pp
 
 
-def processing_scenario(simulation: ps.Simulation):
+def processing_scenario(simulation):
     # create line plot using hourly data
-    hourly_line_plot = plt.LinePlot().plot(
+    hourly_line_plot = pp.line_plot(
         simulation.hourly, ["QSrc1TIn", "QSrc1TOut"]
     )
     # create bar chart using monthly data
-    monthly_bar_chart = plt.BarChart().plot(
+    monthly_bar_chart = pp.bar_chart(
         simulation.monthly,
         [
             "QSnk60P",
@@ -19,7 +17,7 @@ def processing_scenario(simulation: ps.Simulation):
         ],
     )
     # create stacked bar chart using monthly data
-    monthly_stacked_bar_chart = plt.StackedBarChart().plot(
+    monthly_stacked_bar_chart = pp.stacked_bar_chart(
         simulation.monthly,
         [
             "QSnk60PauxCondSwitch_kW",
@@ -31,6 +29,7 @@ def processing_scenario(simulation: ps.Simulation):
         ],
     )
 
+    # create plots folder in simulation directory
     plots_folder = _pl.Path(simulation.path / "plots")
     plots_folder.mkdir(exist_ok=True)
 
@@ -44,21 +43,9 @@ def processing_scenario(simulation: ps.Simulation):
     )
 
 
+# run processing scenario for a whole result set
 if __name__ == "__main__":
-    pb.process_whole_result_set(
-        _pl.Path("C:/Development/data/results"),
+    pp.process_whole_result_set(
+        _pl.Path("path/to/result/set"),
         processing_scenario,
     )
-
-# pp.process_single_simulation(
-#     _pl.Path(
-#         "C:/Development/data/results/complete-0-SnkScale0.6000-StoreScale10"
-#     ),
-#     processing_scenario,
-# )
-
-# if __name__ == "__main__":
-#     pp.process_whole_result_set_parallel(
-#         _pl.Path("C:/Development/data/results"),
-#         processing_scenario,
-#     )

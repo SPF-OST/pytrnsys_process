@@ -5,8 +5,8 @@ import pytest
 
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import headers as h
-from pytrnsys_process import plotters
 from pytrnsys_process import readers
+from pytrnsys_process.plotting import plotters
 
 
 class TestPlotters:

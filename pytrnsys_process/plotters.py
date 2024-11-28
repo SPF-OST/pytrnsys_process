@@ -118,16 +118,17 @@ class StackedBarChart(ChartBase):
         """The matplot date formatter does not work when using df.plot func.
         This is an example to plot a stacked bar chart without df.plot"""
         fig, ax = _plt.subplots(figsize=size)
-        x = df.index
+        x = _np.arange(len(df.index))
         bottom = _np.zeros(len(df.index))
         for col in columns:
             ax.bar(x, df[col], label=col, bottom=bottom, width=0.35)
             bottom += df[col]
         if use_legend:
             ax.legend()
-        # ax.set_xticklabels(
-        #     _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
-        # )
+        ax.set_xticks(x)
+        ax.set_xticklabels(
+            _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
+        )
         self.configure(ax)
         return fig
 

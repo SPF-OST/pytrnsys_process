@@ -11,30 +11,49 @@ def processing_scenario(simulation):
     assert not simulation.monthly.empty
 
 
+def processing_scenario_failing(simulation):
+    assert not simulation.monthly.empty
+    raise ValueError("Intentional failure for testing")
+
+
 class TestPytrnsysProcess:
 
     def test_process_single_simulation(self):
         sim_folder = _pl.Path(RESULTS_FOLDER / "sim-1")
-        results = pb.process_single_simulation(sim_folder, processing_scenario)
+        results = pb.process_single_simulation(
+            sim_folder, [processing_scenario, processing_scenario_failing]
+        )
         assert results.processed_count == 1
         assert results.error_count == 0
         assert results.failed_simulations == []
+        assert results.failed_scenarios == {
+            "sim-1": ["processing_scenario_failing"]
+        }
 
     def test_process_whole_result_set(self):
         results = pb.process_whole_result_set(
-            RESULTS_FOLDER, processing_scenario
+            RESULTS_FOLDER, [processing_scenario, processing_scenario_failing]
         )
         assert results.processed_count == 2
         assert results.error_count == 0
         assert results.failed_simulations == []
+        assert results.failed_scenarios == {
+            "sim-1": ["processing_scenario_failing"],
+            "sim-2": ["processing_scenario_failing"],
+        }
 
     def test_process_whole_result_set_parallel(self):
         results = pb.process_whole_result_set_parallel(
-            RESULTS_FOLDER, processing_scenario
+            RESULTS_FOLDER, [processing_scenario, processing_scenario_failing]
         )
         assert results.processed_count == 2
         assert results.error_count == 0
         assert results.failed_simulations == []
+        assert results.failed_scenarios
+        assert results.failed_scenarios == {
+            "sim-1": ["processing_scenario_failing"],
+            "sim-2": ["processing_scenario_failing"],
+        }
 
     def test_process_single_simulation_with_invalid_data(self):
         sim_folder = _pl.Path(INVALID_RESULTS_FOLDER / "sim-1")
@@ -57,7 +76,9 @@ class TestPytrnsysProcess:
         )
         assert results.processed_count == 0
         assert results.error_count == 2
-        assert all(sim in results.failed_simulations for sim in ["sim-1", "sim-2"])
+        assert all(
+            sim in results.failed_simulations for sim in ["sim-1", "sim-2"]
+        )
 
 
 class TestBenchmarkPytrnsysProcess:

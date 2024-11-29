@@ -29,9 +29,10 @@ class Simulation:
         Hourly simulation data. Each column represents a different variable
         and each row represents an hour.
     step : pandas.DataFrame
-        Simulation data at the smallest timestep resolution. Each column represents 
+        Simulation data at the smallest timestep resolution. Each column represents
         a different variable and each row represents a timestep.
     """
+
     path: _pl.Path
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
@@ -122,6 +123,7 @@ def process_sim_prt(
     return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
 
 
+# pragma: no cover - tests disabled until step requirements are clear
 def process_sim_using_file_content_prt(
     sim_folder: _pl.Path,
 ) -> Simulation:

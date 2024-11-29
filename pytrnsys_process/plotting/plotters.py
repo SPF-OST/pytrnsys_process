@@ -41,7 +41,7 @@ class ChartBase(h.HeaderValidationMixin):
         df: _pd.DataFrame,
         columns: list[str],
         **kwargs,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         return self._do_plot(df, columns, **kwargs)
 
     # TODO: Test validation # pylint: disable=fixme
@@ -51,7 +51,7 @@ class ChartBase(h.HeaderValidationMixin):
         columns: list[str],
         headers: h.Headers,
         **kwargs,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         """Base plot method with header validation.
 
         Args:
@@ -84,29 +84,12 @@ class ChartBase(h.HeaderValidationMixin):
         use_legend: bool = True,
         size: tuple[float, float] = SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
 
 
 class StackedBarChart(ChartBase):
 
-    # def plot(self, columns: list[str]) -> Tuple[_plt.Figure | None, _plt.Axes]:
-    #     # TODO: deal with datetime formatting without pandas defaults  # pylint: disable=fixme
-    #     df_for_plotting = self.df
-    #     df_for_plotting.index = [
-    #         timestamp.strftime(self.DATE_FORMAT)
-    #         for timestamp in df_for_plotting.index
-    #     ]
-    #     self.df[columns].plot(
-    #         kind=self.PLOT_KIND,
-    #         stacked=True,
-    #         ax=self.ax,
-    #         colormap=self.COLOR_MAP,
-    #     )
-    #     self.configure()
-    #     return self.fig, self.ax
-
-    # TODO: Add colormap support # pylint: disable=fixme
     def _do_plot(
         self,
         df: _pd.DataFrame,
@@ -114,23 +97,48 @@ class StackedBarChart(ChartBase):
         use_legend: bool = True,
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
-        """The matplot date formatter does not work when using df.plot func.
-        This is an example to plot a stacked bar chart without df.plot"""
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
-        x = _np.arange(len(df.index))
-        bottom = _np.zeros(len(df.index))
-        for col in columns:
-            ax.bar(x, df[col], label=col, bottom=bottom, width=0.35)
-            bottom += df[col]
-        if use_legend:
-            ax.legend()
-        ax.set_xticks(x)
+        plot_kwargs = {
+            "stacked": True,
+            "colormap": self.COLOR_MAP,
+            "legend": use_legend,
+            "ax": ax,
+            **kwargs,
+        }
+        ax = df[columns].plot.bar(**plot_kwargs)
         ax.set_xticklabels(
             _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
         )
-        self.configure(ax)
-        return fig
+        ax = self.configure(ax)
+
+        return fig, ax
+
+    # TODO: Add colormap support # pylint: disable=fixme
+    # def _do_plot(
+    #     self,
+    #     df: _pd.DataFrame,
+    #     columns: list[str],
+    #     use_legend: bool = True,
+    #     size: tuple[float, float] = ChartBase.SIZE_A4,
+    #     **kwargs: _tp.Any,
+    # ) -> _plt.Figure:
+    #     """The matplot date formatter does not work when using df.plot func.
+    #     This is an example to plot a stacked bar chart without df.plot"""
+    #     fig, ax = _plt.subplots(figsize=size)
+    #     x = _np.arange(len(df.index))
+    #     bottom = _np.zeros(len(df.index))
+    #     for col in columns:
+    #         ax.bar(x, df[col], label=col, bottom=bottom, width=0.35)
+    #         bottom += df[col]
+    #     if use_legend:
+    #         ax.legend()
+    #     ax.set_xticks(x)
+    #     ax.set_xticklabels(
+    #         _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
+    #     )
+    #     self.configure(ax)
+    #     return fig
 
     # TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
     @staticmethod
@@ -152,7 +160,7 @@ class BarChart(ChartBase):
         use_legend: bool = True,
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)
@@ -169,13 +177,11 @@ class BarChart(ChartBase):
         )
         ax.tick_params(axis="x", labelrotation=90)
         self.configure(ax)
-        return fig
+        return fig, ax
 
 
 class LinePlot(ChartBase):
 
-    PLOT_KIND = "line"
-
     def _do_plot(
         self,
         df: _pd.DataFrame,
@@ -183,21 +189,23 @@ class LinePlot(ChartBase):
         use_legend: bool = True,
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
-        ax = self.configure(ax)
         plot_kwargs = {
-            "kind": self.PLOT_KIND,
             "colormap": self.COLOR_MAP,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
-        df[columns].plot(**plot_kwargs)
-        return fig
+        df[columns].plot.line(**plot_kwargs)
+        ax = self.configure(ax)
+        return fig, ax
 
 
+@dataclass
 class Histogram(ChartBase):
+    bins: int = 50
+
     def _do_plot(
         self,
         df: _pd.DataFrame,
@@ -205,18 +213,19 @@ class Histogram(ChartBase):
         use_legend: bool = True,
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
+    ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
-        ax = self.configure(ax)
         plot_kwargs = {
-            "kind": "hist",
             "colormap": self.COLOR_MAP,
             "legend": use_legend,
             "ax": ax,
+            "bins": self.bins,
             **kwargs,
         }
-        df[columns].plot(**plot_kwargs)
-        return fig
+        df[columns].plot.hist(**plot_kwargs)
+        ax = self.configure(ax)
+        return fig, ax
+
 
 class ScatterPlot(ChartBase):
     def _do_plot(
@@ -226,7 +235,14 @@ class ScatterPlot(ChartBase):
         use_legend: bool = True,
         size: tuple[float, float] = ChartBase.SIZE_A4,
         **kwargs: _tp.Any,
-    ) -> _plt.Figure:
-        fig, ax = _plt.subplots(figsize)
-        ax = self.configure
-        pass
+    ) -> tuple[_plt.Figure, _plt.Axes]:
+        fig, ax = _plt.subplots(figsize=size)
+        plot_kwargs = {
+            "colormap": self.COLOR_MAP,
+            "legend": use_legend,
+            "ax": ax,
+            **kwargs,
+        }
+        df[columns].plot.scatter(**plot_kwargs)
+        ax = self.configure(ax)
+        return fig, ax

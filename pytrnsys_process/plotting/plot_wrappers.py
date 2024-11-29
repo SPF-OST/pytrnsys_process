@@ -161,7 +161,6 @@ def histogram(
     )
 
 
-# pylint: disable=too-many-arguments
 def scatter_plot(
         df: _pd.DataFrame,
         columns: list[str],

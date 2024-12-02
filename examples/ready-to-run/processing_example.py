@@ -5,14 +5,16 @@ import matplotlib.pyplot as _plt
 import pytrnsys_process as pp
 
 
+# Your processing steps are writen inside functions.
+# Which need to be defined before your scripts entry point.
+# Define your processing steps at the top of the script.
 def processing_of_monthly_data(simulation: pp.Simulation):
-    # crate a bar chart using monthly data
+    # create a bar chart using monthly data
+    monthly_df = simulation.monthly
+    columns_to_plot = ["QSnk60P", "QSnk60PauxCondSwitch_kW"]
     fig, ax = pp.bar_chart(
-        simulation.monthly,
-        [
-            "QSnk60P",
-            "QSnk60PauxCondSwitch_kW",
-        ],
+        monthly_df,
+        columns_to_plot,
     )
 
     # modify label for the y axis
@@ -52,6 +54,12 @@ def processing_for_histogram(simulation: pp.Simulation):
 
 
 if __name__ == "__main__":
+    # This is the entry point to your script.
+    # In here you cand decide how you would like to run your processing steps.
+    # In the example below we run both processing steps on a whole result set.
+    # Or a single processing step on a single simulation.
+    # Make sure to remove the lines you do not want to run. 
+
     # bundle the scenarios into a list
     processing_scenarios = [
         processing_of_monthly_data,

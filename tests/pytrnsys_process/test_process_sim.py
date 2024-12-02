@@ -29,7 +29,7 @@ class TestProcessSim:
     def do_assert(self, simulation):
         assert simulation.hourly.shape == (3, 18)
         assert simulation.monthly.shape == (14, 11)
-        assert simulation.timestep.shape == (3, 9)
+        assert simulation.step.shape == (3, 9)
 
 
 class TestProcessFile:

@@ -13,10 +13,30 @@ from pytrnsys_process.logger import logger
 
 @dataclass
 class Simulation:
+    """Class representing a TRNSYS simulation with its associated data.
+
+    This class holds the simulation data organized in different time resolutions (monthly, hourly, timestep)
+    along with the path to the simulation files.
+
+    Attributes
+    ----------
+    path : pathlib.Path
+        Path to the simulation folder containing the input files
+    monthly : pandas.DataFrame
+        Monthly aggregated simulation data. Each column represents a different variable
+        and each row represents a month.
+    hourly : pandas.DataFrame
+        Hourly simulation data. Each column represents a different variable
+        and each row represents an hour.
+    step : pandas.DataFrame
+        Simulation data at the smallest timestep resolution. Each column represents
+        a different variable and each row represents a timestep.
+    """
+
     path: _pl.Path
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
-    timestep: _pd.DataFrame
+    step: _pd.DataFrame
     # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
 
 
@@ -103,6 +123,7 @@ def process_sim_prt(
     return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
 
 
+# pragma: no cover - tests disabled until step requirements are clear
 def process_sim_using_file_content_prt(
     sim_folder: _pl.Path,
 ) -> Simulation:

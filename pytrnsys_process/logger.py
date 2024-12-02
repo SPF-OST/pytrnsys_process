@@ -18,13 +18,14 @@ console_format = logging.Formatter("%(levelname)s - %(message)s")
 file_format = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-debug_format = logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s\n%(exc_info)s"
-)
 
 console_handler.setFormatter(console_format)
 file_handler.setFormatter(file_format)
-debug_file_handler.setFormatter(debug_format)
+debug_file_handler.setFormatter(file_format)
+
+# Remove exc_info from console and file handlers
+console_handler.addFilter(lambda record: not record.exc_info)
+file_handler.addFilter(lambda record: not record.exc_info)
 
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)

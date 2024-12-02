@@ -75,5 +75,9 @@ if __name__ == "__main__":
     # run the single scenario on a single simulation
     pp.process_single_simulation(
         _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        # ===============================================================
         processing_for_histogram,
+        # do not add round brackets when linking your processing step
+        # processing_for_histogram AND NOT processing_for_histogram()
+        # ===============================================================
     )

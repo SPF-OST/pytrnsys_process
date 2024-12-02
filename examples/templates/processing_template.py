@@ -20,21 +20,29 @@ if __name__ == "__main__":
         processing_step_1,
         processing_step_2,
     ]
+    path_to_single_sim = _pl.Path("path/to/simulation")
+    path_to_results_set = _pl.Path("path/to/result/set")
 
-    # to run a single processing step on a single simulation
+    # to run a SINGLE processing step on a single simulation
     pp.process_single_simulation(
-        _pl.Path("path/to/simulation"),
+        path_to_single_sim,
         processing_step_1,
     )
 
-    # to run the processing steps on a whole result set
-    pp.process_whole_result_set(
-        _pl.Path("path/to/result/set"),
+    # to run ALL processing steps on a single simulation
+    pp.process_single_simulation(
+        path_to_single_sim,
         processing_steps,
     )
 
-    # to run the processing steps on a whole result set in parallel
+    # to run ALL processing steps on a whole result set
+    pp.process_whole_result_set(
+        path_to_results_set,
+        processing_steps,
+    )
+
+    # to run ALL processing steps on a whole result set in parallel
     pp.process_whole_result_set_parallel(
-        _pl.Path("path/to/result/set"),
+        path_to_results_set,
         processing_steps,
     )

@@ -55,7 +55,7 @@ def processing_for_histogram(simulation: pp.Simulation):
 
 if __name__ == "__main__":
     # This is the entry point to your script.
-    # In here you cand decide how you would like to run your processing steps.
+    # In here you can decide how you would like to run your processing steps.
     # In the example below we run both processing steps on a whole result set.
     # Or a single processing step on a single simulation.
     # Make sure to remove the lines you do not want to run. 

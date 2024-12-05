@@ -8,6 +8,8 @@ class TracebackInfoFilter(logging.Filter):
     https://stackoverflow.com/questions/54605699/python-logging-disable-stack-trace
     """
 
+    # pylint: disable=protected-access
+
     def __init__(self, clear=True):  # pylint: disable=super-init-not-called
         self.clear = clear
 
@@ -17,9 +19,7 @@ class TracebackInfoFilter(logging.Filter):
             # clear the exception traceback text cache, if created.
             record.exc_text = None
         elif hasattr(record, "_exc_info_hidden"):
-            record.exc_info = (
-                record._exc_info_hidden
-            )  # pylint: disable=protected-access
+            record.exc_info = record._exc_info_hidden
             del record._exc_info_hidden
         return True
 

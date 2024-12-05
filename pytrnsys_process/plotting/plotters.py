@@ -6,6 +6,7 @@ import matplotlib.pyplot as _plt
 import numpy as _np
 import pandas as _pd
 
+import pytrnsys_process.constants as const
 import pytrnsys_process.headers as h
 
 
@@ -22,8 +23,6 @@ class ChartBase(h.HeaderValidationMixin):
     Y_LABEL = ""
     TITLE = ""
     COLOR_MAP = "viridis"
-    SIZE_A4 = (7.8, 3.9)
-    SIZE_A4_HALF = (3.8, 3.9)
     DATE_FORMAT = "%b %Y"
     LABEL_FONT_SIZE = 10
     LEGEND_FONT_SIZE = 8
@@ -68,7 +67,7 @@ class ChartBase(h.HeaderValidationMixin):
         if not is_valid:
             missing_details = []
             for col in missing:
-                missing_details.append(f"'{col}' not found in any files")
+                missing_details.append(col)
             raise ValueError(
                 "The following columns are not available in the headers index:\n"
                 + "\n".join(missing_details)
@@ -82,7 +81,7 @@ class ChartBase(h.HeaderValidationMixin):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
@@ -95,7 +94,7 @@ class StackedBarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = ChartBase.SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
@@ -120,7 +119,7 @@ class StackedBarChart(ChartBase):
     #     df: _pd.DataFrame,
     #     columns: list[str],
     #     use_legend: bool = True,
-    #     size: tuple[float, float] = ChartBase.SIZE_A4,
+    #     size: tuple[float, float] = const.PlotSizes.A4.value,
     #     **kwargs: _tp.Any,
     # ) -> _plt.Figure:
     #     """The matplot date formatter does not work when using df.plot func.
@@ -148,7 +147,7 @@ class StackedBarChart(ChartBase):
         q_out_columns: list[str],
         imbalance_column: str,
     ) -> _tp.Tuple[_plt.Figure, _plt.Axes]:
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover - has not been implemented yet
 
 
 class BarChart(ChartBase):
@@ -158,7 +157,7 @@ class BarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = ChartBase.SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
@@ -187,7 +186,7 @@ class LinePlot(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = ChartBase.SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
@@ -211,7 +210,7 @@ class Histogram(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = ChartBase.SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
@@ -233,7 +232,7 @@ class ScatterPlot(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = ChartBase.SIZE_A4,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)

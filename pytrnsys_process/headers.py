@@ -18,8 +18,6 @@ def _process_sim_file(sim_file):
 
 class Headers:
 
-    RESULTS_FOLDER_NAME = "temp"
-    # TODO adjust type # pylint: disable=fixme
     header_index: _defaultdict[str, list]
 
     def __init__(self, path_to_results: _pl.Path):
@@ -89,7 +87,3 @@ class HeaderValidationMixin(ABC):
                 missing_columns.append(column)
 
         return len(missing_columns) == 0, missing_columns
-
-
-class HeadersCsv(Headers):
-    RESULTS_FOLDER_NAME = "temp"

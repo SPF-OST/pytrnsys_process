@@ -1,9 +1,9 @@
-# pragma: no cover - only holds wrapper functions for plotting
 import typing as _tp
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
 
+from pytrnsys_process import constants as const
 from pytrnsys_process.plotting import plotters as pltrs
 
 
@@ -11,7 +11,7 @@ def line_plot(
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = pltrs.LinePlot.SIZE_A4,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """Create a line plot from the given DataFrame columns.
@@ -27,8 +27,8 @@ def line_plot(
         Tuple of (matplotlib Figure object, matplotlib Axes object)
 
     Example:
-        >>> import pytrnsys_process as pp
-        >>> fig, ax = pp.line_plot(simulation.hourly, columns=['var1', 'var2'])
+        >>> from pytrnsys_process import api
+        >>> fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
         Customize the plot using the returned axes object:
         >>> ax.set_xlabel('Time')
         >>> ax.set_ylabel('Value')
@@ -49,7 +49,7 @@ def bar_chart(
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = pltrs.BarChart.SIZE_A4,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """Create a bar chart with multiple columns displayed as grouped bars.
@@ -65,8 +65,8 @@ def bar_chart(
         Tuple of (matplotlib Figure object, matplotlib Axes object)
 
     Example:
-        >>> import pytrnsys_process as pp
-        >>> fig, ax = pp.bar_chart(simulation.monthly, columns=['var1', 'var2'])
+        >>> from pytrnsys_process import api
+        >>> fig, ax = api.bar_chart(simulation.monthly, columns=['var1', 'var2'])
         Customize the plot using the returned axes object:
         >>> ax.set_xlabel('Time')
         >>> ax.set_ylabel('Value')
@@ -87,7 +87,7 @@ def stacked_bar_chart(
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = pltrs.StackedBarChart.SIZE_A4,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """Create a stacked bar chart from the given DataFrame columns.
@@ -103,8 +103,8 @@ def stacked_bar_chart(
         Tuple of (matplotlib Figure object, matplotlib Axes object)
 
     Example:
-        >>> import pytrnsys_process as pp
-        >>> fig, ax = pp.stacked_bar_chart(simulation.monthly, columns=['var1', 'var2', 'var3'])
+        >>> from pytrnsys_process import api
+        >>> fig, ax = api.stacked_bar_chart(simulation.monthly, columns=['var1', 'var2', 'var3'])
         Customize the plot using the returned axes object:
         >>> ax.set_xlabel('Time')
         >>> ax.set_ylabel('Value')
@@ -125,7 +125,7 @@ def histogram(
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = pltrs.Histogram.SIZE_A4,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         bins: int = 50,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
@@ -143,8 +143,8 @@ def histogram(
         Tuple of (matplotlib Figure object, matplotlib Axes object)
 
     Example:
-        >>> import pytrnsys_process as pp
-        >>> fig, ax = pp.histogram(simulation.hourly, columns=['var1', 'var2'])
+        >>> from pytrnsys_process import api
+        >>> fig, ax = api.histogram(simulation.hourly, columns=['var1', 'var2'])
         Customize the plot using the returned axes object:
         >>> ax.set_xlabel('Value')
         >>> ax.set_ylabel('Frequency')
@@ -167,7 +167,7 @@ def scatter_plot(
         x_column: str,
         y_column: str,
         use_legend: bool = True,
-        size: tuple[float, float] = pltrs.ScatterPlot.SIZE_A4,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """Create a scatter plot from the given DataFrame columns.
@@ -185,8 +185,8 @@ def scatter_plot(
         Tuple of (matplotlib Figure object, matplotlib Axes object)
 
     Example:
-        >>> import pytrnsys_process as pp
-        >>> fig, ax = pp.scatter_plot(
+        >>> from pytrnsys_process import api
+        >>> fig, ax = api.scatter_plot(
         ...     simulation.hourly,
         ...     columns=["var1", "var2", "var3"],
         ...     x_column="var1",

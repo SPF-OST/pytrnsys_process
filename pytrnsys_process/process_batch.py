@@ -114,12 +114,12 @@ def process_single_simulation(
 
     Example:
         >>> import pathlib as _pl
-        >>> import pytrnsys_process as pp
+        >>> from pytrnsys_process import api
         ...
-        >>> def processing_step_1(sim: pp.Simulation):
+        >>> def processing_step_1(sim: api.Simulation):
         ...     # Process simulation data
         ...     pass
-        >>> results = pp.process_single_simulation(
+        >>> results = api.process_single_simulation(
         ...     _pl.Path("path/to/simulation"),
         ...     processing_step_1
         ... )
@@ -166,7 +166,7 @@ def process_whole_result_set(
 
     Example:
         >>> import pathlib as _pl
-        >>> import pytrnsys_process as pp
+        >>> from pytrnsys_process import api
         ...
         >>> def processing_step_1(sim):
         ...     # Process simulation data
@@ -174,7 +174,7 @@ def process_whole_result_set(
         >>> def processing_step_2(sim):
         ...     # Process simulation data
         ...     pass
-        >>> results = pp.process_whole_result_set(
+        >>> results = api.process_whole_result_set(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
@@ -240,7 +240,7 @@ def process_whole_result_set_parallel(
 
     Example:
         >>> import pathlib as _pl
-        >>> import pytrnsys_process as pp
+        >>> from pytrnsys_process import api
         ...
         >>> def processing_step_1(sim):
         ...     # Process simulation data
@@ -248,7 +248,7 @@ def process_whole_result_set_parallel(
         >>> def processing_step_2(sim):
         ...     # Process simulation data
         ...     pass
-        >>> results = pp.process_whole_result_set_parallel(
+        >>> results = api.process_whole_result_set_parallel(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )

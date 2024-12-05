@@ -1,25 +1,12 @@
 import datetime as _dt
 import pathlib as _pl
-from dataclasses import dataclass
-from enum import Enum
 
+from pytrnsys_process import constants as const
 from pytrnsys_process import readers
 from pytrnsys_process.logger import logger
 
 
-@dataclass
-class FilePattern:
-    patterns: list[str]
-    prefix: str
-
-
-class FileType(Enum):
-    MONTHLY = FilePattern(patterns=["_mo_", "_mo", ".mo", "mo_"], prefix="mo_")
-    HOURLY = FilePattern(patterns=["_hr_", "_hr", ".hr", "hr_"], prefix="hr_")
-    TIMESTEP = FilePattern(patterns=["_step", "step_"], prefix="step_")
-
-
-def get_file_type_using_file_content(file_path: _pl.Path) -> FileType:
+def get_file_type_using_file_content(file_path: _pl.Path) -> const.FileType:
     """
     Determine the file type by analyzing its content.
 
@@ -35,7 +22,7 @@ def get_file_type_using_file_content(file_path: _pl.Path) -> FileType:
     df = reader.read(file_path)
     if df.columns[0] == "Month":
         logger.info("Detected %s as monthly file", file_path)
-        return FileType.MONTHLY
+        return const.FileType.MONTHLY
 
     # If not monthly, read as step and check time interval
     df_step_or_hourly = reader.read_step(file_path)
@@ -43,13 +30,13 @@ def get_file_type_using_file_content(file_path: _pl.Path) -> FileType:
 
     if time_interval < _dt.timedelta(hours=1):
         logger.info("Detected %s as step file", file_path)
-        return FileType.TIMESTEP
+        return const.FileType.TIMESTEP
 
     logger.info("Detected %s as hourly file", file_path)
-    return FileType.HOURLY
+    return const.FileType.HOURLY
 
 
-def get_file_type_using_file_name(file_name: str) -> FileType:
+def get_file_type_using_file_name(file_name: str) -> const.FileType:
     """
     Determine the file type by checking the filename against known patterns.
 
@@ -64,14 +51,14 @@ def get_file_type_using_file_name(file_name: str) -> FileType:
     """
     file_name = file_name.lower()
 
-    for file_type in FileType:
+    for file_type in const.FileType:
         if any(pattern in file_name for pattern in file_type.value.patterns):
             return file_type
 
     raise ValueError(f"No matching file type found for filename: {file_name}")
 
 
-def has_pattern(file_name: str, file_type: FileType) -> bool:
+def has_pattern(file_name: str, file_type: const.FileType) -> bool:
     """
     Check if a filename contains any of the patterns associated with a specific FileType.
 

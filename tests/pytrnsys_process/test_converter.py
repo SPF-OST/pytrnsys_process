@@ -1,7 +1,8 @@
 import pytest as _pt
 
-import tests.pytrnsys_process.constants as const
-from pytrnsys_process import converter, readers, file_matcher as fm
+from pytrnsys_process import constants as const
+from pytrnsys_process import converter, readers
+from tests.pytrnsys_process import constants as test_const
 
 
 class TestConverter:
@@ -14,8 +15,8 @@ class TestConverter:
         1. All expected output files are created
         2. The converted CSV file has the correct dimensions
         """
-        input_dir = const.DATA_FOLDER / "conversion/prt"
-        output_dir = const.DATA_FOLDER / "conversion/csv"
+        input_dir = test_const.DATA_FOLDER / "conversion/prt"
+        output_dir = test_const.DATA_FOLDER / "conversion/csv"
 
         converter.CsvConverter().convert_sim_results_to_csv(
             input_dir, output_dir
@@ -36,16 +37,17 @@ class TestConverter:
             ), f"Expected output file {file_name} not found"
 
         shape = readers.CsvReader().read(
-            const.DATA_FOLDER / "conversion/csv/mo_energy_balance131_tess.csv"
+            test_const.DATA_FOLDER
+            / "conversion/csv/mo_energy_balance131_tess.csv"
         ).shape == (14, 7)
         assert shape
 
     @_pt.mark.parametrize(
         "file_type, expected_prefix",
         [
-            (fm.FileType.MONTHLY, "mo_"),
-            (fm.FileType.HOURLY, "hr_"),
-            (fm.FileType.TIMESTEP, "step_"),
+            (const.FileType.MONTHLY, "mo_"),
+            (const.FileType.HOURLY, "hr_"),
+            (const.FileType.TIMESTEP, "step_"),
         ],
     )
     def test_rename_file_with_prefix(
@@ -76,5 +78,5 @@ class TestConverter:
 
         with _pt.raises(FileNotFoundError):
             converter.CsvConverter().rename_file_with_prefix(
-                nonexistent_file, fm.FileType.MONTHLY
+                nonexistent_file, const.FileType.MONTHLY
             )

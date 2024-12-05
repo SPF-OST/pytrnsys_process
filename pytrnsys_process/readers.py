@@ -7,12 +7,7 @@ import pandas as _pd
 from pytrnsys_process.logger import logger as log
 
 
-# TODO: Adjust architecture to separate reading and conversion.  # pylint: disable=fixme
-# TODO: Base reader with PRT and CSV as children.  # pylint: disable=fixme
 # TODO: Describe what to do when file name does not match any known patterns.  # pylint: disable=fixme
-# TODO: Convert single file according to keyword suggestion, and/or automatically?  # pylint: disable=fixme
-# TODO: timestep from first two rows -> if 1 hour, use hourly, otherwise convert to timestep  # pylint: disable=fixme
-# TODO: Message to user about automatic conversion when file name does not match any known patterns.  # pylint: disable=fixme
 
 
 @dataclass

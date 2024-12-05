@@ -3,6 +3,7 @@ import pathlib as _pl
 
 import pandas as _pd
 
+from pytrnsys_process import constants as const
 from pytrnsys_process import file_matcher as fm
 from pytrnsys_process import readers
 from pytrnsys_process.logger import logger
@@ -12,7 +13,7 @@ class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-        file_path: _pl.Path, prefix: fm.FileType
+            file_path: _pl.Path, prefix: const.FileType
     ) -> None:
         """Rename a file with a given prefix.
 
@@ -57,26 +58,26 @@ class CsvConverter:
             if not input_file.is_file():
                 continue
 
-            if fm.has_pattern(input_file.name, fm.FileType.MONTHLY):
+            if fm.has_pattern(input_file.name, const.FileType.MONTHLY):
                 df = readers.PrtReader().read_monthly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    fm.FileType.MONTHLY.value.patterns,
-                    fm.FileType.MONTHLY.value.prefix,
+                    const.FileType.MONTHLY.value.patterns,
+                    const.FileType.MONTHLY.value.prefix,
                 )
-            elif fm.has_pattern(input_file.name, fm.FileType.HOURLY):
+            elif fm.has_pattern(input_file.name, const.FileType.HOURLY):
                 df = readers.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    fm.FileType.HOURLY.value.patterns,
-                    fm.FileType.HOURLY.value.prefix,
+                    const.FileType.HOURLY.value.patterns,
+                    const.FileType.HOURLY.value.prefix,
                 )
-            elif fm.has_pattern(input_file.name, fm.FileType.TIMESTEP):
+            elif fm.has_pattern(input_file.name, const.FileType.TIMESTEP):
                 df = readers.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    fm.FileType.TIMESTEP.value.patterns,
-                    fm.FileType.TIMESTEP.value.prefix,
+                    const.FileType.TIMESTEP.value.patterns,
+                    const.FileType.TIMESTEP.value.prefix,
                 )
             else:
                 logger.warning(

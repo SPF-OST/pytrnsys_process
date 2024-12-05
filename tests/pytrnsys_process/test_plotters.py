@@ -1,4 +1,4 @@
-import unittest.mock as _um
+from unittest import mock as _um
 
 import matplotlib.testing.compare as _mpltc
 import pytest
@@ -6,6 +6,7 @@ import pytest
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import headers as h
 from pytrnsys_process import readers
+from pytrnsys_process.plotting import plot_wrappers as pw
 from pytrnsys_process.plotting import plotters
 
 
@@ -60,9 +61,35 @@ class TestPlotters:
             is None
         )
 
-    def test_create_stacked_bar_chart_for_monthly(
-        self, mock_headers, monthly_data
-    ):
+    def test_plot_column_validation_valid(self, mock_headers, hourly_data):
+        columns = ["QSrc1TIn", "QSrc1TOut"]
+
+        with _um.patch(
+                "pytrnsys_process.plotting.plotters.LinePlot._do_plot"
+        ) as mock_do_plot:
+            # Execute
+            line_plot = plotters.LinePlot()
+            line_plot.plot_with_column_validation(
+                hourly_data, columns, headers=mock_headers
+            )
+
+            # Assert that _do_plot was called
+            mock_do_plot.assert_called_once()
+
+    def test_plot_column_validation_invalid(self, mock_headers, hourly_data):
+        columns = ["DoesNotExist", "AlsoMissing"]
+        line_plot = plotters.LinePlot()
+
+        with pytest.raises(ValueError) as excinfo:
+            line_plot.plot_with_column_validation(
+                hourly_data, columns, headers=mock_headers
+            )
+        assert (
+                "The following columns are not available in the headers index:\nDoesNotExist\nAlsoMissing"
+                in str(excinfo.value)
+        )
+
+    def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
         expected_file = (
             const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
@@ -78,32 +105,26 @@ class TestPlotters:
         ]
 
         # Execute
-        monthly_bar_chart = plotters.StackedBarChart()
-        fig, _ = monthly_bar_chart.plot_with_column_validation(
-            monthly_data, columns, headers=mock_headers
-        )
+        fig, _ = pw.stacked_bar_chart(monthly_data, columns)
         fig.savefig(actual_file)
 
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
-    def test_create_line_plot_for_hourly(self, mock_headers, hourly_data):
+    def test_create_line_plot_for_hourly(self, hourly_data):
         # Setup
         expected_fig = const.DATA_FOLDER / "plots/line-plot/expected.png"
         actual_fig = const.DATA_FOLDER / "plots/line-plot/actual.png"
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         # Execute
-        line_plot = plotters.LinePlot()
-        fig, _ = line_plot.plot_with_column_validation(
-            hourly_data, columns, headers=mock_headers
-        )
+        fig, _ = pw.line_plot(hourly_data, columns)
         fig.savefig(actual_fig)
 
         # Assert
         self.assert_plots_match(actual_fig, expected_fig)
 
-    def test_create_bar_chart_for_monthly(self, mock_headers, monthly_data):
+    def test_create_bar_chart_for_monthly(self, monthly_data):
         # Setup
         expected_file = const.DATA_FOLDER / "plots/bar-chart/expected.png"
         actual_file = const.DATA_FOLDER / "plots/bar-chart/actual.png"
@@ -113,44 +134,37 @@ class TestPlotters:
         ]
 
         # Execute
-        bar_chart = plotters.BarChart()
-        fig, _ = bar_chart.plot_with_column_validation(
-            monthly_data, columns, headers=mock_headers
-        )
+        fig, _ = pw.bar_chart(monthly_data, columns)
         fig.savefig(actual_file)
 
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
-    def test_create_histogram_for_hourly(self, mock_headers, hourly_data):
+    def test_create_histogram_for_hourly(self, hourly_data):
         # Setup
         expected_file = const.DATA_FOLDER / "plots/histogram/expected.png"
         actual_file = const.DATA_FOLDER / "plots/histogram/actual.png"
         columns = ["QSrc1TIn"]
 
         # Execute
-        histogram = plotters.Histogram()
-        fig, _ = histogram.plot_with_column_validation(
-            hourly_data, columns, headers=mock_headers, ylabel="Time [h]"
-        )
+        fig, _ = pw.histogram(hourly_data, columns, ylabel="Time [h]")
         fig.savefig(actual_file)
 
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
-    def test_scatter_plot_for_monthly(self, mock_headers, monthly_data):
+    def test_scatter_plot_for_monthly(self, monthly_data):
         # Setup
         expected_file = const.DATA_FOLDER / "plots/scatter-plot/expected.png"
         actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual.png"
         columns = ["QSnk60dQlossTess", "QSnk60dQ"]
 
-        scatter_plot = plotters.ScatterPlot()
-        fig, _ = scatter_plot.plot_with_column_validation(
+        # Execute
+        fig, _ = pw.scatter_plot(
             monthly_data,
             columns,
-            headers=mock_headers,
-            x="QSnk60dQlossTess",
-            y="QSnk60dQ",
+            x_column="QSnk60dQlossTess",
+            y_column="QSnk60dQ",
         )
         fig.savefig(actual_file)
 

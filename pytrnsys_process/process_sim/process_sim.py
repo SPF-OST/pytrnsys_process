@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 import pandas as _pd
 
+from pytrnsys_process import constants as const
 from pytrnsys_process import file_matcher as fm
 from pytrnsys_process import readers, utils
 from pytrnsys_process.logger import logger
@@ -96,11 +97,11 @@ def process_sim_prt(
     timestep = []
 
     for sim_file in sim_files:
-        if fm.has_pattern(sim_file.name, fm.FileType.MONTHLY):
+        if fm.has_pattern(sim_file.name, const.FileType.MONTHLY):
             monthly.append(prt_reader.read_monthly(sim_file))
-        elif fm.has_pattern(sim_file.name, fm.FileType.HOURLY):
+        elif fm.has_pattern(sim_file.name, const.FileType.HOURLY):
             hourly.append(prt_reader.read_hourly(sim_file))
-        elif fm.has_pattern(sim_file.name, fm.FileType.TIMESTEP):
+        elif fm.has_pattern(sim_file.name, const.FileType.TIMESTEP):
             timestep.append(prt_reader.read_step(sim_file))
         else:
             logger.warning("Unknown file type: %s", sim_file.name)
@@ -123,8 +124,7 @@ def process_sim_prt(
     return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
 
 
-# pragma: no cover - tests disabled until step requirements are clear
-def process_sim_using_file_content_prt(
+def process_sim_using_file_content_prt(  # pragma: no cover - tests disabled until step requirements are clear
     sim_folder: _pl.Path,
 ) -> Simulation:
     sim_files = utils.get_files([sim_folder])
@@ -135,11 +135,11 @@ def process_sim_using_file_content_prt(
 
     for sim_file in sim_files:
         file_type = fm.get_file_type_using_file_content(sim_file)
-        if file_type == fm.FileType.MONTHLY:
+        if file_type == const.FileType.MONTHLY:
             monthly.append(prt_reader.read_monthly(sim_file))
-        elif file_type == fm.FileType.HOURLY:
+        elif file_type == const.FileType.HOURLY:
             hourly.append(prt_reader.read_hourly(sim_file))
-        elif file_type == fm.FileType.TIMESTEP:
+        elif file_type == const.FileType.TIMESTEP:
             step.append(prt_reader.read_step(sim_file))
         else:
             logger.warning("Unknown file type: %s", sim_file.name)
@@ -160,11 +160,11 @@ def process_sim_csv(
     timestep = []
 
     for sim_file in sim_files:
-        if fm.has_pattern(sim_file.name, fm.FileType.MONTHLY):
+        if fm.has_pattern(sim_file.name, const.FileType.MONTHLY):
             monthly.append(csv_reader.read_csv(sim_file))
-        elif fm.has_pattern(sim_file.name, fm.FileType.HOURLY):
+        elif fm.has_pattern(sim_file.name, const.FileType.HOURLY):
             hourly.append(csv_reader.read_csv(sim_file))
-        elif fm.has_pattern(sim_file.name, fm.FileType.TIMESTEP):
+        elif fm.has_pattern(sim_file.name, const.FileType.TIMESTEP):
             timestep.append(csv_reader.read_csv(sim_file))
         else:
             logger.warning("Unknown file type: %s", sim_file.name)

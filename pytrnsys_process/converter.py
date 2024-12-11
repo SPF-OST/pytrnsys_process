@@ -1,4 +1,5 @@
 import pathlib as _pl
+import re as _re
 
 import pandas as _pd
 
@@ -128,8 +129,18 @@ class CsvConverter:
     def _refactor_filename(
         filename: str, patterns: list[str], prefix: str
     ) -> str:
-        """Process filename by removing patterns and adding appropriate prefix."""
+        """Process filename by removing patterns and adding appropriate prefix.
+        
+        Args:
+            filename: The original filename to process
+            patterns: List of regex patterns to remove from filename
+            prefix: Prefix to add to the processed filename
+            
+        Returns:
+            The processed filename with patterns removed and prefix added
+        """
         processed_name = filename.lower()
         for pattern in patterns:
-            processed_name = processed_name.replace(pattern, "")
+            if pattern not in ("_mfr$", "_t$"):
+                processed_name = _re.sub(pattern, "", processed_name)
         return f"{prefix}{processed_name}"

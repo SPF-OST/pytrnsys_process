@@ -1,10 +1,10 @@
-import datetime as _dt
 import pathlib as _pl
+import re as _re
 
 import pandas as _pd
 
 from pytrnsys_process import constants as const
-from pytrnsys_process import file_matcher as fm
+from pytrnsys_process import file_type_detector as ftd
 from pytrnsys_process import readers
 from pytrnsys_process.logger import logger
 
@@ -58,22 +58,22 @@ class CsvConverter:
             if not input_file.is_file():
                 continue
 
-            if fm.has_pattern(input_file.name, const.FileType.MONTHLY):
+            if ftd.has_pattern(input_file, const.FileType.MONTHLY):
                 df = readers.PrtReader().read_monthly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
                     const.FileType.MONTHLY.value.patterns,
                     const.FileType.MONTHLY.value.prefix,
                 )
-            elif fm.has_pattern(input_file.name, const.FileType.HOURLY):
+            elif ftd.has_pattern(input_file, const.FileType.HOURLY):
                 df = readers.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
                     const.FileType.HOURLY.value.patterns,
                     const.FileType.HOURLY.value.prefix,
                 )
-            elif fm.has_pattern(input_file.name, const.FileType.TIMESTEP):
-                df = readers.PrtReader().read_hourly(input_file)
+            elif ftd.has_pattern(input_file, const.FileType.TIMESTEP):
+                df = readers.PrtReader().read_step(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
                     const.FileType.TIMESTEP.value.patterns,
@@ -84,7 +84,7 @@ class CsvConverter:
                     "Unknown file type: %s, will try to detect via timestamps",
                     input_file.name,
                 )
-                output_stem, df = self._detect_file_type_via_content(
+                output_stem, df = self.using_file_content_read_appropriately(
                     input_file
                 )
 
@@ -92,37 +92,55 @@ class CsvConverter:
             df.to_csv(output_file, index=True, encoding="UTF8")
 
     @staticmethod
-    def _detect_file_type_via_content(
+    def using_file_content_read_appropriately(
         file_path: _pl.Path,
     ) -> tuple[str, _pd.DataFrame]:
-        """Detect the file type based on the content of the file."""
-
-        df_check = readers.PrtReader().read(file_path)
-        if df_check.columns[0] == "Month":
-            monthly_file = f"mo_{file_path.stem}".lower()
+        """Depending on file content read the file appropriately"""
+        prt_reader = readers.PrtReader()
+        file_type = ftd.get_file_type_using_file_content(file_path)
+        if file_type == const.FileType.MONTHLY:
+            df_monthly = readers.PrtReader().read_monthly(file_path)
+            monthly_file = f"{const.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
             logger.info(
                 "Converted %s to monthly file: %s", file_path, monthly_file
             )
-            df_monthly = readers.PrtReader().read_monthly(file_path)
             return monthly_file, df_monthly
-        df_hourly = readers.PrtReader().read_hourly(file_path)
-        time_diff = df_hourly.index[1] - df_hourly.index[0]
-        if time_diff < _dt.timedelta(hours=1):
-            timestamp_file = f"timestamp_{file_path.stem}".lower()
+        if file_type == const.FileType.HOURLY:
+            df_hourly = prt_reader.read_hourly(file_path)
+            hourly_file = (
+                f"{const.FileType.HOURLY.value.prefix}{file_path.stem}".lower()
+            )
+            logger.info(
+                "Converted %s to hourly file: %s", file_path, hourly_file
+            )
+            return hourly_file, df_hourly
+        if file_type == const.FileType.TIMESTEP:
+            df_step = prt_reader.read_step(file_path)
+            timestamp_file = f"{const.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
             logger.info(
                 "Converted %s to timestamp file: %s", file_path, timestamp_file
             )
-            return timestamp_file, df_hourly
-        hourly_file = f"hr_{file_path.stem}".lower()
-        logger.info("Converted %s to hourly file: %s", file_path, hourly_file)
-        return hourly_file, df_hourly
+            return timestamp_file, df_step
+        raise ValueError(
+            f"Could not determine appropriate file type for {file_path}"
+        )
 
     @staticmethod
     def _refactor_filename(
         filename: str, patterns: list[str], prefix: str
     ) -> str:
-        """Process filename by removing patterns and adding appropriate prefix."""
+        """Process filename by removing patterns and adding appropriate prefix.
+        
+        Args:
+            filename: The original filename to process
+            patterns: List of regex patterns to remove from filename
+            prefix: Prefix to add to the processed filename
+            
+        Returns:
+            The processed filename with patterns removed and prefix added
+        """
         processed_name = filename.lower()
         for pattern in patterns:
-            processed_name = processed_name.replace(pattern, "")
+            if pattern not in ("_mfr$", "_t$"):
+                processed_name = _re.sub(pattern, "", processed_name)
         return f"{prefix}{processed_name}"

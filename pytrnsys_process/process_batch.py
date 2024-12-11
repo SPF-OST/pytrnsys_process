@@ -6,6 +6,7 @@ from typing import List, Sequence, Union
 
 import matplotlib.pyplot as _plt
 
+from pytrnsys_process import utils
 from pytrnsys_process.logger import logger
 from pytrnsys_process.process_sim import process_sim as ps
 
@@ -48,7 +49,8 @@ def _process_simulation(
         processing_scenarios: Union[Callable, Sequence[Callable]],
 ) -> tuple[ps.Simulation, List[str]]:
     logger.debug("Processing simulation folder: %s", sim_folder)
-    simulation = ps.process_sim_prt(sim_folder)
+    sim_files = utils.get_files([sim_folder])
+    simulation = ps.process_sim(sim_files, sim_folder)
     failed_scenarios = []
 
     # Convert single scenario to list for uniform handling

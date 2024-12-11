@@ -1,7 +1,7 @@
 import pytest as _pt
 
 from pytrnsys_process import constants as const
-from pytrnsys_process import converter, readers
+from pytrnsys_process import converter
 from tests.pytrnsys_process import constants as test_const
 
 
@@ -26,21 +26,19 @@ class TestConverter:
             "hr_control.csv",
             "hr_pcmout.csv",
             "hr_src.csv",
-            "mo_energy_balance131_tess.csv",
-            "mo_energy_balance183_tess.csv",
-            "mo_pcm.csv",
+            "mo_energy_balance60_tess.csv",
+            "mo_energy_balancehp_60.csv",
+            "mo_energy_balance_hp_225.csv",
+            "step_hpctrlprinter.csv",
+            "step_modeprinter.csv",
+            "step_pysimcooldownadd_mfr.csv",
+            "step_pysimcooldownadd_t.csv",
         ]
         for file_name in expected_files:
             output_file = output_dir / file_name
             assert (
                 output_file.exists()
             ), f"Expected output file {file_name} not found"
-
-        shape = readers.CsvReader().read(
-            test_const.DATA_FOLDER
-            / "conversion/csv/mo_energy_balance131_tess.csv"
-        ).shape == (14, 7)
-        assert shape
 
     @_pt.mark.parametrize(
         "file_type, expected_prefix",

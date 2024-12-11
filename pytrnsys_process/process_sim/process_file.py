@@ -4,8 +4,9 @@ from dataclasses import dataclass
 import pandas as _pd
 
 from pytrnsys_process import constants as const
-from pytrnsys_process import file_matcher as fm
+from pytrnsys_process import file_type_detector as fm
 from pytrnsys_process import readers, utils
+from pytrnsys_process.logger import logger
 
 
 @dataclass
@@ -27,11 +28,18 @@ def process_simulation(
     sim_files = utils.get_files([sim_folder])
     files = []
     for sim_file in sim_files:
-        if detect_file_using_content:
-            files.append(process_file_using_file_content(sim_file))
-        else:
-            files.append(process_file_using_file_name(sim_file))
-
+        try:
+            if detect_file_using_content:
+                files.append(process_file_using_file_content(sim_file))
+            else:
+                files.append(process_file_using_file_name(sim_file))
+        except ValueError as e:
+            logger.warning(
+                "Error reading file %s it will not be available for processing: %s",
+                sim_file,
+                str(e),
+                exc_info=True,
+            )
     return Simulation(sim_folder.name, files)
 
 
@@ -51,7 +59,7 @@ def process_file_using_file_content(file_path: _pl.Path) -> SimFile:
 
 
 def process_file_using_file_name(file_path: _pl.Path) -> SimFile:
-    file_type = fm.get_file_type_using_file_name(file_path.name)
+    file_type = fm.get_file_type_using_file_name(file_path)
     reader = readers.PrtReader()
     if file_type == const.FileType.MONTHLY:
         data = reader.read_monthly(file_path)

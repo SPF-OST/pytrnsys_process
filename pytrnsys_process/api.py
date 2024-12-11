@@ -21,9 +21,13 @@ from pytrnsys_process.process_batch import (
 )
 from pytrnsys_process.process_sim.process_sim import Simulation
 
+# ============================================================
 # this lives here, because it needs to be available everywhere
 from pytrnsys_process.settings import settings
-from pytrnsys_process.utils import save_plot
+
+# ============================================================
+
+from pytrnsys_process.utils import export_plots_in_configured_formats
 
 __all__ = [
     "line_plot",
@@ -35,6 +39,6 @@ __all__ = [
     "process_single_simulation",
     "process_whole_result_set",
     "Simulation",
-    "save_plot",
+    "export_plots_in_configured_formats",
     "settings",
 ]

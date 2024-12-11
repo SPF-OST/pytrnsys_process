@@ -12,7 +12,7 @@ def test_save_plot_for_default_settings(tmp_path):
 
     with patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert:
         # Call save_plot
-        utils.save_plot(fig, tmp_path, "test_plot")
+        utils.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
 
         # Verify plots directory was created
         plots_dir = tmp_path / "plots"

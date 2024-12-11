@@ -34,9 +34,48 @@ def get_files(
 
 # TODO add docstring #pylint: disable=fixme
 
-def save_plot(
+
+def export_plots_in_configured_formats(
         fig: _plt.Figure, path_to_directory: _pl.Path, plot_name: str
 ) -> None:
+    """Save a matplotlib figure in multiple formats and sizes.
+
+    Saves the figure in all configured formats (png, pdf, emf) and sizes (A4, A4_HALF)
+    as specified in the plot settings. For EMF format, the figure is first saved as SVG
+    and then converted using Inkscape.
+
+    Args:
+        fig: The matplotlib Figure object to save
+        path_to_directory: Directory path where the plot should be saved
+        plot_name: Base name for the plot file (will be appended with size and format)
+
+    Returns:
+        None
+
+    Note:
+        - Creates a 'plots' subdirectory if it doesn't exist
+        - For EMF files, requires Inkscape to be installed at the configured path
+        - File naming format: {plot_name}-{size_name}.{format}
+
+    Example:
+    >>> from pytrnsys_process import api
+    >>> def processing_of_monthly_data(simulation: api.Simulation):
+    >>>     monthly_df = simulation.monthly
+    >>>     columns_to_plot = ["QSnk60P", "QSnk60PauxCondSwitch_kW"]
+    >>>     fig, ax = api.bar_chart(
+    >>>     monthly_df,
+    >>>     columns_to_plot,
+    >>>     )
+    >>>     # Save the plot in multiple formats
+    >>>     api.export_plots_in_configured_formats(fig, simulation.path, "monthly-bar-chart")
+    >>>     # Creates files like:
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.png
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.pdf
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.emf
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4_HALF.png
+    >>>     #   etc.
+
+    """
     plot_settings = _set.settings.plot
     plots_folder = path_to_directory / "plots"
     plots_folder.mkdir(exist_ok=True)

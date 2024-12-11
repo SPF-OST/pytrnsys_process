@@ -1,7 +1,7 @@
 import pytest as _pt
 
 from pytrnsys_process import constants as const
-from pytrnsys_process import converter
+from pytrnsys_process import file_converter
 from tests.pytrnsys_process import constants as test_const
 
 
@@ -18,7 +18,7 @@ class TestConverter:
         input_dir = test_const.DATA_FOLDER / "conversion/prt"
         output_dir = test_const.DATA_FOLDER / "conversion/csv"
 
-        converter.CsvConverter().convert_sim_results_to_csv(
+        file_converter.CsvConverter().convert_sim_results_to_csv(
             input_dir, output_dir
         )
 
@@ -65,7 +65,9 @@ class TestConverter:
         test_file = tmp_path / "test.txt"
         test_file.write_text("test content")
 
-        converter.CsvConverter().rename_file_with_prefix(test_file, file_type)
+        file_converter.CsvConverter().rename_file_with_prefix(
+            test_file, file_type
+        )
 
         assert not test_file.exists()
         assert (tmp_path / f"{expected_prefix}test.txt").exists()
@@ -75,6 +77,6 @@ class TestConverter:
         nonexistent_file = tmp_path / "doesnotexist.txt"
 
         with _pt.raises(FileNotFoundError):
-            converter.CsvConverter().rename_file_with_prefix(
+            file_converter.CsvConverter().rename_file_with_prefix(
                 nonexistent_file, const.FileType.MONTHLY
             )

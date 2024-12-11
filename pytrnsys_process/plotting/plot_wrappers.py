@@ -32,12 +32,19 @@ def line_plot(
         >>>
         >>> def create_line_plot(simulation: api.Simulation):
         >>>     fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
-        Customize the plot using the returned axes object:
+        >>>     # Customize the plot using the returned axes object:
         >>>     ax.set_xlabel('Time')
         >>>     ax.set_ylabel('Value')
         >>>     ax.set_title('My Plot')
         >>>     ax.grid(True)
         >>>     _plt.show()
+        >>>
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     create_line_plot,
+        >>>     )
+
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html
@@ -70,12 +77,19 @@ def bar_chart(
 
     Example:
         >>> from pytrnsys_process import api
-        >>> fig, ax = api.bar_chart(simulation.monthly, columns=['var1', 'var2'])
-        Customize the plot using the returned axes object:
-        >>> ax.set_xlabel('Time')
-        >>> ax.set_ylabel('Value')
-        >>> ax.set_title('My Plot')
-        >>> ax.grid(True)
+        >>> def create_bar_chart(simulation: api.Simulation):
+        >>>     fig, ax = api.bar_chart(simulation.monthly, columns=['var1', 'var2'])
+        >>>     # Customize the plot using the returned axes object:
+        >>>     ax.set_xlabel('Time')
+        >>>     ax.set_ylabel('Value')
+        >>>     ax.set_title('My Plot')
+        >>>     ax.grid(True)
+        >>>
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     create_bar_chart,
+        >>>     )
 
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
@@ -109,12 +123,19 @@ def stacked_bar_chart(
 
     Example:
         >>> from pytrnsys_process import api
-        >>> fig, ax = api.stacked_bar_chart(simulation.monthly, columns=['var1', 'var2', 'var3'])
-        Customize the plot using the returned axes object:
-        >>> ax.set_xlabel('Time')
-        >>> ax.set_ylabel('Value')
-        >>> ax.set_title('My Plot')
-        >>> ax.grid(True)
+        >>> def create_stacked_bar_chart(simulation: api.Simulation):
+        >>>     fig, ax = api.stacked_bar_chart(simulation.monthly, columns=['var1', 'var2', 'var3'])
+        >>>     # Customize the plot using the returned axes object:
+        >>>     ax.set_xlabel('Time')
+        >>>     ax.set_ylabel('Value')
+        >>>     ax.set_title('My Plot')
+        >>>     ax.grid(True)
+        >>>
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     create_stacked_bar_chart,
+        >>>     )
 
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
@@ -148,12 +169,19 @@ def histogram(
 
     Example:
         >>> from pytrnsys_process import api
-        >>> fig, ax = api.histogram(simulation.hourly, columns=['var1', 'var2'])
-        Customize the plot using the returned axes object:
-        >>> ax.set_xlabel('Value')
-        >>> ax.set_ylabel('Frequency')
-        >>> ax.set_title('My Histogram')
-        >>> ax.grid(True)
+        >>> def create_histogram(simulation: api.Simulation):
+        >>>     fig, ax = api.histogram(simulation.hourly, columns=['var1', 'var2'])
+        >>>     # Customize the plot using the returned axes object:
+        >>>     ax.set_xlabel('Value')
+        >>>     ax.set_ylabel('Frequency')
+        >>>     ax.set_title('My Histogram')
+        >>>     ax.grid(True)
+        >>>
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     create_histogram,
+        >>>     )
 
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
@@ -190,17 +218,24 @@ def scatter_plot(
 
     Example:
         >>> from pytrnsys_process import api
-        >>> fig, ax = api.scatter_plot(
-        ...     simulation.hourly,
-        ...     columns=["var1", "var2", "var3"],
-        ...     x_column="var1",
-        ...     y_column="var2",
-        ... )
-        Customize the plot using the returned axes object:
-        >>> ax.set_xlabel('Time')
-        >>> ax.set_ylabel('Value')
-        >>> ax.set_title('My Scatter Plot')
-        >>> ax.grid(True)
+        >>> def create_scatter_plot(simulation: api.Simulation):
+        >>>     fig, ax = api.scatter_plot(
+        ...         simulation.hourly,
+        ...         columns=["var1", "var2", "var3"],
+        ...         x_column="var1",
+        ...         y_column="var2",
+        ...     )
+        >>>     # Customize the plot using the returned axes object:
+        >>>     ax.set_xlabel('Time')
+        >>>     ax.set_ylabel('Value')
+        >>>     ax.set_title('My Scatter Plot')
+        >>>     ax.grid(True)
+        >>>
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     create_scatter_plot,
+        >>>     )
 
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/

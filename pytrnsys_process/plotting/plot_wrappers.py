@@ -55,7 +55,7 @@ def bar_chart(
         size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    # TODO: add description of visual grouping of bars with increasing number of columns. # pylint: disable=fixem
+    # TODO: add description of visual grouping of bars with increasing number of columns. #pylint: disable=fixme
     """Create a bar chart with multiple columns displayed as grouped bars.
 
     Args:

@@ -38,7 +38,7 @@ class TestReader:
         ) == expected_file_path.read_text(encoding="UTF8")
 
     def test_read_step(self):
-        step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.Prt"
+        step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.prt"
         actual_df = readers.PrtReader().read_step(step_file_path)
 
         expected_file_path = self.STEP_DIR_PATH / "expected.csv"

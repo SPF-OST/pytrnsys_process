@@ -71,7 +71,7 @@ class TestFileContentDetection:
     @pytest.fixture
     def timestep_file(self):
         file_path = (
-                test_const.DATA_FOLDER / "results/sim-1/temp/HPCtrlPrinter.prt"
+                test_const.DATA_FOLDER / "results/sim-1/temp/HPCtrlPrinter.Prt"
         )
         return file_path
 

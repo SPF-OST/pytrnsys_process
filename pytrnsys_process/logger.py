@@ -1,6 +1,6 @@
 """
 Configures logging for the pytrnsys_process package with three outputs:
-1. Console output (INFO level) - Shows basic messages without stacktrrace
+1. Console output (INFO level) - Shows basic messages without stacktrace
 2. Regular log file (INFO level) - Logs to pytrnsys_process.log without stacktrace
 3. Debug log file (DEBUG level) - Logs to pytrnsys_process_debug.log with full stacktrace
 

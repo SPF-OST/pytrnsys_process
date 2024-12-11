@@ -9,6 +9,10 @@ from pytrnsys_process.process_sim import process_sim as ps
 
 PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 
+# TODO: check whether get_files enters any folders inside of the temp folder. It should not.  # pylint: disable=fixme
+# TODO: add an excel file to the temp folder and ensure that error logged and otherwise continues.  # pylint: disable=fixme
+# TODO:
+
 
 class TestProcessSim:
 
@@ -133,6 +137,7 @@ class TestHandleDuplicateColumns:
 
 
 class TestBenchmarkProcessSim:
+    # TODO: fix these tests. # pylint: disable=fixme
 
     def test_process_per_sim_prt(self, benchmark):
         benchmark(ps.process_sim, PATH_TO_RESULTS)

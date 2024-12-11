@@ -10,7 +10,8 @@ from pytrnsys_process.settings import settings
 def test_save_plot_for_default_settings(tmp_path):
     fig = Mock(spec=plt.Figure)
 
-    with patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert:
+    with (patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert,
+          patch("os.remove") as mock_remove):
         # Call save_plot
         utils.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
 
@@ -35,10 +36,11 @@ def test_save_plot_for_default_settings(tmp_path):
 
         # Verify convert_svg_to_emf was called for each size
         expected_convert_calls = [
-            call(plots_dir / "test_plot-A4.svg"),
-            call(plots_dir / "test_plot-A4_HALF.svg"),
+            call(plots_dir / "test_plot-A4"),
+            call(plots_dir / "test_plot-A4_HALF"),
         ]
         assert mock_convert.call_args_list == expected_convert_calls
+        assert mock_remove.call_count == 2
 
 
 def test_convert_svg_to_emf(tmp_path):
@@ -49,9 +51,10 @@ def test_convert_svg_to_emf(tmp_path):
     ):
         # Create test SVG path
         svg_path = tmp_path / "test.svg"
+        file_no_suffix = tmp_path / "test"
 
         # Call convert_svg_to_emf
-        utils.convert_svg_to_emf(svg_path)
+        utils.convert_svg_to_emf(file_no_suffix)
 
         # Verify subprocess.run was called correctly
         mock_run.assert_called_once_with(
@@ -67,7 +70,7 @@ def test_convert_svg_to_emf(tmp_path):
         )
 
         # Verify original SVG was removed
-        mock_remove.assert_called_once_with(svg_path)
+        assert not mock_remove.called
 
 
 def test_convert_svg_to_emf_inkscape_not_found(tmp_path):

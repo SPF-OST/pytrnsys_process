@@ -74,9 +74,11 @@ class TestPlotters:
             )
 
             # Assert that _do_plot was called
+            # TODO: Separate concern of column in header validation from _do_plot.  # pylint: disable=fixme
             mock_do_plot.assert_called_once()
 
     def test_plot_column_validation_invalid(self, mock_headers, hourly_data):
+        # TODO: add this to just the validation part.   # pylint: disable=fixme
         columns = ["DoesNotExist", "AlsoMissing"]
         line_plot = plotters.LinePlot()
 

@@ -6,6 +6,13 @@ You can finde the documentation here: https://pytrnsys-process.readthedocs.io/en
 
 To find a running example, please refer to the `examples` folder.
 
+```commandline 
+py -3.12 -m venv venv 
+venv\Scripts\python -m pip install pip==24.2
+venv\Scripts\python -m pip install wheel
+venv\Scripts\python -m pip install -r .\requirements\dev.txt
+```
+
 ### Benchmarking tests:
 ```commandline
 pytest --benchmark-only

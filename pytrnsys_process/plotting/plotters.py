@@ -236,12 +236,7 @@ class ScatterPlot(ChartBase):
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
-        plot_kwargs = {
-            "colormap": self.COLOR_MAP,
-            "legend": use_legend,
-            "ax": ax,
-            **kwargs,
-        }
-        df[columns].plot.scatter(**plot_kwargs)
+        # TODO: cleanup the other Plotters to remove the stringy dictionary.
+        df[columns].plot.scatter(colormap=self.COLOR_MAP, legend=use_legend, ax=ax, **kwargs)
         ax = self.configure(ax)
         return fig, ax

@@ -20,6 +20,7 @@ from pytrnsys_process.process_batch import (
     process_whole_result_set_parallel,
 )
 from pytrnsys_process.process_sim.process_sim import Simulation
+
 # this lives here, because it needs to be available everywhere
 from pytrnsys_process.settings import settings
 from pytrnsys_process.utils import save_plot

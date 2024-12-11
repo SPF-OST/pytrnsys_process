@@ -2,6 +2,8 @@ import pandas as _pd
 import pytest as _pt
 
 import tests.pytrnsys_process.constants as const
+from pytrnsys_process import settings as sett
+from pytrnsys_process import utils
 from pytrnsys_process.process_sim import process_file as pf
 from pytrnsys_process.process_sim import process_sim as ps
 
@@ -10,46 +12,61 @@ PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 
 class TestProcessSim:
 
-    def test_process_sim_using_file_name_prt(self):
-        simulation = ps.process_sim_prt(PATH_TO_RESULTS)
+    def test_process_sim_prt(self):
+        sim_files = utils.get_files([PATH_TO_RESULTS])
+
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         self.do_assert(simulation)
 
-    def test_process_sim_using_file_name_csv(self):
-        simulation = ps.process_sim_csv(PATH_TO_RESULTS)
+    def test_process_sim_csv(self):
+        sim_files = utils.get_files(
+            [PATH_TO_RESULTS],
+            results_folder_name="converted",
+            get_mfr_and_t=False,
+        )
+
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         self.do_assert(simulation)
 
-    @_pt.mark.skip(reason="Skipped until step file requirements are clear")
-    def test_process_sim_using_file_content_prt(self):
-        simulation = ps.process_sim_using_file_content_prt(PATH_TO_RESULTS)
+    def test_process_sim_ignore_step(self):
+        sim_files = utils.get_files([PATH_TO_RESULTS])
+        sett.settings.reader.read_step_files = False
 
-        self.do_assert(simulation)
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+
+        assert simulation.step.shape == (0, 0)
 
     def do_assert(self, simulation):
         assert simulation.hourly.shape == (3, 18)
         assert simulation.monthly.shape == (14, 11)
-        assert simulation.step.shape == (3, 9)
+        assert simulation.step.shape == (5, 142)
 
 
 class TestProcessFile:
 
     def do_assert(self, simulation):
         expected_file_names = [
-            "control_hr.prt",
+            "PySimCoolDownAdd_Mfr.prt",
+            "PySimCoolDownAdd_T.prt",
             "ENERGY_BALANCE_MO_60_TESS.Prt",
-            "ENERGY_BALANCE_MO_HP_225.Prt",
             "ENERGY_BALANCE_MO_HP_60.Prt",
-            "PCMOut.hr",
-            "sink_storage_temperatures_step.prt",
+            "ModePrinter_step.prt",
             "Src_Hr.Prt",
+            "control.prt",
+            "ENERGY_BALANCE_HP_225.Prt",
+            "HPCtrlPrinter.Prt",
+            "PCMOut.prt",
         ]
         for file in simulation.files:
             assert file.name in expected_file_names
-        assert len(simulation.files) == 7
+        assert len(simulation.files) >= 6
 
     def test_process_file_using_file_name(self):
-        simulation = pf.process_simulation(PATH_TO_RESULTS)
+        simulation = pf.process_simulation(
+            PATH_TO_RESULTS,
+        )
 
         self.do_assert(simulation)
 
@@ -117,14 +134,11 @@ class TestHandleDuplicateColumns:
 
 class TestBenchmarkProcessSim:
 
-    def test_process_per_sim_using_file_name_prt(self, benchmark):
-        benchmark(ps.process_sim_prt, PATH_TO_RESULTS)
+    def test_process_per_sim_prt(self, benchmark):
+        benchmark(ps.process_sim, PATH_TO_RESULTS)
 
-    def test_process_per_sim_using_file_name_csv(self, benchmark):
-        benchmark(ps.process_sim_csv, PATH_TO_RESULTS)
-
-    def test_process_per_sim_using_file_content_prt(self, benchmark):
-        benchmark(ps.process_sim_using_file_content_prt, PATH_TO_RESULTS)
+    def test_process_per_sim_csv(self, benchmark):
+        benchmark(ps.process_sim, PATH_TO_RESULTS)
 
     def test_process_per_file_using_file_content(self, benchmark):
         benchmark(

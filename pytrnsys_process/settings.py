@@ -29,6 +29,10 @@ class Plot:
 @dataclass
 class Reader:
     folder_name_for_printer_files_loc: str = "temp"
+    read_step_files: bool = True
+
+
+# TODO Provide structure for default settings, so users can easily access the defaults #pylint: disable=fixme
 
 
 DEFAULT = Settings(plot=Plot(), reader=Reader())

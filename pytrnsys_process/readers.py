@@ -22,13 +22,19 @@ class ReaderBase:
     # https://stackoverflow.com/questions/25184097/pylint-invalid-constant-name/51975811#51975811
     # ===================================
 
-    def read(self, file_path: _pl.Path) -> _pd.DataFrame:
+    def read(
+            self,
+            file_path: _pl.Path,
+            skipfooter: int = SKIPFOOTER,
+            header: int = HEADER,
+            delimiter: str = DELIMITER,
+    ) -> _pd.DataFrame:
         """Common read function for all readers"""
         df = _pd.read_csv(
             file_path,
-            skipfooter=self.SKIPFOOTER,
-            header=self.HEADER,
-            delimiter=self.DELIMITER,
+            skipfooter=skipfooter,
+            header=header,
+            delimiter=delimiter,
             engine="python",
         )
         return df
@@ -91,7 +97,7 @@ class PrtReader(ReaderBase):
 
     def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
         df = self._process_dataframe(
-            self.read(step_file), starting_year, "Period"
+            self.read(step_file, skipfooter=0, header=0), starting_year, "TIME"
         )
         return df
 
@@ -115,9 +121,13 @@ class PrtReader(ReaderBase):
             df["Timestamp"] = self._create_monthly_timestamps(
                 df[time_column_name], starting_year
             )
+        elif time_column_name == "TIME":
+            df["Timestamp"] = self._create_step_timestamps(
+                df[time_column_name].astype(float), starting_year
+            )
         else:
             raise ValueError(
-                f"Invalid time_column_name: {time_column_name}. Must be 'Period' or 'Month'"
+                f"Invalid time_column_name: {time_column_name}. Must be 'Period', 'TIME' or 'Month'"
             )
 
         # Remove time columns
@@ -127,6 +137,22 @@ class PrtReader(ReaderBase):
         df = df.drop(columns=[time_column_name])
 
         return df.set_index("Timestamp")
+
+    def _create_step_timestamps(
+            self, minutes_elapsed: _pd.Series, starting_year: int
+    ) -> _pd.Series:
+        """Create step timestamps from elapsed minutes since start of year.
+
+        Args:
+            minutes_elapsed: Series containing number of minutes since start of year
+            starting_year: Year to use as the start of the simulation
+
+        Returns:
+            Series of datetime objects with minute intervals
+        """
+        minutes = [_dt.timedelta(minutes=float(m)) for m in minutes_elapsed]
+        start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
+        return _pd.Series([start_of_year + m for m in minutes])
 
     def _create_hourly_timestamps(
         self, hours_elapsed: _pd.Series, starting_year: int
@@ -228,5 +254,12 @@ class CsvReader(ReaderBase):
     DELIMITER: str = ","
 
     def read_csv(self, csv_file: _pl.Path) -> _pd.DataFrame:
-        df = self.read(csv_file)
+        df = self.read(
+            csv_file,
+            skipfooter=self.SKIPFOOTER,
+            header=self.HEADER,
+            delimiter=self.DELIMITER,
+        )
+
+        df["Timestamp"] = _pd.to_datetime(df["Timestamp"])
         return df.set_index("Timestamp")

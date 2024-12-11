@@ -1,15 +1,14 @@
 import pathlib as _pl
-from dataclasses import dataclass
+from collections import abc as _abc
+from dataclasses import dataclass, field
 
 import pandas as _pd
 
 from pytrnsys_process import constants as const
-from pytrnsys_process import file_matcher as fm
-from pytrnsys_process import readers, utils
+from pytrnsys_process import file_type_detector as ftd
+from pytrnsys_process import readers
+from pytrnsys_process import settings as sett
 from pytrnsys_process.logger import logger
-
-
-# TODO test if overlapping colums are allowed if the value are the same # pylint: disable=fixme
 
 
 @dataclass
@@ -39,6 +38,30 @@ class Simulation:
     hourly: _pd.DataFrame
     step: _pd.DataFrame
     # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
+
+
+def process_sim(
+        sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
+) -> Simulation:
+    simulation_data_collector = _SimulationDataCollector()
+    for sim_file in sim_files:
+        try:
+            _process_file(
+                simulation_data_collector,
+                sim_file,
+                _determine_file_type(sim_file),
+            )
+        except ValueError as e:
+            logger.error(
+                "Error reading file %s it will not be available for processing: %s",
+                sim_file,
+                str(e),
+                exc_info=True,
+            )
+
+    return _merge_dataframes_into_simulation(
+        simulation_data_collector, sim_folder
+    )
 
 
 def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
@@ -87,90 +110,107 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
     return df
 
 
-def process_sim_prt(
-    sim_folder: _pl.Path,
+def _determine_file_type(sim_file: _pl.Path) -> const.FileType:
+    """Determine the file type using name and content."""
+    try:
+        return ftd.get_file_type_using_file_name(sim_file)
+    except ValueError:
+        return ftd.get_file_type_using_file_content(sim_file)
+
+
+@dataclass
+class _SimulationDataCollector:
+    hourly: list[_pd.DataFrame] = field(default_factory=list)
+    monthly: list[_pd.DataFrame] = field(default_factory=list)
+    step: list[_pd.DataFrame] = field(default_factory=list)
+
+
+def _read_file(
+        file_path: _pl.Path, file_type: const.FileType
+) -> _pd.DataFrame:
+    """
+    Factory method to read data from a file using the appropriate reader.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the file to be read
+    file_type : const.FileType
+        Type of data in the file (MONTHLY, HOURLY, or TIMESTEP)
+
+    Returns
+    -------
+    pandas.DataFrame
+        Data read from the file
+
+    Raises
+    ------
+    ValueError
+        If file extension is not supported
+    """
+    extension = file_path.suffix.lower()
+    if extension == ".prt":
+        reader = readers.PrtReader()
+        if file_type == const.FileType.MONTHLY:
+            return reader.read_monthly(file_path)
+        if file_type == const.FileType.HOURLY:
+            return reader.read_hourly(file_path)
+        if file_type == const.FileType.TIMESTEP:
+            return reader.read_step(file_path)
+    elif extension == ".csv":
+        return readers.CsvReader().read_csv(file_path)
+
+    raise ValueError(f"Unsupported file extension: {extension}")
+
+
+def _process_file(
+        simulation_data_collector: _SimulationDataCollector,
+        file_path: _pl.Path,
+        file_type: const.FileType,
+) -> bool:
+    if file_type == const.FileType.MONTHLY:
+        simulation_data_collector.monthly.append(
+            _read_file(file_path, const.FileType.MONTHLY)
+        )
+    elif file_type == const.FileType.HOURLY:
+        simulation_data_collector.hourly.append(
+            _read_file(file_path, const.FileType.HOURLY)
+        )
+    elif (
+            file_type == const.FileType.TIMESTEP
+            and sett.settings.reader.read_step_files
+    ):
+        simulation_data_collector.step.append(
+            _read_file(file_path, const.FileType.TIMESTEP)
+        )
+    else:
+        return False
+
+    return True
+
+
+def _merge_dataframes_into_simulation(
+        simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
 ) -> Simulation:
-    sim_files = utils.get_files([sim_folder])
-    prt_reader = readers.PrtReader()
-    hourly = []
-    monthly = []
-    timestep = []
-
-    for sim_file in sim_files:
-        if fm.has_pattern(sim_file.name, const.FileType.MONTHLY):
-            monthly.append(prt_reader.read_monthly(sim_file))
-        elif fm.has_pattern(sim_file.name, const.FileType.HOURLY):
-            hourly.append(prt_reader.read_hourly(sim_file))
-        elif fm.has_pattern(sim_file.name, const.FileType.TIMESTEP):
-            timestep.append(prt_reader.read_step(sim_file))
-        else:
-            logger.warning("Unknown file type: %s", sim_file.name)
-
     monthly_df = (
-        handle_duplicate_columns(_pd.concat(monthly, axis=1))
-        if monthly
+        handle_duplicate_columns(
+            _pd.concat(simulation_data_collector.monthly, axis=1)
+        )
+        if simulation_data_collector.monthly
         else _pd.DataFrame()
     )
     hourly_df = (
-        handle_duplicate_columns(_pd.concat(hourly, axis=1))
-        if hourly
+        handle_duplicate_columns(
+            _pd.concat(simulation_data_collector.hourly, axis=1)
+        )
+        if simulation_data_collector.hourly
         else _pd.DataFrame()
     )
     timestep_df = (
-        handle_duplicate_columns(_pd.concat(timestep, axis=1))
-        if timestep
+        handle_duplicate_columns(
+            _pd.concat(simulation_data_collector.step, axis=1)
+        )
+        if simulation_data_collector.step
         else _pd.DataFrame()
     )
-    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
-
-
-def process_sim_using_file_content_prt(  # pragma: no cover - tests disabled until step requirements are clear
-    sim_folder: _pl.Path,
-) -> Simulation:
-    sim_files = utils.get_files([sim_folder])
-    prt_reader = readers.PrtReader()
-    hourly = []
-    monthly = []
-    step = []
-
-    for sim_file in sim_files:
-        file_type = fm.get_file_type_using_file_content(sim_file)
-        if file_type == const.FileType.MONTHLY:
-            monthly.append(prt_reader.read_monthly(sim_file))
-        elif file_type == const.FileType.HOURLY:
-            hourly.append(prt_reader.read_hourly(sim_file))
-        elif file_type == const.FileType.TIMESTEP:
-            step.append(prt_reader.read_step(sim_file))
-        else:
-            logger.warning("Unknown file type: %s", sim_file.name)
-
-    monthly_df = handle_duplicate_columns(_pd.concat(monthly, axis=1))
-    hourly_df = handle_duplicate_columns(_pd.concat(hourly, axis=1))
-    timestep_df = handle_duplicate_columns(_pd.concat(step, axis=1))
-    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
-
-
-def process_sim_csv(
-    sim_folder: _pl.Path,
-) -> Simulation:
-    sim_files = utils.get_files([sim_folder], results_folder_name="converted")
-    csv_reader = readers.CsvReader()
-    hourly = []
-    monthly = []
-    timestep = []
-
-    for sim_file in sim_files:
-        if fm.has_pattern(sim_file.name, const.FileType.MONTHLY):
-            monthly.append(csv_reader.read_csv(sim_file))
-        elif fm.has_pattern(sim_file.name, const.FileType.HOURLY):
-            hourly.append(csv_reader.read_csv(sim_file))
-        elif fm.has_pattern(sim_file.name, const.FileType.TIMESTEP):
-            timestep.append(csv_reader.read_csv(sim_file))
-        else:
-            logger.warning("Unknown file type: %s", sim_file.name)
-
-    monthly_df = handle_duplicate_columns(_pd.concat(monthly, axis=1))
-    hourly_df = handle_duplicate_columns(_pd.concat(hourly, axis=1))
-    timestep_df = handle_duplicate_columns(_pd.concat(timestep, axis=1))
-
     return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)

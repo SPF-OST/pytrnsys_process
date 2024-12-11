@@ -28,13 +28,16 @@ def line_plot(
 
     Example:
         >>> from pytrnsys_process import api
-        >>> fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
+        >>> from matplotlib import pyplot as _plt
+        >>>
+        >>> def create_line_plot(simulation: api.Simulation):
+        >>>     fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
         Customize the plot using the returned axes object:
-        >>> ax.set_xlabel('Time')
-        >>> ax.set_ylabel('Value')
-        >>> ax.set_title('My Plot')
-        >>> ax.grid(True)
-
+        >>>     ax.set_xlabel('Time')
+        >>>     ax.set_ylabel('Value')
+        >>>     ax.set_title('My Plot')
+        >>>     ax.grid(True)
+        >>>     _plt.show()
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html
@@ -91,6 +94,7 @@ def stacked_bar_chart(
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """Create a stacked bar chart from the given DataFrame columns.
+    - See pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.bar.html
 
     Args:
         df: DataFrame containing the data to plot
@@ -113,7 +117,6 @@ def stacked_bar_chart(
 
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
-    - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.bar.html
     """
     plotter = pltrs.StackedBarChart()
     return plotter.plot(

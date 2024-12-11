@@ -8,6 +8,7 @@ class TestReader:
 
     HOURLY_DIR_PATH = _pl.Path(__file__).parent / "data/hourly"
     MONTHLY_DIR_PATH = _pl.Path(__file__).parent / "data/monthly"
+    STEP_DIR_PATH = _pl.Path(__file__).parent / "data/step"
 
     def test_read_hourly(self):
 
@@ -35,6 +36,16 @@ class TestReader:
         assert actual_file_path.read_text(
             encoding="UTF8"
         ) == expected_file_path.read_text(encoding="UTF8")
+
+    def test_read_step(self):
+        step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.Prt"
+        actual_df = readers.PrtReader().read_step(step_file_path)
+
+        expected_file_path = self.STEP_DIR_PATH / "expected.csv"
+        expected_df = readers.CsvReader().read_csv(expected_file_path)
+
+        diff_df = actual_df.compare(expected_df)
+        assert diff_df.empty
 
 
 class TestBenchmarkReader:

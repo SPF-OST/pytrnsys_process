@@ -20,13 +20,19 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 def get_files(
         sim_folders: _abc.Sequence[_pl.Path],
         results_folder_name: str = _set.settings.reader.folder_name_for_printer_files_loc,
+        get_mfr_and_t: bool = _set.settings.reader.read_step_files,
 ) -> _abc.Sequence[_pl.Path]:
-    sim_files = []
+    sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
+        if get_mfr_and_t:
+            sim_files.extend(sim_folder.glob("*[_T,_Mfr].prt"))
         for sim_file in (sim_folder / results_folder_name).glob("**/*"):
             sim_files.append(sim_file)
-    return sim_files
 
+    return [x for x in sim_files if x.is_file()]
+
+
+# TODO add docstring #pylint: disable=fixme
 
 def save_plot(
         fig: _plt.Figure, path_to_directory: _pl.Path, plot_name: str

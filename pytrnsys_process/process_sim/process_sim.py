@@ -43,6 +43,8 @@ class Simulation:
 def process_sim(
         sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
 ) -> Simulation:
+    # Used to store the array of dataframes for each file type.
+    # Later used to concatenate all into one dataframe and saving as Sim object
     simulation_data_collector = _SimulationDataCollector()
     for sim_file in sim_files:
         try:
@@ -192,25 +194,16 @@ def _process_file(
 def _merge_dataframes_into_simulation(
         simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
 ) -> Simulation:
-    monthly_df = (
-        handle_duplicate_columns(
-            _pd.concat(simulation_data_collector.monthly, axis=1)
-        )
-        if simulation_data_collector.monthly
-        else _pd.DataFrame()
-    )
-    hourly_df = (
-        handle_duplicate_columns(
-            _pd.concat(simulation_data_collector.hourly, axis=1)
-        )
-        if simulation_data_collector.hourly
-        else _pd.DataFrame()
-    )
-    timestep_df = (
-        handle_duplicate_columns(
-            _pd.concat(simulation_data_collector.step, axis=1)
-        )
-        if simulation_data_collector.step
-        else _pd.DataFrame()
-    )
+
+    monthly_df = get_df_without_duplicates(simulation_data_collector.monthly)
+    hourly_df = get_df_without_duplicates(simulation_data_collector.hourly)
+    timestep_df = get_df_without_duplicates(simulation_data_collector.step)
+
     return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
+
+
+def get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):
+    if len(dfs) > 0:
+        return handle_duplicate_columns(_pd.concat(dfs, axis=1))
+
+    return _pd.DataFrame()

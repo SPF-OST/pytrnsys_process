@@ -55,7 +55,7 @@ class CsvConverter:
         )
 
         for input_file in input_files:
-            if not input_file.is_file():
+            if input_file.is_dir():
                 continue
 
             if ftd.has_pattern(input_file, const.FileType.MONTHLY):
@@ -130,12 +130,12 @@ class CsvConverter:
         filename: str, patterns: list[str], prefix: str
     ) -> str:
         """Process filename by removing patterns and adding appropriate prefix.
-        
+
         Args:
             filename: The original filename to process
             patterns: List of regex patterns to remove from filename
             prefix: Prefix to add to the processed filename
-            
+
         Returns:
             The processed filename with patterns removed and prefix added
         """

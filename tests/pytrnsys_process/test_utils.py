@@ -10,9 +10,12 @@ from pytrnsys_process.settings import settings
 def test_save_plot_for_default_settings(tmp_path):
     fig = Mock(spec=plt.Figure)
 
-    with patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert:
+    with (
+        patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert,
+        patch("os.remove") as mock_remove,
+    ):
         # Call save_plot
-        utils.save_plot(fig, tmp_path, "test_plot")
+        utils.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
 
         # Verify plots directory was created
         plots_dir = tmp_path / "plots"
@@ -35,10 +38,11 @@ def test_save_plot_for_default_settings(tmp_path):
 
         # Verify convert_svg_to_emf was called for each size
         expected_convert_calls = [
-            call(plots_dir / "test_plot-A4.svg"),
-            call(plots_dir / "test_plot-A4_HALF.svg"),
+            call(plots_dir / "test_plot-A4"),
+            call(plots_dir / "test_plot-A4_HALF"),
         ]
         assert mock_convert.call_args_list == expected_convert_calls
+        assert mock_remove.call_count == 2
 
 
 def test_convert_svg_to_emf(tmp_path):
@@ -49,9 +53,10 @@ def test_convert_svg_to_emf(tmp_path):
     ):
         # Create test SVG path
         svg_path = tmp_path / "test.svg"
+        file_no_suffix = tmp_path / "test"
 
         # Call convert_svg_to_emf
-        utils.convert_svg_to_emf(svg_path)
+        utils.convert_svg_to_emf(file_no_suffix)
 
         # Verify subprocess.run was called correctly
         mock_run.assert_called_once_with(
@@ -67,7 +72,7 @@ def test_convert_svg_to_emf(tmp_path):
         )
 
         # Verify original SVG was removed
-        mock_remove.assert_called_once_with(svg_path)
+        assert not mock_remove.called
 
 
 def test_convert_svg_to_emf_inkscape_not_found(tmp_path):
@@ -103,3 +108,30 @@ def test_convert_svg_to_emf_subprocess_error(tmp_path):
         assert (
                 "Inkscape conversion failed" in mock_logger.error.call_args[0][0]
         )
+
+
+def test_get_files_works_as_expected(tmp_path):
+    # Create test directory structure
+    sim_folder = tmp_path / "sim1"
+    results_folder = sim_folder / "temp"
+    nested_folder = results_folder / "nested"
+
+    # Create directories
+    for folder in [sim_folder, results_folder, nested_folder]:
+        folder.mkdir(parents=True)
+
+    # Create some test files
+    test_file1 = results_folder / "test1.prt"
+    test_file2 = nested_folder / "test2.prt"
+    test_file1.touch()
+    test_file2.touch()
+
+    # Run the function
+    files = utils.get_files([sim_folder])
+
+    # Verify results
+    assert len(files) == 1
+    assert all(f.is_file() for f in files)
+    assert nested_folder not in files
+    assert results_folder not in files
+    assert set(files) == {test_file1}

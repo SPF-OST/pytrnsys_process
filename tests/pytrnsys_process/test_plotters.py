@@ -12,7 +12,7 @@ from pytrnsys_process.plotting import plotters
 
 class TestPlotters:
     SKIP_PLOT_COMPARISON = (
-        True  # Toggle this to enable/disable plot comparison
+        False  # Toggle this to enable/disable plot comparison
     )
 
     @pytest.fixture

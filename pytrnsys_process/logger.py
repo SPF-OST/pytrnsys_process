@@ -1,3 +1,18 @@
+"""
+Configures logging for the pytrnsys_process package with three outputs:
+1. Console output (INFO level) - Shows basic messages without stacktrace
+2. Regular log file (INFO level) - Logs to pytrnsys_process.log without stacktrace
+3. Debug log file (DEBUG level) - Logs to pytrnsys_process_debug.log with full stacktrace
+
+The logging setup includes custom formatting for each handler and uses a TracebackInfoFilter
+to control stacktrace visibility in different outputs. The main logger is configured at DEBUG
+level to capture all logging events, while individual handlers control what gets displayed
+in each output.
+
+All handlers use the same log record.
+Once the log record is modified and anything removed from it, will not be available in the other handlers.
+"""
+
 import logging
 import sys
 

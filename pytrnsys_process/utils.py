@@ -19,14 +19,14 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 def get_files(
         sim_folders: _abc.Sequence[_pl.Path],
-        results_folder_name: str = _set.settings.reader.folder_name_for_printer_files_loc,
+        results_folder_name: str = _set.settings.reader.folder_name_for_printer_files,
         get_mfr_and_t: bool = _set.settings.reader.read_step_files,
 ) -> _abc.Sequence[_pl.Path]:
     sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
         if get_mfr_and_t:
             sim_files.extend(sim_folder.glob("*[_T,_Mfr].prt"))
-        for sim_file in (sim_folder / results_folder_name).glob("**/*"):
+        for sim_file in (sim_folder / results_folder_name).glob("*"):
             sim_files.append(sim_file)
 
     return [x for x in sim_files if x.is_file()]
@@ -34,9 +34,46 @@ def get_files(
 
 # TODO add docstring #pylint: disable=fixme
 
-def save_plot(
+
+def export_plots_in_configured_formats(
         fig: _plt.Figure, path_to_directory: _pl.Path, plot_name: str
 ) -> None:
+    """Save a matplotlib figure in multiple formats and sizes.
+
+    Saves the figure in all configured formats (png, pdf, emf) and sizes (A4, A4_HALF)
+    as specified in the plot settings (api.settings.plot).
+    For EMF format, the figure is first saved as SVG and then converted using Inkscape.
+
+    Args:
+        fig: The matplotlib Figure object to save.
+        path_to_directory: Directory path where the plots should be saved.
+        plot_name: Base name for the plot file (will be appended with size and format).
+
+    Returns:
+        None
+
+    Note:
+        - Creates a 'plots' subdirectory if it doesn't exist
+        - For EMF files, requires Inkscape to be installed at the configured path
+        - File naming format: {plot_name}-{size_name}.{format}
+
+    Example:
+    >>> from pytrnsys_process import api
+    >>> def processing_of_monthly_data(simulation: api.Simulation):
+    >>>     monthly_df = simulation.monthly
+    >>>     columns_to_plot = ["QSnk60P", "QSnk60PauxCondSwitch_kW"]
+    >>>     fig, ax = api.bar_chart(monthly_df, columns_to_plot)
+    >>>
+    >>>     # Save the plot in multiple formats
+    >>>     api.export_plots_in_configured_formats(fig, simulation.path, "monthly-bar-chart")
+    >>>     # Creates files like:
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.png
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.pdf
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4.emf
+    >>>     #   results/simulation1/plots/monthly-bar-chart-A4_HALF.png
+    >>>     #   etc.
+
+    """
     plot_settings = _set.settings.plot
     plots_folder = path_to_directory / "plots"
     plots_folder.mkdir(exist_ok=True)
@@ -49,17 +86,20 @@ def save_plot(
             if fmt == ".emf":
                 path_to_svg = file_no_suffix.with_suffix(".svg")
                 fig.savefig(path_to_svg)
-                convert_svg_to_emf(path_to_svg)
+                convert_svg_to_emf(file_no_suffix)
+                if ".svg" not in plot_settings.file_formats:
+                    os.remove(path_to_svg)
             else:
                 fig.savefig(file_no_suffix.with_suffix(fmt))
 
 
-def convert_svg_to_emf(path_to_svg: _pl.Path) -> None:
+def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     try:
         inkscape_path = _set.settings.plot.inkscape_path
         if not _pl.Path(inkscape_path).exists():
             raise OSError(f"Inkscape executable not found at: {inkscape_path}")
-        emf_filepath = path_to_svg.parent / f"{path_to_svg.stem}.emf"
+        emf_filepath = file_no_suffix.with_suffix(".emf")
+        path_to_svg = file_no_suffix.with_suffix(".svg")
 
         subprocess.run(
             [
@@ -72,7 +112,7 @@ def convert_svg_to_emf(path_to_svg: _pl.Path) -> None:
             capture_output=True,
             text=True,
         )
-        os.remove(path_to_svg)
+
     except subprocess.CalledProcessError as e:
         logger.error(
             "Inkscape conversion failed: %s\nOutput: %s",

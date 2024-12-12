@@ -15,6 +15,7 @@ import pytrnsys_process.headers as h
 # TODO: deal with legends (curve names, fonts, colors, linestyles) # pylint: disable=fixme
 # TODO: clean up old stuff by refactoring # pylint: disable=fixme
 # TODO: make issue for docstrings of plotting # pylint: disable=fixme
+# TODO: Add colormap support # pylint: disable=fixme
 
 
 @dataclass
@@ -112,32 +113,6 @@ class StackedBarChart(ChartBase):
         ax = self.configure(ax)
 
         return fig, ax
-
-    # TODO: Add colormap support # pylint: disable=fixme
-    # def _do_plot(
-    #     self,
-    #     df: _pd.DataFrame,
-    #     columns: list[str],
-    #     use_legend: bool = True,
-    #     size: tuple[float, float] = const.PlotSizes.A4.value,
-    #     **kwargs: _tp.Any,
-    # ) -> _plt.Figure:
-    #     """The matplot date formatter does not work when using df.plot func.
-    #     This is an example to plot a stacked bar chart without df.plot"""
-    #     fig, ax = _plt.subplots(figsize=size)
-    #     x = _np.arange(len(df.index))
-    #     bottom = _np.zeros(len(df.index))
-    #     for col in columns:
-    #         ax.bar(x, df[col], label=col, bottom=bottom, width=0.35)
-    #         bottom += df[col]
-    #     if use_legend:
-    #         ax.legend()
-    #     ax.set_xticks(x)
-    #     ax.set_xticklabels(
-    #         _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
-    #     )
-    #     self.configure(ax)
-    #     return fig
 
     # TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
     @staticmethod
@@ -237,6 +212,8 @@ class ScatterPlot(ChartBase):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
         # TODO: cleanup the other Plotters to remove the stringy dictionary.
-        df[columns].plot.scatter(colormap=self.COLOR_MAP, legend=use_legend, ax=ax, **kwargs)
+        df[columns].plot.scatter(
+            colormap=self.COLOR_MAP, legend=use_legend, ax=ax, **kwargs
+        )
         ax = self.configure(ax)
         return fig, ax

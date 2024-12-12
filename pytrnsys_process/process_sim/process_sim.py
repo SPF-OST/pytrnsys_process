@@ -1,7 +1,6 @@
 import pathlib as _pl
 from collections import abc as _abc
 from dataclasses import dataclass, field
-import typing as _tp
 
 import pandas as _pd
 
@@ -44,7 +43,8 @@ class Simulation:
 def process_sim(
         sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
 ) -> Simulation:
-    # TODO: add docstring to explain architectural choice.
+    # Used to store the array of dataframes for each file type.
+    # Later used to concatenate all into one dataframe and saving as Sim object
     simulation_data_collector = _SimulationDataCollector()
     for sim_file in sim_files:
         try:

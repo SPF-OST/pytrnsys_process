@@ -26,7 +26,7 @@ def get_files(
     for sim_folder in sim_folders:
         if get_mfr_and_t:
             sim_files.extend(sim_folder.glob("*[_T,_Mfr].prt"))
-        for sim_file in (sim_folder / results_folder_name).glob("**/*"):
+        for sim_file in (sim_folder / results_folder_name).glob("*"):
             sim_files.append(sim_file)
 
     return [x for x in sim_files if x.is_file()]

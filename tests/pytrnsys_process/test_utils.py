@@ -10,8 +10,10 @@ from pytrnsys_process.settings import settings
 def test_save_plot_for_default_settings(tmp_path):
     fig = Mock(spec=plt.Figure)
 
-    with (patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert,
-          patch("os.remove") as mock_remove):
+    with (
+        patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert,
+        patch("os.remove") as mock_remove,
+    ):
         # Call save_plot
         utils.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
 
@@ -106,3 +108,30 @@ def test_convert_svg_to_emf_subprocess_error(tmp_path):
         assert (
                 "Inkscape conversion failed" in mock_logger.error.call_args[0][0]
         )
+
+
+def test_get_files_works_as_expected(tmp_path):
+    # Create test directory structure
+    sim_folder = tmp_path / "sim1"
+    results_folder = sim_folder / "temp"
+    nested_folder = results_folder / "nested"
+
+    # Create directories
+    for folder in [sim_folder, results_folder, nested_folder]:
+        folder.mkdir(parents=True)
+
+    # Create some test files
+    test_file1 = results_folder / "test1.prt"
+    test_file2 = nested_folder / "test2.prt"
+    test_file1.touch()
+    test_file2.touch()
+
+    # Run the function
+    files = utils.get_files([sim_folder])
+
+    # Verify results
+    assert len(files) == 1
+    assert all(f.is_file() for f in files)
+    assert nested_folder not in files
+    assert results_folder not in files
+    assert set(files) == {test_file1}

@@ -1,27 +1,29 @@
+import unittest as _ut
+import unittest.mock as _mock
+
 import pandas as _pd
 import pytest as _pt
 
 import tests.pytrnsys_process.constants as const
-from pytrnsys_process import settings as sett
 from pytrnsys_process import utils
 from pytrnsys_process.process_sim import process_file as pf
 from pytrnsys_process.process_sim import process_sim as ps
 
 PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 
-# TODO: check whether get_files enters any folders inside of the temp folder. It should not.  # pylint: disable=fixme
-# TODO: add an excel file to the temp folder and ensure that error logged and otherwise continues.  # pylint: disable=fixme
-# TODO:
 
-
-class TestProcessSim:
+class TestProcessSim(_ut.TestCase):
 
     def test_process_sim_prt(self):
         sim_files = utils.get_files([PATH_TO_RESULTS])
 
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
-
-        self.do_assert(simulation)
+        with self.assertLogs("pytrnsys_process", level="ERROR") as log_context:
+            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+            assert (
+                    "don-not-process.xlsx: No columns to parse from file"
+                    in log_context.output[0]
+            )
+            self.do_assert(simulation)
 
     def test_process_sim_csv(self):
         sim_files = utils.get_files(
@@ -36,9 +38,10 @@ class TestProcessSim:
 
     def test_process_sim_ignore_step(self):
         sim_files = utils.get_files([PATH_TO_RESULTS])
-        sett.settings.reader.read_step_files = False
-
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+        with _mock.patch(
+                "pytrnsys_process.settings.settings.reader.read_step_files", False
+        ):
+            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         assert simulation.step.shape == (0, 0)
 
@@ -137,13 +140,16 @@ class TestHandleDuplicateColumns:
 
 
 class TestBenchmarkProcessSim:
-    # TODO: fix these tests. # pylint: disable=fixme
 
     def test_process_per_sim_prt(self, benchmark):
-        benchmark(ps.process_sim, PATH_TO_RESULTS)
+        sim_files = utils.get_files([PATH_TO_RESULTS])
+
+        benchmark(lambda: ps.process_sim(sim_files, PATH_TO_RESULTS))
 
     def test_process_per_sim_csv(self, benchmark):
-        benchmark(ps.process_sim, PATH_TO_RESULTS)
+        sim_files = utils.get_files([PATH_TO_RESULTS])
+
+        benchmark(lambda: ps.process_sim(sim_files, PATH_TO_RESULTS))
 
     def test_process_per_file_using_file_content(self, benchmark):
         benchmark(

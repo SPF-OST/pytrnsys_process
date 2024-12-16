@@ -5,7 +5,7 @@ import subprocess
 
 import matplotlib.pyplot as _plt
 
-from pytrnsys_process import settings as _set
+from pytrnsys_process import settings as sett
 from pytrnsys_process.logger import logger
 
 
@@ -19,8 +19,8 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 def get_files(
         sim_folders: _abc.Sequence[_pl.Path],
-        results_folder_name: str = _set.settings.reader.folder_name_for_printer_files,
-        get_mfr_and_t: bool = _set.settings.reader.read_step_files,
+        results_folder_name: str = sett.settings.reader.folder_name_for_printer_files,
+        get_mfr_and_t: bool = sett.settings.reader.read_step_files,
 ) -> _abc.Sequence[_pl.Path]:
     sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
@@ -74,7 +74,7 @@ def export_plots_in_configured_formats(
     >>>     #   etc.
 
     """
-    plot_settings = _set.settings.plot
+    plot_settings = sett.settings.plot
     plots_folder = path_to_directory / "plots"
     plots_folder.mkdir(exist_ok=True)
 
@@ -95,7 +95,7 @@ def export_plots_in_configured_formats(
 
 def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     try:
-        inkscape_path = _set.settings.plot.inkscape_path
+        inkscape_path = sett.settings.plot.inkscape_path
         if not _pl.Path(inkscape_path).exists():
             raise OSError(f"Inkscape executable not found at: {inkscape_path}")
         emf_filepath = file_no_suffix.with_suffix(".emf")

@@ -25,6 +25,15 @@ class Plot:
 
     inkscape_path: str = "C://Program Files//Inkscape//bin//inkscape.exe"
 
+    x_label: str = ""
+    y_label: str = ""
+    title: str = ""
+    date_format: str = "%b %Y"
+    color_map: str = "viridis"
+    label_font_size: int = 10
+    legend_font_size: int = 8
+    title_font_size: int = 12
+
 
 @dataclass
 class Reader:

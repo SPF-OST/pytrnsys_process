@@ -159,12 +159,10 @@ class TestPlotters:
         # Setup
         expected_file = const.DATA_FOLDER / "plots/scatter-plot/expected.png"
         actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual.png"
-        columns = ["QSnk60dQlossTess", "QSnk60dQ"]
 
         # Execute
         fig, _ = pw.scatter_plot(
             monthly_data,
-            columns,
             x_column="QSnk60dQlossTess",
             y_column="QSnk60dQ",
         )
@@ -172,3 +170,41 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_file, expected_file)
+
+    def test_energy_balance_imb_given(self, monthly_data):
+        # Setup
+        actual_imb_given = (
+                const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
+        )
+        expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
+
+        # Execute
+        fig, _ = pw.energy_balance(
+            monthly_data,
+            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+            q_imb_column="QSnk60qImbTess",
+        )
+        fig.savefig(actual_imb_given)
+
+        # Assert
+        self.assert_plots_match(actual_imb_given, expected)
+
+    def test_energy_balance_imb_calculated(self, monthly_data):
+        # Setup
+        actual_imb_calculated = (
+                const.DATA_FOLDER
+                / "plots/energy-balance/actual-imb-calculated.png"
+        )
+        expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
+
+        # Execute
+        fig, _ = pw.energy_balance(
+            monthly_data,
+            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+        )
+        fig.savefig(actual_imb_calculated)
+
+        # Assert
+        self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)

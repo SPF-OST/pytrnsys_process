@@ -41,7 +41,7 @@ def line_plot(
         >>>
         >>> # run the single scenario on a single simulation
         >>> api.process_single_simulation(
-        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     _pl.Path("path/to/single/simulation"),
         >>>     create_line_plot,
         >>>     )
 
@@ -87,7 +87,7 @@ def bar_chart(
         >>>
         >>> # run the single scenario on a single simulation
         >>> api.process_single_simulation(
-        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     _pl.Path("path/to/single/simulation"),
         >>>     create_bar_chart,
         >>>     )
 
@@ -133,7 +133,7 @@ def stacked_bar_chart(
         >>>
         >>> # run the single scenario on a single simulation
         >>> api.process_single_simulation(
-        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     _pl.Path("path/to/single/simulation"),
         >>>     create_stacked_bar_chart,
         >>>     )
 
@@ -179,7 +179,7 @@ def histogram(
         >>>
         >>> # run the single scenario on a single simulation
         >>> api.process_single_simulation(
-        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     _pl.Path("path/to/single/simulation"),
         >>>     create_histogram,
         >>>     )
 
@@ -195,7 +195,6 @@ def histogram(
 
 def scatter_plot(
         df: _pd.DataFrame,
-        columns: list[str],
         x_column: str,
         y_column: str,
         use_legend: bool = True,
@@ -206,7 +205,6 @@ def scatter_plot(
 
     Args:
         df: DataFrame containing the data to plot
-        columns: List of column names to plot
         x_column: Name of the column to use for x-axis values
         y_column: Name of the column to use for y-axis values
         use_legend: Whether to show the legend
@@ -221,7 +219,6 @@ def scatter_plot(
         >>> def create_scatter_plot(simulation: api.Simulation):
         >>>     fig, ax = api.scatter_plot(
         ...         simulation.hourly,
-        ...         columns=["var1", "var2", "var3"],
         ...         x_column="var1",
         ...         y_column="var2",
         ...     )
@@ -233,7 +230,7 @@ def scatter_plot(
         >>>
         >>> # run the single scenario on a single simulation
         >>> api.process_single_simulation(
-        >>>     _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+        >>>     _pl.Path("path/to/single/simulation"),
         >>>     create_scatter_plot,
         >>>     )
 
@@ -241,13 +238,84 @@ def scatter_plot(
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.scatter.html
     """
-    plotter = pltrs.ScatterPlot()
-    return plotter.plot(
-        df,
-        columns,
-        use_legend=use_legend,
-        size=size,
+    fig, ax = _plt.subplots(figsize=size)
+    columns = [x_column, y_column]
+    df[columns].plot.scatter(
+        legend=use_legend,
+        ax=ax,
         x=x_column,
         y=y_column,
+        **kwargs,
+    )
+    ax = pltrs.configure(ax)
+
+    return fig, ax
+
+
+def energy_balance(
+        df: _pd.DataFrame,
+        q_in_columns: list[str],
+        q_out_columns: list[str],
+        q_imb_column: _tp.Optional[str] = None,
+        use_legend: bool = True,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
+) -> tuple[_plt.Figure, _plt.Axes]:
+    """Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
+
+    This function creates an energy balance visualization where:
+    - Input energies are shown as positive values
+    - Output energies are shown as negative values
+    - Energy imbalance is either provided or calculated as (sum of inputs + sum of outputs)
+
+    Args:
+        df: DataFrame containing the energy data
+        q_in_columns: List of column names representing energy inputs
+        q_out_columns: List of column names representing energy outputs
+        q_imb_column: Optional column name containing pre-calculated energy imbalance
+        use_legend: Whether to show the legend
+        size: Figure size tuple (width, height)
+        **kwargs: Additional plotting arguments passed to the stacked bar chart
+
+    Returns:
+        Tuple of (matplotlib Figure object, matplotlib Axes object)
+
+    Example:
+        >>> from pytrnsys_process import api
+        >>> def create_energy_balance(simulation: api.Simulation):
+        >>>     fig, ax = api.energy_balance(
+        ...         simulation.monthly,
+        ...         q_in_columns=['solar_gain', 'auxiliary_power'],
+        ...         q_out_columns=['thermal_losses', 'consumption'],
+        ...     )
+        >>>     ax.set_xlabel('Time')
+        >>>     ax.set_ylabel('Energy [kWh]')
+        >>>     ax.set_title('Monthly Energy Balance')
+        >>>     ax.grid(True)
+        >>> # run the single scenario on a single simulation
+        >>> api.process_single_simulation(
+        >>>     _pl.Path("path/to/single/simulation"),
+        >>>     create_energy_balance,
+        >>>     )
+    """
+    df_modified = df.copy()
+
+    for col in q_out_columns:
+        df_modified[col] = -df_modified[col]
+
+    if q_imb_column is None:
+        q_imb_column = "Qimb"
+        df_modified[q_imb_column] = df_modified[
+            q_in_columns + q_out_columns
+            ].sum(axis=1)
+
+    columns_to_plot = q_in_columns + q_out_columns + [q_imb_column]
+
+    plotter = pltrs.StackedBarChart()
+    return plotter.plot(
+        df_modified,
+        columns_to_plot,
+        use_legend=use_legend,
+        size=size,
         **kwargs,
     )

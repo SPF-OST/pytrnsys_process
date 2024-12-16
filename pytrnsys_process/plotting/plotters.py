@@ -8,7 +8,7 @@ import pandas as _pd
 
 import pytrnsys_process.constants as const
 import pytrnsys_process.headers as h
-
+from pytrnsys_process import settings as sett
 
 # TODO: provide A4 and half A4 plots to test sizes in latex # pylint: disable=fixme
 # TODO: provide height as input for plot?  # pylint: disable=fixme
@@ -18,23 +18,24 @@ import pytrnsys_process.headers as h
 # TODO: Add colormap support # pylint: disable=fixme
 
 
+# TODO find a better place for this to live in # pylint : disable=fixme
+plot_settings = sett.settings.plot
+
+
+def configure(ax: _plt.Axes) -> _plt.Axes:
+    ax.set_xlabel(
+        plot_settings.x_label, fontsize=plot_settings.label_font_size
+    )
+    ax.set_ylabel(
+        plot_settings.y_label, fontsize=plot_settings.label_font_size
+    )
+    ax.set_title(plot_settings.title, fontsize=plot_settings.title_font_size)
+    _plt.tight_layout()
+    return ax
+
+
 @dataclass
 class ChartBase(h.HeaderValidationMixin):
-    X_LABEL = ""
-    Y_LABEL = ""
-    TITLE = ""
-    COLOR_MAP = "viridis"
-    DATE_FORMAT = "%b %Y"
-    LABEL_FONT_SIZE = 10
-    LEGEND_FONT_SIZE = 8
-    TITLE_FONT_SIZE = 12
-
-    def configure(self, ax: _plt.Axes) -> _plt.Axes:
-        ax.set_xlabel(self.X_LABEL, fontsize=self.LABEL_FONT_SIZE)
-        ax.set_ylabel(self.Y_LABEL, fontsize=self.LABEL_FONT_SIZE)
-        ax.set_title(self.TITLE, fontsize=self.TITLE_FONT_SIZE)
-        _plt.tight_layout()
-        return ax
 
     def plot(
         self,
@@ -101,16 +102,16 @@ class StackedBarChart(ChartBase):
         fig, ax = _plt.subplots(figsize=size)
         plot_kwargs = {
             "stacked": True,
-            "colormap": self.COLOR_MAP,
+            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
         ax = df[columns].plot.bar(**plot_kwargs)
         ax.set_xticklabels(
-            _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
+            _pd.to_datetime(df.index).strftime(plot_settings.date_format)
         )
-        ax = self.configure(ax)
+        ax = configure(ax)
 
         return fig, ax
 
@@ -147,10 +148,10 @@ class BarChart(ChartBase):
 
         ax.set_xticks(x + width * (len(columns) - 1) / 2)
         ax.set_xticklabels(
-            _pd.to_datetime(df.index).strftime(self.DATE_FORMAT)
+            _pd.to_datetime(df.index).strftime(plot_settings.date_format)
         )
         ax.tick_params(axis="x", labelrotation=90)
-        self.configure(ax)
+        configure(ax)
         return fig, ax
 
 
@@ -166,13 +167,13 @@ class LinePlot(ChartBase):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
         plot_kwargs = {
-            "colormap": self.COLOR_MAP,
+            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
         df[columns].plot.line(**plot_kwargs)
-        ax = self.configure(ax)
+        ax = configure(ax)
         return fig, ax
 
 
@@ -190,30 +191,12 @@ class Histogram(ChartBase):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(figsize=size)
         plot_kwargs = {
-            "colormap": self.COLOR_MAP,
+            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             "bins": self.bins,
             **kwargs,
         }
         df[columns].plot.hist(**plot_kwargs)
-        ax = self.configure(ax)
-        return fig, ax
-
-
-class ScatterPlot(ChartBase):
-    def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
-    ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(figsize=size)
-        # TODO: cleanup the other Plotters to remove the stringy dictionary.
-        df[columns].plot.scatter(
-            colormap=self.COLOR_MAP, legend=use_legend, ax=ax, **kwargs
-        )
-        ax = self.configure(ax)
+        ax = configure(ax)
         return fig, ax

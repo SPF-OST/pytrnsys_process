@@ -240,6 +240,7 @@ def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
     cmd = [
         _SCRIPTS_DIR / "pytest",
         "-v",
+        "-n 2",
         "--benchmark-skip",
         "--cov=pytrnsys_process",
         f"--cov-report=html:{test_results_dir_path / 'coverage-html'}",

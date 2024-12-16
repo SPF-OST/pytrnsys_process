@@ -307,7 +307,7 @@ def energy_balance(
         q_imb_column = "Qimb"
         df_modified[q_imb_column] = df_modified[
             q_in_columns + q_out_columns
-            ].sum(axis=1)
+        ].sum(axis=1)
 
     columns_to_plot = q_in_columns + q_out_columns + [q_imb_column]
 

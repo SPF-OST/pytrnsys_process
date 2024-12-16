@@ -151,7 +151,7 @@ def _read_file(
         If file extension is not supported
     """
     extension = file_path.suffix.lower()
-    if extension == ".prt":
+    if extension in [".prt", ".hr"]:
         reader = readers.PrtReader()
         if file_type == const.FileType.MONTHLY:
             return reader.read_monthly(file_path)

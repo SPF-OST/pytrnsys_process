@@ -56,7 +56,7 @@ class TestPlotters:
             )
         assert (
             _mpltc.compare_images(
-                str(actual_file), str(expected_file), tol=tolerance
+                str(expected_file), str(actual_file), tol=tolerance
             )
             is None
         )

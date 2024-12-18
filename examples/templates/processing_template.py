@@ -1,14 +1,14 @@
 import pathlib as _pl
 
-import pytrnsys_process as pp
+from pytrnsys_process import api
 
 
-def processing_step_1(simulation: pp.Simulation):
+def processing_step_1(simulation: api.Simulation):
     """The simulation property provides you access to hourly, monthly and step data.
     Use this processing step to plot your data or process to your needs"""
 
 
-def processing_step_2(simulation: pp.Simulation):
+def processing_step_2(simulation: api.Simulation):
     """You can define as many processing steps as you want.
     Splitting your processing into multiple steps is useful if something goes wrong in one of your steps.
     The other steps will still be processed."""
@@ -24,25 +24,25 @@ if __name__ == "__main__":
     path_to_results_set = _pl.Path("path/to/result/set")
 
     # to run a SINGLE processing step on a single simulation
-    pp.process_single_simulation(
+    api.process_single_simulation(
         path_to_single_sim,
         processing_step_1,
     )
 
     # to run ALL processing steps on a single simulation
-    pp.process_single_simulation(
+    api.process_single_simulation(
         path_to_single_sim,
         processing_steps,
     )
 
     # to run ALL processing steps on a whole result set
-    pp.process_whole_result_set(
+    api.process_whole_result_set(
         path_to_results_set,
         processing_steps,
     )
 
     # to run ALL processing steps on a whole result set in parallel
-    pp.process_whole_result_set_parallel(
+    api.process_whole_result_set_parallel(
         path_to_results_set,
         processing_steps,
     )

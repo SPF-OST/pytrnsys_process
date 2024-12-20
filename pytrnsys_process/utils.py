@@ -122,3 +122,16 @@ def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
         )
     except OSError as e:
         logger.error("System error running Inkscape: %s", e, exc_info=True)
+
+
+def get_file_content_as_string(file_path: _pl.Path) -> str:
+    """Read and return the entire content of a file as a string.
+
+    Args:
+        file_path (Path): Path to the file to read
+
+    Returns:
+        str: Content of the file as a string
+    """
+    with open(file_path, "r", encoding="UTF-8") as file:
+        return file.read()

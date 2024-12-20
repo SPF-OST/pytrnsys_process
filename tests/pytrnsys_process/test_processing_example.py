@@ -6,7 +6,9 @@ from tests.pytrnsys_process import constants as const
 
 def test_processing_example_is_working_as_expected(caplog, monkeypatch):
     monkeypatch.setattr("matplotlib.pyplot.show", lambda: None)
-    monkeypatch.setattr("pytrnsys_process.utils.convert_svg_to_emf", lambda x: None)
+    monkeypatch.setattr(
+        "pytrnsys_process.utils.convert_svg_to_emf", lambda x: None
+    )
     data_path = const.REPO_ROOT / "examples/ready_to_run/data/results"
 
     processing_scenarios = [

@@ -23,7 +23,7 @@ from pytrnsys_process.process_sim.process_sim import Simulation
 
 # ============================================================
 # this lives here, because it needs to be available everywhere
-from pytrnsys_process.settings import settings
+from pytrnsys_process.settings import settings, Defaults
 
 # ============================================================
 
@@ -41,4 +41,5 @@ __all__ = [
     "Simulation",
     "export_plots_in_configured_formats",
     "settings",
+    "Defaults"
 ]

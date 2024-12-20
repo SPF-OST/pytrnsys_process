@@ -46,4 +46,4 @@ class Defaults(Enum):
     default = Settings(plot=Plot(), reader=Reader())
 
 
-settings = Defaults.default
+settings = Defaults.default.value

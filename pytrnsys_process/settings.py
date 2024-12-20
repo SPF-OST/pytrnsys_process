@@ -1,5 +1,6 @@
 from collections import abc as _abc
 from dataclasses import dataclass, field
+from enum import Enum
 
 from pytrnsys_process import constants as const
 
@@ -41,9 +42,8 @@ class Reader:
     read_step_files: bool = True
 
 
-# TODO Provide structure for default settings, so users can easily access the defaults #pylint: disable=fixme
+class Defaults(Enum):
+    default = Settings(plot=Plot(), reader=Reader())
 
 
-DEFAULT = Settings(plot=Plot(), reader=Reader())
-
-settings = DEFAULT
+settings = Defaults.default

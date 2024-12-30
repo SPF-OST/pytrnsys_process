@@ -319,3 +319,20 @@ def energy_balance(
         size=size,
         **kwargs,
     )
+
+
+def pie_plot(
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
+) -> tuple[_plt.Figure, _plt.Axes]:
+    plotter = pltrs.PiePlot()
+    return plotter.plot(
+        df,
+        columns,
+        use_legend=use_legend,
+        size=size,
+        **kwargs,
+    )

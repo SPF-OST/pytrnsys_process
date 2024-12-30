@@ -208,3 +208,19 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)
+
+    def test_pie_plot(self, monthly_data):
+        # Setup
+        expected_file = const.DATA_FOLDER / "plots/pie-plot/actual.png"
+        actual_file = const.DATA_FOLDER / "plots/pie-plot/actual.png"
+        columns = [
+            "QSnk60P",
+            "QSnk60PauxCondSwitch_kW",
+        ]
+
+        # Execute
+        fig, _ = pw.pie_plot(monthly_data, columns)
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)

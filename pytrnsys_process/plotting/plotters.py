@@ -200,3 +200,27 @@ class Histogram(ChartBase):
         df[columns].plot.hist(**plot_kwargs)
         ax = configure(ax)
         return fig, ax
+
+
+@dataclass
+class PiePlot(ChartBase):
+
+    def _do_plot(
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
+    ) -> tuple[_plt.Figure, _plt.Axes]:
+        fig, ax = _plt.subplots(figsize=size)
+        plot_kwargs = {
+            "colormap": plot_settings.color_map,
+            "legend": use_legend,
+            "ax": ax,
+            "subplots": True,
+            **kwargs,
+        }
+        df[columns].plot.pie(**plot_kwargs)
+        ax = configure(ax)
+        return fig, ax

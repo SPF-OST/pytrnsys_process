@@ -243,6 +243,7 @@ def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
         "-n 2",
         "--benchmark-skip",
         "--cov=pytrnsys_process",
+        "--cov=examples",
         f"--cov-report=html:{test_results_dir_path / 'coverage-html'}",
         f"--cov-report=lcov:{test_results_dir_path / 'coverage.lcov'}",
         "--cov-report=term",

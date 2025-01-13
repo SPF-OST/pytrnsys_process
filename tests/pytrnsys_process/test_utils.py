@@ -135,3 +135,11 @@ def test_get_files_works_as_expected(tmp_path):
     assert nested_folder not in files
     assert results_folder not in files
     assert set(files) == {test_file1}
+
+def test_get_file_content_as_string(tmp_path):
+    test_file = tmp_path / "test.txt"
+    expected_content = "Hello\nWorld!"
+    test_file.write_text(expected_content, encoding="UTF-8")
+
+    result = utils.get_file_content_as_string(test_file)
+    assert result == expected_content

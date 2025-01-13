@@ -223,7 +223,7 @@ def test_benchmark_to_extract_ice_storage_deck(benchmark):
         file_content = utils.get_file_content_as_string(
             constants.DATA_FOLDER
             / "deck"
-            / "complete-0-SnkScale0.6000-StoreScale5.dck"
+            / "large_icegrids_example.dck"
         )
 
         extractor.compute_constant_expression_values(file_content)

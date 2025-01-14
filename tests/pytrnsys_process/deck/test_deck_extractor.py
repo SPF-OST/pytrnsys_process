@@ -140,6 +140,7 @@ def test_extract_const_with_all_supported_mathematical_functions():
 
 
 def test_extract_equation_with_value_zero():
+    """Make sure maybe_evaluated_value = 0 is not asserted as false"""
     deck_as_string = """\
     CONSTANTS 1
     ratioDHWtoSH_allSinks=0.0"""
@@ -187,7 +188,7 @@ EQUATIONS 1
 THxNetInSetMaxErrCheck = GTWARN(THxNetInSetMaxErr, 0, 2)
 """
     with caplog.at_level(_logging.WARNING):
-        extractor.compute_constant_expression_values(deck_as_string)
+        extractor.parse_deck_for_constant_expressions(deck_as_string)
     assert (
             "On line 4, GTWARN is not supported in THxNetInSetMaxErrCheck=GTWARN(THxNetInSetMaxErr, 0, 2)"
             in caplog.text
@@ -200,7 +201,7 @@ def test_handling_of_visit_error_error(caplog):
         powerScalingFactor=max(3)
 """
     with caplog.at_level(_logging.WARNING):
-        extractor.compute_constant_expression_values(deck_as_string)
+        extractor.parse_deck_for_constant_expressions(deck_as_string)
     assert (
             "On line 2, unable to compute equation powerScalingFactor=max(3)"
             ' because: Error trying to process rule "func_call"' in caplog.text
@@ -208,7 +209,7 @@ def test_handling_of_visit_error_error(caplog):
 
 
 def extract_equations_and_compare(deck_as_string, expected_dict):
-    result_dict = extractor.compute_constant_expression_values(deck_as_string)
+    result_dict = extractor.parse_deck_for_constant_expressions(deck_as_string)
 
     assert result_dict == expected_dict
 
@@ -221,12 +222,10 @@ def extract_equations_and_compare(deck_as_string, expected_dict):
 def test_benchmark_to_extract_ice_storage_deck(benchmark):
     def to_benchmark():
         file_content = utils.get_file_content_as_string(
-            constants.DATA_FOLDER
-            / "deck"
-            / "large_icegrids_example.dck"
+            constants.DATA_FOLDER / "deck" / "large_icegrids_example.dck"
         )
 
-        extractor.compute_constant_expression_values(file_content)
+        extractor.parse_deck_for_constant_expressions(file_content)
 
     benchmark(to_benchmark)
 
@@ -237,6 +236,6 @@ def test_benchmark_to_extract_solar_prop_ice_slurry_mfs_deck(benchmark):
             constants.DATA_FOLDER / "deck" / "SolarPropIceSlurry_mfs.dck"
         )
 
-        extractor.compute_constant_expression_values(file_content)
+        extractor.parse_deck_for_constant_expressions(file_content)
 
     benchmark(to_benchmark)

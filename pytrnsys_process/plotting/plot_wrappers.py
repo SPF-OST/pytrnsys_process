@@ -1,4 +1,5 @@
 import typing as _tp
+from collections import abc as _abc
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
@@ -49,6 +50,7 @@ def line_plot(
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html
     """
+    _validate_column_exists(df, columns)
     plotter = pltrs.LinePlot()
     return plotter.plot(
         df, columns, use_legend=use_legend, size=size, **kwargs
@@ -95,6 +97,7 @@ def bar_chart(
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.bar.html
     """
+    _validate_column_exists(df, columns)
     plotter = pltrs.BarChart()
     return plotter.plot(
         df, columns, use_legend=use_legend, size=size, **kwargs
@@ -140,6 +143,7 @@ def stacked_bar_chart(
     For additional customization options, refer to:
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     """
+    _validate_column_exists(df, columns)
     plotter = pltrs.StackedBarChart()
     return plotter.plot(
         df, columns, use_legend=use_legend, size=size, **kwargs
@@ -187,6 +191,7 @@ def histogram(
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.hist.html
     """
+    _validate_column_exists(df, columns)
     plotter = pltrs.Histogram(bins)
     return plotter.plot(
         df, columns, use_legend=use_legend, size=size, **kwargs
@@ -238,6 +243,7 @@ def scatter_plot(
     - Matplotlib documentation: https://matplotlib.org/stable/api/
     - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.scatter.html
     """
+    _validate_column_exists(df, [x_column, y_column])
     fig, ax = _plt.subplots(figsize=size)
     columns = [x_column, y_column]
     df[columns].plot.scatter(
@@ -298,6 +304,9 @@ def energy_balance(
         >>>     create_energy_balance,
         >>>     )
     """
+    all_columns_vor_validation = q_in_columns + q_out_columns + ([q_imb_column] if q_imb_column is not None else [])
+    _validate_column_exists(df, all_columns_vor_validation)
+
     df_modified = df.copy()
 
     for col in q_out_columns:
@@ -319,3 +328,51 @@ def energy_balance(
         size=size,
         **kwargs,
     )
+
+
+def _validate_column_exists(
+        df: _pd.DataFrame, columns: _abc.Sequence[str]
+) -> None:
+    """Validate that all requested columns exist in the DataFrame.
+
+    Since PyTRNSYS is case-insensitive but Python is case-sensitive, this function
+    provides helpful suggestions when columns differ only by case.
+
+    Args:
+        df: DataFrame to check
+        columns: Sequence of column names to validate
+
+    Raises:
+        ColumnNotFoundError: If any columns are missing, with suggestions for case-mismatched names
+    """
+    missing_columns = set(columns) - set(df.columns)
+    if not missing_columns:
+        return
+
+    # Create case-insensitive mapping of actual column names
+    column_name_mapping = {col.casefold(): col for col in df.columns}
+
+    # Categorize missing columns
+    suggestions = []
+    not_found = []
+
+    for col in missing_columns:
+        if col.casefold() in column_name_mapping:
+            correct_name = column_name_mapping[col.casefold()]
+            suggestions.append(f"'{col}' did you mean: '{correct_name}'")
+        else:
+            not_found.append(f"'{col}'")
+
+    # Build error message
+    parts = []
+    if suggestions:
+        parts.append(f"Case-insensitive matches found:\n{', \n'.join(suggestions)}\n")
+    if not_found:
+        parts.append(f"No matches found for:\n{', \n'.join(not_found)}")
+
+    error_msg = "Column validation failed. " + "".join(parts)
+    raise ColumnNotFoundError(error_msg)
+
+
+class ColumnNotFoundError(Exception):
+    """This expedition is raised when given column names are not available in the dataframe"""

@@ -208,3 +208,18 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)
+
+    def test_invalid_column_names_for_plot(self, hourly_data):
+        # Setup
+        columns = ["qSrc1tIn", "QSrc1Tout", "DoesNotExist"]
+
+        # Execute
+        with pytest.raises(
+                pw.ColumnNotFoundError,
+                match="Column validation failed. Case-insensitive matches found:\n"
+                      "'QSrc1Tout' did you mean: 'QSrc1TOut', \n"
+                      "'qSrc1tIn' did you mean: 'QSrc1TIn'\n"
+                      "No matches found for:\n"
+                      "'DoesNotExist'",
+        ):
+            pw.line_plot(hourly_data, columns)

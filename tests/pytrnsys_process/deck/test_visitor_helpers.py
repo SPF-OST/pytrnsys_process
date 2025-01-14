@@ -59,14 +59,18 @@ class TestVisitorHelpers:
 
     def test_get_child_token_values(self, sample_tree):
         # Test getting multiple values
-        assert visitor_helpers.get_child_token_values("INT", sample_tree) == [
+        assert visitor_helpers.get_child_token_values_or_empty_sequence(
+            "INT", sample_tree
+        ) == [
             "42",
             "123",
         ]
 
         # Test empty case
         assert (
-                visitor_helpers.get_child_token_values("MISSING", sample_tree)
+                visitor_helpers.get_child_token_values_or_empty_sequence(
+                    "MISSING", sample_tree
+                )
                 == []
         )
 
@@ -75,19 +79,24 @@ class TestVisitorHelpers:
         token = visitor_helpers.get_child_token("STRING", sample_tree)
         assert token.value == "hello"
 
-        # Test error case when token doesn't exist
-        with _pytest.raises(ValueError, match="Multiple tokens"):
+        # Test error case when direct token doesn't exist
+        with _pytest.raises(
+                ValueError, match="doesn't contain a direct child token"
+        ):
             visitor_helpers.get_child_token("MISSING", sample_tree)
-
-        # Test error case with multiple tokens
-        with _pytest.raises(ValueError, match="More than one token"):
-            visitor_helpers.get_child_token("INT", sample_tree)
 
     def test_get_child_tokens(self, sample_tree):
         # Test getting multiple tokens
-        tokens = visitor_helpers.get_child_tokens("INT", sample_tree)
+        tokens = visitor_helpers.get_child_tokens_or_empty_sequence(
+            "INT", sample_tree
+        )
         assert len(tokens) == 2
         assert [t.value for t in tokens] == ["42", "123"]
 
         # Test empty case
-        assert visitor_helpers.get_child_tokens("MISSING", sample_tree) == []
+        assert (
+                visitor_helpers.get_child_tokens_or_empty_sequence(
+                    "MISSING", sample_tree
+                )
+                == []
+        )

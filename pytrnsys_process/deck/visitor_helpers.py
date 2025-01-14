@@ -42,7 +42,7 @@ def get_child_token_value_or_none(
 def get_child_token_or_none(
         token_type: str, tree: _lark.Tree
 ) -> _lark.Token | None:
-    tokens = get_child_tokens(token_type, tree)
+    tokens = get_child_tokens_or_empty_sequence(token_type, tree)
 
     n_tokens = len(tokens)
     if n_tokens == 0:
@@ -56,10 +56,12 @@ def get_child_token_or_none(
     return token
 
 
-def get_child_token_values(
+def get_child_token_values_or_empty_sequence(
         token_type: str, tree: _lark.Tree
 ) -> _cabc.Sequence[str]:
-    return [t.value for t in get_child_tokens(token_type, tree)]
+    return [
+        t.value for t in get_child_tokens_or_empty_sequence(token_type, tree)
+    ]
 
 
 def get_child_token(token_type: str, tree: _lark.Tree) -> _lark.Token:
@@ -67,14 +69,14 @@ def get_child_token(token_type: str, tree: _lark.Tree) -> _lark.Token:
 
     if not token_or_none:
         raise ValueError(
-            f"Multiple tokens of type `{token_type}` found for `{tree.data}`."
+            f"`{tree.data}` doesn't contain a direct child token of type `{token_type}`."
         )
     token = token_or_none
 
     return token
 
 
-def get_child_tokens(
+def get_child_tokens_or_empty_sequence(
         token_type: str, tree: _lark.Tree
 ) -> _cabc.Sequence[_lark.Token]:
     return [

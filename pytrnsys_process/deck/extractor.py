@@ -8,7 +8,7 @@ from pytrnsys_process.deck import visitor_helpers as vh
 from pytrnsys_process.logger import logger
 
 
-def compute_constant_expression_values(
+def parse_deck_for_constant_expressions(
         deck_as_string: str,
 ) -> dict[str, float | int]:
     """Evaluate constant expressions in a TRNSYS deck file and return their values.
@@ -23,6 +23,7 @@ def compute_constant_expression_values(
     Returns:
         A dictionary mapping variable names to their evaluated values (float or int).
         The original case of variable names is preserved in the returned dictionary.
+        Expressions that could not be evaluated are not included in the returned dictionary.
     """
 
     equations = _get_equation_trees(deck_as_string)
@@ -32,9 +33,13 @@ def compute_constant_expression_values(
 
     evaluated_variables: dict[str, float | int] = {}
     original_variable_names: list[str] = []
+    new_constants_found = True
 
-    while True:
+    while new_constants_found:
         sub_trees_before_processing = sub_trees_to_process.copy()
+        # Needs to be converted into list, so items can be deleted while iteration over
+        # Described in this answer:
+        # https://stackoverflow.com/questions/5384914/how-to-delete-items-from-a-dictionary-while-iterating-over-it
         for var, tree in list(sub_trees_to_process.items()):
             try:
 
@@ -79,7 +84,7 @@ def compute_constant_expression_values(
                 )
 
         if sub_trees_before_processing == sub_trees_to_process:
-            break
+            new_constants_found = False
 
     return _rename_dict_keys_to_original_format(
         evaluated_variables, original_variable_names
@@ -87,18 +92,22 @@ def compute_constant_expression_values(
 
 
 class EquationsCollectorVisitor(_lark.Visitor):
+    """This visitor is given the whole deck as a tree.
+    For each equation the equation() method is called and it appends it to a list of equations
+    """
 
     def __init__(self):
         self.equations_to_transform = []
 
     def equation(self, tree):
-        output_detector = self.OutputDetector()
+        output_detector = self.OutputOfTrnsysTypeDetector()
         output_detector.visit(tree)
 
         if not output_detector.is_output:
             self.equations_to_transform.append(tree)
 
-    class OutputDetector(_lark.visitors.Visitor_Recursive):
+    class OutputOfTrnsysTypeDetector(_lark.visitors.Visitor_Recursive):
+        """Detects if equation is an output: equation_name = [15,1]"""
 
         def __init__(self):
             self.is_output = False
@@ -142,11 +151,12 @@ class EquationsTransformer(_lark.Transformer):
             variable_name = items[0].value.casefold()
             return self.evaluated_variables[variable_name]
         except KeyError as exc:
-            raise ReferencedEquationNotFoundError() from exc
+            raise ReferencedVariableNotEvaluatedError() from exc
 
     @_lark.v_args(meta=True)
     # pylint: disable=too-many-return-statements,too-many-branches
     def func_call(self, meta, items):
+        """Mathematical function behaviour is described in pages 20 and 21 of trnsys doc 6 TRNedit"""
 
         math_func = vh.get_child_token_value("NAME", items[0], str).casefold()
         args = items[1].children
@@ -214,7 +224,7 @@ class MathFuncNotFoundError(Exception):
         self.meta = meta
 
 
-class ReferencedEquationNotFoundError(Exception):
+class ReferencedVariableNotEvaluatedError(Exception):
     """Raised if an equation could not be found in the dictionary of resolved equations."""
 
 
@@ -245,7 +255,9 @@ def _get_expression_sub_trees_by_variable_name(
             vh.get_child_token_value(
                 "NAME", equation_tree.children[0].children[0], str
             )
-        ] = equation_tree.children[1]
+        ] = equation_tree.children[
+            1
+        ]  # right hand side of the equation as a tree
 
     return equations_dict
 
@@ -258,7 +270,7 @@ def _evaluate_or_none_if_variable_could_not_be_found(
         value = EquationsTransformer(evaluated_variables).transform(tree)
         return value
     except _lark.exceptions.VisitError as e:
-        if isinstance(e.orig_exc, ReferencedEquationNotFoundError):
+        if isinstance(e.orig_exc, ReferencedVariableNotEvaluatedError):
             return None
         if isinstance(e.orig_exc, MathFuncNotFoundError):
             raise e.orig_exc

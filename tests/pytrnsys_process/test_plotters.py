@@ -217,8 +217,8 @@ class TestPlotters:
         with pytest.raises(
                 pw.ColumnNotFoundError,
                 match="Column validation failed. Case-insensitive matches found:\n"
-                      "'QSrc1Tout' did you mean: 'QSrc1TOut', \n"
-                      "'qSrc1tIn' did you mean: 'QSrc1TIn'\n"
+                      "'qSrc1tIn' did you mean: 'QSrc1TIn', \n"
+                      "'QSrc1Tout' did you mean: 'QSrc1TOut'\n"
                       "No matches found for:\n"
                       "'DoesNotExist'",
         ):

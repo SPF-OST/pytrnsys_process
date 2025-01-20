@@ -109,10 +109,11 @@ def test_extract_const_with_all_supported_mathematical_functions():
     not = NOT(1)
     sin = SIN(4.9)
     tan = TAN(4.9)
-    acos = ACOS(4.9)
+    acos = ACOS(0.5)
     """
     expected_dict = {
         "abs": 4.5,
+        'acos': 1.0471975511965979,
         "ae": 0,
         "and": 0,
         "asin": 1.5707963267948966,

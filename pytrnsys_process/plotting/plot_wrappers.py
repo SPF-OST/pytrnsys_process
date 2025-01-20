@@ -375,4 +375,4 @@ def _validate_column_exists(
 
 
 class ColumnNotFoundError(Exception):
-    """This expedition is raised when given column names are not available in the dataframe"""
+    """This exception is raised when given column names are not available in the dataframe"""

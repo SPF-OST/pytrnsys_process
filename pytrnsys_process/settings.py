@@ -40,6 +40,7 @@ class Plot:
 class Reader:
     folder_name_for_printer_files: str = "temp"
     read_step_files: bool = True
+    read_deck_files: bool = True
 
 
 class Defaults(Enum):

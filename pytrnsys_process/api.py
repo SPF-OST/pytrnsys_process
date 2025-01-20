@@ -7,6 +7,7 @@ TRNSYS simulation output data.
 
 __version__ = "0.0.1"
 
+from pytrnsys_process.constants import REPO_ROOT
 from pytrnsys_process.plotting.plot_wrappers import (
     bar_chart,
     line_plot,
@@ -41,5 +42,6 @@ __all__ = [
     "Simulation",
     "export_plots_in_configured_formats",
     "settings",
-    "Defaults"
+    "Defaults",
+    "REPO_ROOT",
 ]

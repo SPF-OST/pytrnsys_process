@@ -8,6 +8,8 @@ from pytrnsys_process import constants as const
 from pytrnsys_process import file_type_detector as ftd
 from pytrnsys_process import readers
 from pytrnsys_process import settings as sett
+from pytrnsys_process import utils
+from pytrnsys_process.deck import extractor
 from pytrnsys_process.logger import logger
 
 
@@ -37,6 +39,7 @@ class Simulation:
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
     step: _pd.DataFrame
+    deck: _pd.DataFrame
     # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
 
 
@@ -125,6 +128,7 @@ class _SimulationDataCollector:
     hourly: list[_pd.DataFrame] = field(default_factory=list)
     monthly: list[_pd.DataFrame] = field(default_factory=list)
     step: list[_pd.DataFrame] = field(default_factory=list)
+    deck: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
 def _read_file(
@@ -185,24 +189,39 @@ def _process_file(
         simulation_data_collector.step.append(
             _read_file(file_path, const.FileType.TIMESTEP)
         )
+    elif (
+            file_type == const.FileType.DECK
+            and sett.settings.reader.read_deck_files
+    ):
+        simulation_data_collector.deck = _get_deck_as_df(file_path)
     else:
         return False
-
     return True
+
+
+def _get_deck_as_df(
+        file_path: _pl.Path,
+) -> _pd.DataFrame:
+    deck_file_as_string = utils.get_file_content_as_string(file_path)
+    deck: dict[str, float] = extractor.parse_deck_for_constant_expressions(
+        deck_file_as_string
+    )
+    deck_as_df = _pd.DataFrame([deck])
+    return deck_as_df
 
 
 def _merge_dataframes_into_simulation(
         simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
 ) -> Simulation:
+    monthly_df = _get_df_without_duplicates(simulation_data_collector.monthly)
+    hourly_df = _get_df_without_duplicates(simulation_data_collector.hourly)
+    timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
+    deck = simulation_data_collector.deck
 
-    monthly_df = get_df_without_duplicates(simulation_data_collector.monthly)
-    hourly_df = get_df_without_duplicates(simulation_data_collector.hourly)
-    timestep_df = get_df_without_duplicates(simulation_data_collector.step)
-
-    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
+    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df, deck)
 
 
-def get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):
+def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):
     if len(dfs) > 0:
         return handle_duplicate_columns(_pd.concat(dfs, axis=1))
 

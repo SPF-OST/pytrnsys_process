@@ -53,7 +53,7 @@ def processing_for_histogram(simulation: api.Simulation):
     _plt.show()
 
 
-if __name__ == "__main__":
+def main():
     # This is the entry point to your script.
     # Here, you can decide how you would like to run your processing steps.
     # In the example below we run both processing steps on a whole result set.
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # run the scenarios on a whole result set
     (
         api.process_whole_result_set(
-            _pl.Path("data/results"),
+            _pl.Path(api.REPO_ROOT / "examples/ready_to_run/data/results"),
             processing_scenarios,
         )
     )
@@ -77,7 +77,10 @@ if __name__ == "__main__":
     # run the single scenario on a single simulation
     (
         api.process_single_simulation(
-            _pl.Path("data/results/complete-0-SnkScale0.6000-StoreScale8"),
+            _pl.Path(
+                api.REPO_ROOT
+                / "examples/ready_to_run/data/results/complete-0-SnkScale0.6000-StoreScale8"
+            ),
             # ===============================================================
             processing_for_histogram,
             # do not add round brackets when linking your processing step
@@ -85,3 +88,8 @@ if __name__ == "__main__":
             # ===============================================================
         )
     )
+
+
+# This is required since we would like to run the script directly
+if __name__ == "__main__":
+    main()

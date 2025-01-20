@@ -24,6 +24,7 @@ class TestProcessSim(_ut.TestCase):
                     in log_context.output[0]
             )
             self.do_assert(simulation)
+            assert simulation.deck.shape == (1, 10)
 
     def test_process_sim_csv(self):
         sim_files = utils.get_files(
@@ -44,6 +45,15 @@ class TestProcessSim(_ut.TestCase):
             simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         assert simulation.step.shape == (0, 0)
+
+    def test_process_sim_ignore_deck(self):
+        sim_files = utils.get_files([PATH_TO_RESULTS])
+        with _mock.patch(
+                "pytrnsys_process.settings.settings.reader.read_deck_files", False
+        ):
+            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+
+        assert simulation.deck.shape == (0, 0)
 
     def do_assert(self, simulation):
         assert simulation.hourly.shape == (3, 18)

@@ -56,14 +56,23 @@ def get_file_type_using_file_name(file: _pl.Path) -> const.FileType:
         file (Path): The path to the file to check
 
     Returns:
-        FileType: The detected file type (MONTHLY, HOURLY, or TIMESTEP)
+        FileType: The detected file type (MONTHLY, HOURLY, TIMESTEP or DECK)
 
     Raises:
         ValueError: If no matching pattern is found
     """
+
     file_name = file.stem.lower()
+    file_suffix = file.suffix.lower()
+
+    # Check for DECK files first (suffix-based)
+    if file_suffix == const.FileType.DECK.value:
+        return const.FileType.DECK
 
     for file_type in const.FileType:
+        # Skip DECK type as it's already handled
+        if file_type == const.FileType.DECK:
+            continue
         if any(
                 _re.search(pattern, file_name)
                 for pattern in file_type.value.patterns

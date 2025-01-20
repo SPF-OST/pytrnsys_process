@@ -1,5 +1,8 @@
+import pathlib as _pl
 from dataclasses import dataclass
 from enum import Enum
+
+import pytrnsys_process as pp
 
 
 class PlotSizes(Enum):
@@ -19,3 +22,7 @@ class FileType(Enum):
     TIMESTEP = FilePattern(
         patterns=["_step$", "step_", "_mfr$", "_t$"], prefix="step_"
     )
+    DECK = ".dck"
+
+
+REPO_ROOT: _pl.Path = _pl.Path(pp.__file__).parents[1]

@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import List, Sequence, Union
 
 import matplotlib.pyplot as _plt
+import pandas as _pd
 
 from pytrnsys_process import utils
 from pytrnsys_process.logger import logger
@@ -35,6 +36,7 @@ class ProcessingResults:
     failed_simulations: List[str] = field(default_factory=list)
     failed_scenarios: dict[str, List[str]] = field(default_factory=dict)
     simulations: dict[str, ps.Simulation] = field(default_factory=dict)
+    decks: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
 def _validate_folder(folder: _pl.Path) -> None:
@@ -213,6 +215,9 @@ def process_whole_result_set(
                 exc_info=True,
             )
 
+    all_decks = [sim.deck for sim in results.simulations.values()]
+    results.decks = _pd.concat(all_decks)
+
     _log_processing_results(results)
     return results
 
@@ -299,3 +304,5 @@ def process_whole_result_set_parallel(
 
     _log_processing_results(results)
     return results
+
+# def do_comparison(simulations: list[Simulation], comparison_scenario: Union[Callable, Sequence[Callable]]):

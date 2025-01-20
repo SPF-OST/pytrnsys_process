@@ -14,7 +14,7 @@ def processing_step_2(simulation: api.Simulation):
     The other steps will still be processed."""
 
 
-if __name__ == "__main__":
+def main():
     # bundle the scenarios into a list
     processing_steps = [
         processing_step_1,
@@ -46,3 +46,7 @@ if __name__ == "__main__":
         path_to_results_set,
         processing_steps,
     )
+
+
+if __name__ == "__main__":
+    main()

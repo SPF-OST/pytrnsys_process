@@ -17,6 +17,8 @@ FILE_NAME_TEST_CASES = [
     (_pl.Path("results_step_test.txt"), const.FileType.TIMESTEP),
     (_pl.Path("step_results.txt"), const.FileType.TIMESTEP),
     (_pl.Path("step_modeprinter.csv"), const.FileType.TIMESTEP),
+    (_pl.Path("this_is_a_deck_file.dck"), const.FileType.DECK),
+
 ]
 
 

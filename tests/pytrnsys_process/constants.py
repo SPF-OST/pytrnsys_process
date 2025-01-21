@@ -1,3 +1,3 @@
-import pytrnsys_process.constants as constants
+from pytrnsys_process import constants
 
 DATA_FOLDER = constants.REPO_ROOT / "tests" / "pytrnsys_process" / "data"

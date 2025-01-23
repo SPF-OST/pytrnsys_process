@@ -24,7 +24,7 @@ class TestProcessSim(_ut.TestCase):
                     in log_context.output[0]
             )
             self.do_assert(simulation)
-            assert simulation.deck.shape == (1, 10)
+            assert simulation.scalar.shape == (1, 10)
 
     def test_process_sim_csv(self):
         sim_files = utils.get_files(
@@ -53,7 +53,7 @@ class TestProcessSim(_ut.TestCase):
         ):
             simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        assert simulation.deck.shape == (0, 0)
+        assert simulation.scalar.shape == (0, 0)
 
     def do_assert(self, simulation):
         assert simulation.hourly.shape == (3, 18)

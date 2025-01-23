@@ -39,7 +39,7 @@ class Simulation:
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
     step: _pd.DataFrame
-    deck: _pd.DataFrame
+    scalar: _pd.DataFrame
     # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
 
 

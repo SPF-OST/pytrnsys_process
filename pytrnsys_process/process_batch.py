@@ -1,5 +1,5 @@
 import pathlib as _pl
-from collections.abc import Callable
+from collections import abc as _abc
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import List, Sequence, Union
@@ -39,71 +39,19 @@ class ProcessingResults:
     decks: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
-def _validate_folder(folder: _pl.Path) -> None:
-    if not folder.exists():
-        raise ValueError(f"Folder does not exist: {folder}")
-    if not folder.is_dir():
-        raise ValueError(f"Path is not a directory: {folder}")
-
-
-def _process_simulation(
-        sim_folder: _pl.Path,
-        processing_scenarios: Union[Callable, Sequence[Callable]],
-) -> tuple[ps.Simulation, List[str]]:
-    logger.debug("Processing simulation folder: %s", sim_folder)
-    sim_files = utils.get_files([sim_folder])
-    simulation = ps.process_sim(sim_files, sim_folder)
-    failed_scenarios = []
-
-    # Convert single scenario to list for uniform handling
-    scenarios = (
-        [processing_scenarios]
-        if callable(processing_scenarios)
-        else processing_scenarios
-    )
-
-    for scenario in scenarios:
-        try:
-            scenario(simulation)
-        except Exception as e:  # pylint: disable=broad-except
-            scenario_name = getattr(scenario, "__name__", str(scenario))
-            failed_scenarios.append(scenario_name)
-            logger.error(
-                "Scenario %s failed for simulation %s: %s",
-                scenario_name,
-                sim_folder.name,
-                str(e),
-                exc_info=True,
-            )
-
-    _plt.close("all")
-    return simulation, failed_scenarios
-
-
-def _log_processing_results(results: ProcessingResults) -> None:
-    logger.info(
-        "Batch processing complete. Processed: %d, Errors: %d",
-        results.processed_count,
-        results.error_count,
-    )
-    if results.error_count > 0:
-        logger.warning(
-            "Some simulations failed to process. Check the log for details."
-        )
-    if results.failed_scenarios:
-        logger.warning(
-            "Some scenarios failed: %s",
-            {
-                sim: scenarios
-                for sim, scenarios in results.failed_scenarios.items()
-                if scenarios
-            },
-        )
+@dataclass
+class ResultsForComparison:
+    monthly: dict[str, _pd.DataFrame] = field(default_factory=dict)
+    hourly: dict[str, _pd.DataFrame] = field(default_factory=dict)
+    scalar: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
 def process_single_simulation(
         sim_folder: _pl.Path,
-        processing_scenarios: Union[Callable, Sequence[Callable]],
+        processing_scenarios: Union[
+            _abc.Callable[[ps.Simulation], None],
+            Sequence[_abc.Callable[[ps.Simulation], None]],
+        ],
 ) -> ProcessingResults:
     """Process a single simulation folder using the provided processing scenario(s).
 
@@ -152,8 +100,11 @@ def process_single_simulation(
 
 def process_whole_result_set(
         results_folder: _pl.Path,
-        processing_scenario: Union[Callable, Sequence[Callable]],
-) -> ProcessingResults:
+        processing_scenario: Union[
+            _abc.Callable[[ps.Simulation], None],
+            Sequence[_abc.Callable[[ps.Simulation], None]],
+        ],
+) -> ResultsForComparison:
     """Process all simulation folders in a results directory sequentially.
 
     Args:
@@ -215,18 +166,18 @@ def process_whole_result_set(
                 exc_info=True,
             )
 
-    all_decks = [sim.deck for sim in results.simulations.values()]
-    results.decks = _pd.concat(all_decks)
-
     _log_processing_results(results)
-    return results
+    return _get_results_for_comparison(results)
 
 
 def process_whole_result_set_parallel(
     results_folder: _pl.Path,
-        processing_scenario: Union[Callable, Sequence[Callable]],
+        processing_scenario: Union[
+            _abc.Callable[[ps.Simulation], None],
+            Sequence[_abc.Callable[[ps.Simulation], None]],
+        ],
     max_workers: int | None = None,
-) -> ProcessingResults:
+) -> ResultsForComparison:
     """Process all simulation folders in a results directory in parallel.
 
     Uses a ProcessPoolExecutor to process multiple simulations concurrently.
@@ -303,6 +254,129 @@ def process_whole_result_set_parallel(
                 )
 
     _log_processing_results(results)
-    return results
+    return _get_results_for_comparison(results)
 
-# def do_comparison(simulations: list[Simulation], comparison_scenario: Union[Callable, Sequence[Callable]]):
+
+def do_comparison(
+        results_for_comparison: ResultsForComparison,
+        comparison_scenario: Union[
+            _abc.Callable[[ResultsForComparison], None],
+            _abc.Sequence[_abc.Callable[[ResultsForComparison], None]],
+        ],
+):
+    try:
+        process_comparisons(results_for_comparison, comparison_scenario)
+    except Exception:  # pylint: disable=broad-except
+        logger.error(
+            "Failed to do comparison",
+            exc_info=True,
+        )
+
+
+def process_comparisons(
+        results_for_comparison: ResultsForComparison,
+        comparison_scenario: Union[
+            _abc.Callable[[ResultsForComparison], None],
+            _abc.Sequence[_abc.Callable[[ResultsForComparison], None]],
+        ],
+):
+    failed_scenarios = []
+
+    # Convert single scenario to list for uniform handling
+    scenario = (
+        [comparison_scenario]
+        if callable(comparison_scenario)
+        else comparison_scenario
+    )
+    for step in scenario:
+        try:
+            step(results_for_comparison)
+        except Exception:
+            scenario_name = getattr(step, "__name__", str(step))
+            failed_scenarios.append(scenario_name)
+            logger.error(
+                "Scenario %s failed for comparison: ",
+                scenario_name,
+                exc_info=True,
+            )
+
+
+def _get_results_for_comparison(
+        results: ProcessingResults,
+) -> ResultsForComparison:
+    results_for_comparison = ResultsForComparison()
+    scalar_values_to_concat = {}
+    for sim_name, sim_data in results.simulations.items():
+        results_for_comparison.hourly[sim_name] = sim_data.hourly
+        results_for_comparison.monthly[sim_name] = sim_data.monthly
+        scalar_values_to_concat[sim_name] = sim_data.scalar
+
+    results_for_comparison.scalar = _pd.concat(
+        scalar_values_to_concat.values(), keys=scalar_values_to_concat.keys()
+    ).droplevel(1)
+    return results_for_comparison
+
+
+def _validate_folder(folder: _pl.Path) -> None:
+    if not folder.exists():
+        raise ValueError(f"Folder does not exist: {folder}")
+    if not folder.is_dir():
+        raise ValueError(f"Path is not a directory: {folder}")
+
+
+def _process_simulation(
+        sim_folder: _pl.Path,
+        processing_scenarios: Union[
+            _abc.Callable[[ps.Simulation], None],
+            Sequence[_abc.Callable[[ps.Simulation], None]],
+        ],
+) -> tuple[ps.Simulation, List[str]]:
+    logger.debug("Processing simulation folder: %s", sim_folder)
+    sim_files = utils.get_files([sim_folder])
+    simulation = ps.process_sim(sim_files, sim_folder)
+    failed_scenarios = []
+
+    # Convert single scenario to list for uniform handling
+    scenarios = (
+        [processing_scenarios]
+        if callable(processing_scenarios)
+        else processing_scenarios
+    )
+
+    for scenario in scenarios:
+        try:
+            scenario(simulation)
+        except Exception as e:  # pylint: disable=broad-except
+            scenario_name = getattr(scenario, "__name__", str(scenario))
+            failed_scenarios.append(scenario_name)
+            logger.error(
+                "Scenario %s failed for simulation %s: %s",
+                scenario_name,
+                sim_folder.name,
+                str(e),
+                exc_info=True,
+            )
+
+    _plt.close("all")
+    return simulation, failed_scenarios
+
+
+def _log_processing_results(results: ProcessingResults) -> None:
+    logger.info(
+        "Batch processing complete. Processed: %d, Errors: %d",
+        results.processed_count,
+        results.error_count,
+    )
+    if results.error_count > 0:
+        logger.warning(
+            "Some simulations failed to process. Check the log for details."
+        )
+    if results.failed_scenarios:
+        logger.warning(
+            "Some scenarios failed: %s",
+            {
+                sim: scenarios
+                for sim, scenarios in results.failed_scenarios.items()
+                if scenarios
+            },
+        )

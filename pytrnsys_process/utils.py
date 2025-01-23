@@ -21,11 +21,14 @@ def get_files(
         sim_folders: _abc.Sequence[_pl.Path],
         results_folder_name: str = sett.settings.reader.folder_name_for_printer_files,
         get_mfr_and_t: bool = sett.settings.reader.read_step_files,
+        read_deck_files: bool = sett.settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
         if get_mfr_and_t:
             sim_files.extend(sim_folder.glob("*[_T,_Mfr].prt"))
+        if read_deck_files:
+            sim_files.extend(sim_folder.glob("**/*.dck"))
         for sim_file in (sim_folder / results_folder_name).glob("*"):
             sim_files.append(sim_file)
 

@@ -41,6 +41,20 @@ class ProcessingResults:
 
 @dataclass
 class ResultsForComparison:
+    """Container for simulation results to be used in comparisons.
+
+    Attributes:
+        monthly: Dictionary mapping simulation names to monthly DataFrame results
+        hourly: Dictionary mapping simulation names to hourly DataFrame results
+        scalar: DataFrame containing scalar values from all simulations
+
+    Example:
+        >>> results = ResultsForComparison()
+        >>> results.monthly = {'sim1': pd.DataFrame(...)}
+        >>> results.hourly = {'sim1': pd.DataFrame(...)}
+        >>> results.scalar = pd.DataFrame(...)
+    """
+
     monthly: dict[str, _pd.DataFrame] = field(default_factory=dict)
     hourly: dict[str, _pd.DataFrame] = field(default_factory=dict)
     scalar: _pd.DataFrame = field(default_factory=_pd.DataFrame)
@@ -52,7 +66,7 @@ def process_single_simulation(
             _abc.Callable[[ps.Simulation], None],
             Sequence[_abc.Callable[[ps.Simulation], None]],
         ],
-) -> ProcessingResults:
+) -> ResultsForComparison:
     """Process a single simulation folder using the provided processing scenario(s).
 
     Args:
@@ -62,7 +76,10 @@ def process_single_simulation(
             object as its only parameter.
 
     Returns:
-        ProcessingResults containing the processed simulation and any failures
+        ResultsForComparison object containing:
+            - monthly: Dict mapping simulation names to monthly DataFrame results
+            - hourly: Dict mapping simulation names to hourly DataFrame results
+            - scalar: DataFrame containing scalar values from all the deck
 
     Example:
         >>> import pathlib as _pl
@@ -75,7 +92,7 @@ def process_single_simulation(
         ...     _pl.Path("path/to/simulation"),
         ...     processing_step_1
         ... )
-        >>> print(f"Processed: {results.processed_count}")
+        >>> api.compare_results(results, comparison_step_1)
     """
     results = ProcessingResults()
     try:
@@ -95,7 +112,8 @@ def process_single_simulation(
             str(e),
             exc_info=True,
         )
-    return results
+    _log_processing_results(results)
+    return _get_results_for_comparison(results)
 
 
 def process_whole_result_set(
@@ -107,17 +125,25 @@ def process_whole_result_set(
 ) -> ResultsForComparison:
     """Process all simulation folders in a results directory sequentially.
 
+    Processes each simulation folder found in the results directory one at a time,
+    applying the provided processing scenario(s) to each simulation.
+
     Args:
-        results_folder: Path to the directory containing simulation folders
+        results_folder: Path to the directory containing simulation folders.
+            Each subfolder should contain valid simulation data files.
         processing_scenario: Single callable or sequence of callables that implement
             the processing logic for each simulation. Each callable should take a
-            Simulation object as its only parameter.
+            Simulation object as its only parameter and modify it in place.
 
     Returns:
-        ProcessingResults containing counts of processed and failed simulations
+        ResultsForComparison object containing:
+            - monthly: Dict mapping simulation names to monthly DataFrame results
+            - hourly: Dict mapping simulation names to hourly DataFrame results
+            - scalar: DataFrame containing scalar/deck values from all simulations
 
     Raises:
         ValueError: If results_folder doesn't exist or is not a directory
+        Exception: Individual simulation failures are logged but not re-raised
 
     Example:
         >>> import pathlib as _pl
@@ -133,7 +159,7 @@ def process_whole_result_set(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
-        >>> print(f"Processed: {results.processed_count}, Failed: {results.error_count}")
+        >>> api.compare_results(results, comparison_step_1)
     """
     _validate_folder(results_folder)
 
@@ -183,7 +209,8 @@ def process_whole_result_set_parallel(
     Uses a ProcessPoolExecutor to process multiple simulations concurrently.
 
     Args:
-        results_folder: Path to the directory containing simulation folders
+        results_folder: Path to the directory containing simulation folders.
+            Each subfolder should contain valid simulation data files.
         processing_scenario: Single callable or sequence of callables that implement
             the processing logic for each simulation. Each callable should take a
             Simulation object as its only parameter.
@@ -191,10 +218,14 @@ def process_whole_result_set_parallel(
             the number of processors on the machine.
 
     Returns:
-        ProcessingResults containing counts of processed and failed simulations
+        ResultsForComparison object containing:
+            - monthly: Dict mapping simulation names to monthly DataFrame results
+            - hourly: Dict mapping simulation names to hourly DataFrame results
+            - scalar: DataFrame containing scalar/deck values from all simulations
 
     Raises:
         ValueError: If results_folder doesn't exist or is not a directory
+        Exception: Individual simulation failures are logged but not re-raised
 
     Example:
         >>> import pathlib as _pl
@@ -210,7 +241,7 @@ def process_whole_result_set_parallel(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
-        >>> print(f"Processed: {results.processed_count}, Failed: {results.error_count}")
+        >>> api.compare_results(results, comparison_step_1)
     """
     _validate_folder(results_folder)
 
@@ -264,8 +295,27 @@ def do_comparison(
             _abc.Sequence[_abc.Callable[[ResultsForComparison], None]],
         ],
 ):
+    """Execute comparison scenarios on processed simulation results.
+
+    Args:
+        results_for_comparison: ResultsForComparison object containing the processed
+            simulation data to be compared
+        comparison_scenario: Single callable or sequence of callables that implement
+            the comparison logic. Each callable should take a ResultsForComparison
+            object as its only parameter.
+
+    Example:
+        >>> from pytrnsys_process import api
+        ...
+        >>> def comparison_step(comparison_results: api.ResultsForComparison):
+        ...     # Compare simulation results
+        ...     pass
+        ...
+        >>> api.do_comparison(processed_results, comparison_step)
+    """
     try:
-        process_comparisons(results_for_comparison, comparison_scenario)
+        _process_comparisons(results_for_comparison, comparison_scenario)
+
     except Exception:  # pylint: disable=broad-except
         logger.error(
             "Failed to do comparison",
@@ -273,16 +323,13 @@ def do_comparison(
         )
 
 
-def process_comparisons(
+def _process_comparisons(
         results_for_comparison: ResultsForComparison,
         comparison_scenario: Union[
             _abc.Callable[[ResultsForComparison], None],
             _abc.Sequence[_abc.Callable[[ResultsForComparison], None]],
         ],
 ):
-    failed_scenarios = []
-
-    # Convert single scenario to list for uniform handling
     scenario = (
         [comparison_scenario]
         if callable(comparison_scenario)
@@ -293,7 +340,6 @@ def process_comparisons(
             step(results_for_comparison)
         except Exception:
             scenario_name = getattr(step, "__name__", str(step))
-            failed_scenarios.append(scenario_name)
             logger.error(
                 "Scenario %s failed for comparison: ",
                 scenario_name,
@@ -310,10 +356,11 @@ def _get_results_for_comparison(
         results_for_comparison.hourly[sim_name] = sim_data.hourly
         results_for_comparison.monthly[sim_name] = sim_data.monthly
         scalar_values_to_concat[sim_name] = sim_data.scalar
-
-    results_for_comparison.scalar = _pd.concat(
-        scalar_values_to_concat.values(), keys=scalar_values_to_concat.keys()
-    ).droplevel(1)
+    if scalar_values_to_concat:
+        results_for_comparison.scalar = _pd.concat(
+            scalar_values_to_concat.values(),
+            keys=scalar_values_to_concat.keys(),
+        ).droplevel(1)
     return results_for_comparison
 
 

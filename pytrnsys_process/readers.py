@@ -203,11 +203,19 @@ class PrtReader(ReaderBase):
             )
         }
 
-        # Convert month names to datetime objects
-        timestamps = [
-            _dt.datetime(year=year, month=month_map[name.strip()], day=1)
-            for name in month_names
-        ]
+        # Convert month names to datetime objects with year handling
+        timestamps = []
+        current_year = year
+        previous_month = None
+
+        for name in month_names:
+            current_month = month_map[name.strip()]
+            # Increment year when we see January after December
+            if previous_month == 12 and current_month == 1:
+                current_year += 1
+            timestamps.append(_dt.datetime(year=current_year, month=current_month, day=1))
+            previous_month = current_month
+        
         return _pd.Series(timestamps)
 
     def _validate_hourly(self, df: _pd.DataFrame) -> None:

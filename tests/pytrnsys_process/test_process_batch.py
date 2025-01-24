@@ -30,62 +30,54 @@ class TestPytrnsysProcess:
         results = pb.process_single_simulation(
             sim_folder, [processing_step, processing_step_failing]
         )
-        assert results.processed_count == 1
-        assert results.error_count == 0
-        assert results.failed_simulations == []
-        assert results.failed_scenarios == {
-            "sim-1": ["processing_scenario_failing"]
-        }
+        assert len(results.monthly) == 1
+        assert len(results.hourly) == 1
+        assert results.scalar.shape[0] == 1
+        assert "sim-1" in results.monthly
+        assert "sim-1" in results.hourly
 
     def test_process_whole_result_set(self):
         results = pb.process_whole_result_set(
             RESULTS_FOLDER, [processing_step, processing_step_failing]
         )
-        assert results.processed_count == 2
-        assert results.error_count == 0
-        assert results.failed_simulations == []
-        assert results.failed_scenarios == {
-            "sim-1": ["processing_scenario_failing"],
-            "sim-2": ["processing_scenario_failing"],
-        }
+        assert len(results.monthly) == 2
+        assert len(results.hourly) == 2
+        assert results.scalar.shape[0] == 2
+        assert all(sim in results.monthly for sim in ["sim-1", "sim-2"])
+        assert all(sim in results.hourly for sim in ["sim-1", "sim-2"])
 
     def test_process_whole_result_set_parallel(self):
         results = pb.process_whole_result_set_parallel(
             RESULTS_FOLDER, [processing_step, processing_step_failing]
         )
-        assert results.processed_count == 2
-        assert results.error_count == 0
-        assert results.failed_simulations == []
-        assert results.failed_scenarios
-        assert results.failed_scenarios == {
-            "sim-1": ["processing_scenario_failing"],
-            "sim-2": ["processing_scenario_failing"],
-        }
+        assert len(results.monthly) == 2
+        assert len(results.hourly) == 2
+        assert results.scalar.shape[0] == 2
+        assert all(sim in results.monthly for sim in ["sim-1", "sim-2"])
+        assert all(sim in results.hourly for sim in ["sim-1", "sim-2"])
 
     def test_process_single_simulation_with_invalid_data(self):
         sim_folder = _pl.Path(INVALID_RESULTS_FOLDER / "sim-1")
         results = pb.process_single_simulation(sim_folder, processing_step)
-        assert results.processed_count == 0
-        assert results.error_count == 1
-        assert results.failed_simulations == ["sim-1"]
+        assert len(results.monthly) == 0
+        assert len(results.hourly) == 0
+        assert results.scalar.empty
 
     def test_process_whole_result_set_with_invalid_data(self):
         results = pb.process_whole_result_set(
             INVALID_RESULTS_FOLDER, processing_step
         )
-        assert results.processed_count == 0
-        assert results.error_count == 2
-        assert results.failed_simulations == ["sim-1", "sim-2"]
+        assert len(results.monthly) == 0
+        assert len(results.hourly) == 0
+        assert results.scalar.empty
 
     def test_process_whole_result_set_parallel_with_invalid_data(self):
         results = pb.process_whole_result_set_parallel(
             INVALID_RESULTS_FOLDER, processing_step
         )
-        assert results.processed_count == 0
-        assert results.error_count == 2
-        assert all(
-            sim in results.failed_simulations for sim in ["sim-1", "sim-2"]
-        )
+        assert len(results.monthly) == 0
+        assert len(results.hourly) == 0
+        assert results.scalar.empty
 
     def test_do_comparison(self):
         results = pb.process_whole_result_set(RESULTS_FOLDER, processing_step)

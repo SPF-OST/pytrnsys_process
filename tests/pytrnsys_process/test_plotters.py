@@ -181,8 +181,8 @@ class TestPlotters:
         # Execute
         fig, _ = pw.energy_balance(
             monthly_data,
-            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
-            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
             q_imb_column="QSnk60qImbTess",
         )
         fig.savefig(actual_imb_given)
@@ -201,8 +201,8 @@ class TestPlotters:
         # Execute
         fig, _ = pw.energy_balance(
             monthly_data,
-            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
-            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
         )
         fig.savefig(actual_imb_calculated)
 

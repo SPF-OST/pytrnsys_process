@@ -37,6 +37,14 @@ class TestReader:
             encoding="UTF8"
         ) == expected_file_path.read_text(encoding="UTF8")
 
+        # Verify timestamps are correct
+        timestamps = actual_df.index
+        assert len(timestamps) == 14
+        assert timestamps[0].year == 1990
+        assert timestamps[0].month == 11
+        assert timestamps[-1].year == 1991
+        assert timestamps[-1].month == 12
+
     def test_read_step(self):
         step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.prt"
         actual_df = readers.PrtReader().read_step(step_file_path)

@@ -19,7 +19,7 @@ from pytrnsys_process.process_batch import (
     process_single_simulation,
     process_whole_result_set,
     process_whole_result_set_parallel,
-    process_comparisons,
+    _process_comparisons,
     ResultsForComparison
 )
 from pytrnsys_process.process_sim.process_sim import Simulation
@@ -41,7 +41,7 @@ __all__ = [
     "process_whole_result_set_parallel",
     "process_single_simulation",
     "process_whole_result_set",
-    "process_comparisons",
+    "_process_comparisons",
     "ResultsForComparison",
     "Simulation",
     "export_plots_in_configured_formats",

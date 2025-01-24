@@ -15,16 +15,19 @@ PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 class TestProcessSim(_ut.TestCase):
 
     def test_process_sim_prt(self):
-        sim_files = utils.get_files([PATH_TO_RESULTS])
-
-        with self.assertLogs("pytrnsys_process", level="ERROR") as log_context:
+        with _mock.patch(
+                "pytrnsys_process.settings.settings.reader.read_step_files", True
+        ):
+            sim_files = utils.get_files([PATH_TO_RESULTS])
             simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+        with self.assertLogs("pytrnsys_process", level="ERROR") as log_context:
+
             assert (
                     "don-not-process.xlsx: No columns to parse from file"
                     in log_context.output[0]
             )
-            self.do_assert(simulation)
-            assert simulation.scalar.shape == (1, 10)
+        self.do_assert(simulation)
+        assert simulation.scalar.shape == (1, 10)
 
     def test_process_sim_csv(self):
         sim_files = utils.get_files(
@@ -32,8 +35,10 @@ class TestProcessSim(_ut.TestCase):
             results_folder_name="converted",
             get_mfr_and_t=False,
         )
-
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
+        with _mock.patch(
+                "pytrnsys_process.settings.settings.reader.read_step_files", True
+        ):
+            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         self.do_assert(simulation)
 

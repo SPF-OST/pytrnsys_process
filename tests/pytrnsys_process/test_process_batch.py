@@ -68,7 +68,7 @@ class TestPytrnsysProcess:
         )
         assert results.processed_count == 0
         assert results.error_count == 2
-        assert results.failed_simulations == ["sim-1", "sim-2"]
+        assert set(results.failed_simulations) == {"sim-1", "sim-2"}
 
     def test_process_whole_result_set_parallel_with_invalid_data(self):
         results = pb.process_whole_result_set_parallel(

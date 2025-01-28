@@ -17,8 +17,8 @@ class FilePattern:
 
 
 class FileType(Enum):
-    MONTHLY = FilePattern(patterns=["_mo_", "_mo$", "mo_"], prefix="mo_")
-    HOURLY = FilePattern(patterns=["_hr_", "_hr$", "hr_"], prefix="hr_")
+    MONTHLY = FilePattern(patterns=["_mo_", "_mo$", "^mo_"], prefix="mo_")
+    HOURLY = FilePattern(patterns=["_hr_", "_hr$", "^hr_"], prefix="hr_")
     TIMESTEP = FilePattern(
         patterns=["_step$", "step_", "_mfr$", "_t$"], prefix="step_"
     )

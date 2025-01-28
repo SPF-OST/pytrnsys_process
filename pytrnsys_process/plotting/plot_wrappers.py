@@ -246,6 +246,7 @@ def scatter_plot(
     _validate_column_exists(df, [x_column, y_column])
     fig, ax = _plt.subplots(figsize=size)
     columns = [x_column, y_column]
+
     df[columns].plot.scatter(
         legend=use_legend,
         ax=ax,
@@ -253,9 +254,8 @@ def scatter_plot(
         y=y_column,
         **kwargs,
     )
-    ax = pltrs.configure(ax)
 
-    return fig, ax
+    return pltrs.configure(fig, ax)
 
 
 def energy_balance(
@@ -304,7 +304,11 @@ def energy_balance(
         >>>     create_energy_balance,
         >>>     )
     """
-    all_columns_vor_validation = q_in_columns + q_out_columns + ([q_imb_column] if q_imb_column is not None else [])
+    all_columns_vor_validation = (
+            q_in_columns
+            + q_out_columns
+            + ([q_imb_column] if q_imb_column is not None else [])
+    )
     _validate_column_exists(df, all_columns_vor_validation)
 
     df_modified = df.copy()
@@ -324,6 +328,41 @@ def energy_balance(
     return plotter.plot(
         df_modified,
         columns_to_plot,
+        use_legend=use_legend,
+        size=size,
+        **kwargs,
+    )
+
+
+def scatter_compare_plot(
+        df: _pd.DataFrame,
+        x_column: str,
+        y_column: str,
+        group_by_column_names: tuple[str, str],
+        use_legend: bool = True,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
+) -> tuple[_plt.Figure, _plt.Axes]:
+    """Create a comparative scatter plot with dual grouping using color and markers.
+
+    Args:
+        df: DataFrame containing the data
+        x_column: Column name for x-axis values
+        y_column: Column name for y-axis values
+        group_by_column_names: Tuple of two column names for grouping (color and marker)
+        use_legend: Whether to show legends
+        size: Figure size tuple
+        **kwargs: Additional plotting arguments
+
+    Returns:
+        Tuple of (Figure, Axes) objects
+    """
+    _validate_column_exists(df, [x_column, y_column, *group_by_column_names])
+    plotter = pltrs.ScatterComparePlotter()
+    return plotter.plot(
+        df,
+        columns=[x_column, y_column],
+        group_by_column_names=group_by_column_names,
         use_legend=use_legend,
         size=size,
         **kwargs,
@@ -366,7 +405,9 @@ def _validate_column_exists(
     # Build error message
     parts = []
     if suggestions:
-        parts.append(f"Case-insensitive matches found:\n{', \n'.join(suggestions)}\n")
+        parts.append(
+            f"Case-insensitive matches found:\n{', \n'.join(suggestions)}\n"
+        )
     if not_found:
         parts.append(f"No matches found for:\n{', \n'.join(not_found)}")
 

@@ -1,6 +1,3 @@
-import unittest as _ut
-import unittest.mock as _mock
-
 import pandas as _pd
 import pytest as _pt
 
@@ -12,52 +9,49 @@ from pytrnsys_process.process_sim import process_sim as ps
 PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 
 
-class TestProcessSim(_ut.TestCase):
+class TestProcessSim:
 
-    def test_process_sim_prt(self):
-        with _mock.patch(
-                "pytrnsys_process.settings.settings.reader.read_step_files", True
-        ):
-            sim_files = utils.get_files([PATH_TO_RESULTS])
-            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
-        with self.assertLogs("pytrnsys_process", level="ERROR") as log_context:
+    def test_process_sim_prt(self, monkeypatch):
+        monkeypatch.setattr(
+            "pytrnsys_process.settings.settings.reader.read_step_files", True
+        )
+        sim_files = utils.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
+        with _pt.raises(Exception) as exc_info:
             assert (
                     "don-not-process.xlsx: No columns to parse from file"
-                    in log_context.output[0]
+                    in str(exc_info.value)
             )
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)
 
-    def test_process_sim_csv(self):
+    def test_process_sim_csv(self, monkeypatch):
         sim_files = utils.get_files(
             [PATH_TO_RESULTS],
             results_folder_name="converted",
             get_mfr_and_t=False,
         )
-        with _mock.patch(
-                "pytrnsys_process.settings.settings.reader.read_step_files", True
-        ):
-            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
-
+        monkeypatch.setattr(
+            "pytrnsys_process.settings.settings.reader.read_step_files", True
+        )
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         self.do_assert(simulation)
 
-    def test_process_sim_ignore_step(self):
+    def test_process_sim_ignore_step(self, monkeypatch):
         sim_files = utils.get_files([PATH_TO_RESULTS])
-        with _mock.patch(
-                "pytrnsys_process.settings.settings.reader.read_step_files", False
-        ):
-            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
-
+        monkeypatch.setattr(
+            "pytrnsys_process.settings.settings.reader.read_step_files", False
+        )
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.step.shape == (0, 0)
 
-    def test_process_sim_ignore_deck(self):
+    def test_process_sim_ignore_deck(self, monkeypatch):
         sim_files = utils.get_files([PATH_TO_RESULTS])
-        with _mock.patch(
-                "pytrnsys_process.settings.settings.reader.read_deck_files", False
-        ):
-            simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
-
+        monkeypatch.setattr(
+            "pytrnsys_process.settings.settings.reader.read_deck_files", False
+        )
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)
 
     def do_assert(self, simulation):
@@ -83,7 +77,6 @@ class TestProcessFile:
         ]
         for file in simulation.files:
             assert file.name in expected_file_names
-        assert len(simulation.files) >= 6
 
     def test_process_file_using_file_name(self):
         simulation = pf.process_simulation(
@@ -91,6 +84,8 @@ class TestProcessFile:
         )
 
         self.do_assert(simulation)
+        assert len(simulation.files) == 4
+
 
     def test_process_file_using_file_content(self):
         simulation = pf.process_simulation(
@@ -98,6 +93,7 @@ class TestProcessFile:
         )
 
         self.do_assert(simulation)
+        assert len(simulation.files) == 8
 
 
 class TestHandleDuplicateColumns:

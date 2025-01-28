@@ -23,14 +23,26 @@ def get_files(
         get_mfr_and_t: bool = sett.settings.reader.read_step_files,
         read_deck_files: bool = sett.settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
+    """Get simulation files from folders based on configuration.
+    
+    Args:
+        sim_folders: Sequence of paths to simulation folders
+        results_folder_name: Name of folder containing printer files
+        get_mfr_and_t: Whether to include step files (T and Mfr files)
+        read_deck_files: Whether to include deck files
+        
+    Returns:
+        Sequence of paths to simulation files
+    """
     sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
         if get_mfr_and_t:
             sim_files.extend(sim_folder.glob("*[_T,_Mfr].prt"))
         if read_deck_files:
             sim_files.extend(sim_folder.glob("**/*.dck"))
-        for sim_file in (sim_folder / results_folder_name).glob("*"):
-            sim_files.append(sim_file)
+        results_path = sim_folder / results_folder_name
+        if results_path.exists():
+            sim_files.extend(results_path.glob("*"))
 
     return [x for x in sim_files if x.is_file()]
 

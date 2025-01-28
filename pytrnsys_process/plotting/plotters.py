@@ -22,7 +22,9 @@ from pytrnsys_process import settings as sett
 plot_settings = sett.settings.plot
 
 
-def configure(ax: _plt.Axes) -> _plt.Axes:
+def configure(
+        fig: _plt.Figure, ax: _plt.Axes
+) -> tuple[_plt.Figure, _plt.Axes]:
     ax.set_xlabel(
         plot_settings.x_label, fontsize=plot_settings.label_font_size
     )
@@ -30,8 +32,8 @@ def configure(ax: _plt.Axes) -> _plt.Axes:
         plot_settings.y_label, fontsize=plot_settings.label_font_size
     )
     ax.set_title(plot_settings.title, fontsize=plot_settings.title_font_size)
-    _plt.tight_layout()
-    return ax
+    fig.tight_layout()
+    return fig, ax
 
 
 @dataclass
@@ -43,7 +45,10 @@ class ChartBase(h.HeaderValidationMixin):
         columns: list[str],
         **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        return self._do_plot(df, columns, **kwargs)
+
+        fig, ax = configure(*self._do_plot(df, columns, **kwargs))
+        fig.tight_layout()
+        return fig, ax
 
     # TODO: Test validation # pylint: disable=fixme
     def plot_with_column_validation(
@@ -111,7 +116,6 @@ class StackedBarChart(ChartBase):
         ax.set_xticklabels(
             _pd.to_datetime(df.index).strftime(plot_settings.date_format)
         )
-        ax = configure(ax)
 
         return fig, ax
 
@@ -151,7 +155,6 @@ class BarChart(ChartBase):
             _pd.to_datetime(df.index).strftime(plot_settings.date_format)
         )
         ax.tick_params(axis="x", labelrotation=90)
-        configure(ax)
         return fig, ax
 
 
@@ -173,7 +176,6 @@ class LinePlot(ChartBase):
             **kwargs,
         }
         df[columns].plot.line(**plot_kwargs)
-        ax = configure(ax)
         return fig, ax
 
 
@@ -198,5 +200,100 @@ class Histogram(ChartBase):
             **kwargs,
         }
         df[columns].plot.hist(**plot_kwargs)
-        ax = configure(ax)
         return fig, ax
+
+
+@dataclass
+class ScatterComparePlotter(ChartBase):
+    """Handles comparative scatter plots with dual grouping by color and markers."""
+
+    def _do_plot(
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = const.PlotSizes.A4.value,
+            group_by_column_names: _tp.Optional[tuple[str, str]] = None,
+            **kwargs: _tp.Any,
+    ) -> tuple[_plt.Figure, _plt.Axes]:
+        if len(columns) != 2:
+            raise ValueError(
+                "ScatterComparePlotter requires exactly 2 columns (x and y)"
+            )
+        if not group_by_column_names or len(group_by_column_names) != 2:
+            raise ValueError(
+                "group_by_column_names must be a tuple of two column names"
+            )
+
+        x_column, y_column = columns
+        fig, ax = _plt.subplots(figsize=size)
+
+        # Grouping and style mapping
+        df_grouped = df.groupby(list(group_by_column_names))
+        group1_values = sorted(df[group_by_column_names[0]].unique())
+        group2_values = sorted(df[group_by_column_names[1]].unique())
+
+        # Color and marker mapping
+        cmap = _plt.cm.get_cmap(plot_settings.color_map, len(group1_values))
+        color_map = {val: cmap(i) for i, val in enumerate(group1_values)}
+        marker_map = dict(zip(group2_values, plot_settings.markers))
+
+        # Plot each group
+        for (group1_val, group2_val), group in df_grouped:
+            sorted_group = group.sort_values(x_column)
+            color = color_map[group1_val]
+            marker = marker_map[group2_val]
+
+            ax.plot(
+                sorted_group[x_column],
+                sorted_group[y_column],
+                color=color,
+                marker=marker,
+                linestyle="-",
+                alpha=0.5,
+            )
+
+        # Legend creation
+        if use_legend:
+            self._create_legends(
+                ax, color_map, marker_map, group_by_column_names
+            )
+
+        return fig, ax
+
+    def _create_legends(self, ax, color_map, marker_map, group_names):
+        # Color legend (group 1)
+        color_handles = [
+            _plt.Line2D([], [], color=color, linestyle="-", label=label)
+            for label, color in color_map.items()
+        ]
+        color_legend = ax.legend(
+            handles=color_handles,
+            title=group_names[0],
+            bbox_to_anchor=(1, 1),
+            loc="upper left",
+            alignment="left",
+            fontsize=plot_settings.legend_font_size,
+        )
+        ax.add_artist(color_legend)
+
+        # Marker legend (group 2)
+        marker_handles = [
+            _plt.Line2D(
+                [],
+                [],
+                color="black",
+                marker=marker,
+                linestyle="None",
+                label=label,
+            )
+            for label, marker in marker_map.items()
+        ]
+        ax.legend(
+            handles=marker_handles,
+            title=group_names[1],
+            bbox_to_anchor=(1, 0.7),
+            loc="upper left",
+            alignment="left",
+            fontsize=plot_settings.legend_font_size,
+        )

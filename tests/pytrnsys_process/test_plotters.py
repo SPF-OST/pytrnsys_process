@@ -1,6 +1,7 @@
 from unittest import mock as _um
 
 import matplotlib.testing.compare as _mpltc
+import pandas as _pd
 import pytest
 
 import tests.pytrnsys_process.constants as const
@@ -44,6 +45,14 @@ class TestPlotters:
         """Load hourly test data."""
         result_data = const.DATA_FOLDER / "hourly/Src_Hr.Prt"
         return readers.PrtReader().read_hourly(result_data)
+
+    @pytest.fixture
+    def comparison_data(self):
+        path_to_json = (
+                const.DATA_FOLDER
+                / "plots/scatter-compare-plot/comparison_data.json"
+        )
+        return _pd.read_json(path_to_json)
 
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
@@ -184,7 +193,8 @@ class TestPlotters:
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup
         actual_imb_calculated = (
-                const.DATA_FOLDER / "plots/energy-balance/actual-imb-calculated.png"
+                const.DATA_FOLDER
+                / "plots/energy-balance/actual-imb-calculated.png"
         )
         expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
 
@@ -198,6 +208,26 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)
+
+    def test_scatter_compare_plot(self, comparison_data):
+        # Setup
+        actual = (
+                const.DATA_FOLDER /
+                "plots/scatter-compare-plot/actual.png"
+        )
+        expected = const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
+
+        # Execute
+        fig, _ = pw.scatter_compare_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            ("total_yearly_demand_GWh", "ratioDHWtoSH_allSinks"),
+        )
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
 
     def test_invalid_column_names_for_plot(self, hourly_data):
         # Setup

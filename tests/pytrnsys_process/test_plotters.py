@@ -11,9 +11,7 @@ from pytrnsys_process.plotting import plotters
 
 
 class TestPlotters:
-    SKIP_PLOT_COMPARISON = (
-        False  # Toggle this to enable/disable plot comparison
-    )
+    SKIP_PLOT_COMPARISON = False  # Toggle this to enable/disable plot comparison
 
     @pytest.fixture
     def mock_headers(self):
@@ -37,8 +35,7 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-            const.DATA_FOLDER
-            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+                const.DATA_FOLDER / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return readers.PrtReader().read_monthly(result_data)
 
@@ -51,13 +48,9 @@ class TestPlotters:
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
         if self.SKIP_PLOT_COMPARISON:
-            pytest.skip(
-                "Plot comparison temporarily disabled during development"
-            )
+            pytest.skip("Plot comparison temporarily disabled during development")
         assert (
-            _mpltc.compare_images(
-                str(expected_file), str(actual_file), tol=tolerance
-            )
+                _mpltc.compare_images(str(expected_file), str(actual_file), tol=tolerance)
             is None
         )
 
@@ -93,9 +86,7 @@ class TestPlotters:
 
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
-        expected_file = (
-            const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
-        )
+        expected_file = const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [
             "QSnk60PauxCondSwitch_kW",
@@ -193,8 +184,7 @@ class TestPlotters:
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup
         actual_imb_calculated = (
-                const.DATA_FOLDER
-                / "plots/energy-balance/actual-imb-calculated.png"
+                const.DATA_FOLDER / "plots/energy-balance/actual-imb-calculated.png"
         )
         expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
 
@@ -214,12 +204,13 @@ class TestPlotters:
         columns = ["qSrc1tIn", "QSrc1Tout", "DoesNotExist"]
 
         # Execute
-        with pytest.raises(
-                pw.ColumnNotFoundError,
-                match="Column validation failed. Case-insensitive matches found:\n"
-                      "'qSrc1tIn' did you mean: 'QSrc1TIn', \n"
-                      "'QSrc1Tout' did you mean: 'QSrc1TOut'\n"
-                      "No matches found for:\n"
-                      "'DoesNotExist'",
-        ):
+        suggestion1 = r"'qSrc1tIn' did you mean: 'QSrc1TIn', "
+        suggestion2 = r"'QSrc1Tout' did you mean: 'QSrc1TOut'"
+        expected_message = (
+                r"Column validation failed\. Case-insensitive matches found:\n"
+                + f"({suggestion1}\n{suggestion2}|{suggestion2}, \n{suggestion1[:-2]})"  # Either order
+                + r"\nNo matches found for:\n'DoesNotExist'"
+        )
+
+        with pytest.raises(pw.ColumnNotFoundError, match=expected_message):
             pw.line_plot(hourly_data, columns)

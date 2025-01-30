@@ -12,7 +12,9 @@ from pytrnsys_process.plotting import plotters
 
 
 class TestPlotters:
-    SKIP_PLOT_COMPARISON = False  # Toggle this to enable/disable plot comparison
+    SKIP_PLOT_COMPARISON = (
+        False  # Toggle this to enable/disable plot comparison
+    )
 
     @pytest.fixture
     def mock_headers(self):
@@ -36,7 +38,8 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-                const.DATA_FOLDER / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+                const.DATA_FOLDER
+                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return readers.PrtReader().read_monthly(result_data)
 
@@ -57,9 +60,13 @@ class TestPlotters:
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
         if self.SKIP_PLOT_COMPARISON:
-            pytest.skip("Plot comparison temporarily disabled during development")
+            pytest.skip(
+                "Plot comparison temporarily disabled during development"
+            )
         assert (
-                _mpltc.compare_images(str(expected_file), str(actual_file), tol=tolerance)
+                _mpltc.compare_images(
+                    str(expected_file), str(actual_file), tol=tolerance
+                )
             is None
         )
 
@@ -95,7 +102,9 @@ class TestPlotters:
 
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+        expected_file = (
+                const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+        )
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [
             "QSnk60PauxCondSwitch_kW",
@@ -107,7 +116,7 @@ class TestPlotters:
         ]
 
         # Execute
-        fig, _ = pw.stacked_bar_chart(monthly_data, columns)
+        fig, _ = pw.stacked_bar_chart(monthly_data, columns, xlabel="")
         fig.savefig(actual_file)
 
         # Assert
@@ -120,7 +129,7 @@ class TestPlotters:
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         # Execute
-        fig, _ = pw.line_plot(hourly_data, columns)
+        fig, _ = pw.line_plot(hourly_data, columns, xlabel="")
         fig.savefig(actual_fig)
 
         # Assert
@@ -149,7 +158,7 @@ class TestPlotters:
         columns = ["QSrc1TIn"]
 
         # Execute
-        fig, _ = pw.histogram(hourly_data, columns, ylabel="Time [h]")
+        fig, _ = pw.histogram(hourly_data, columns, ylabel="")
         fig.savefig(actual_file)
 
         # Assert
@@ -184,6 +193,7 @@ class TestPlotters:
             q_in_columns=["QSnk60PauxCondSwitch_kW"],
             q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
             q_imb_column="QSnk60qImbTess",
+            xlabel="",
         )
         fig.savefig(actual_imb_given)
 
@@ -203,6 +213,7 @@ class TestPlotters:
             monthly_data,
             q_in_columns=["QSnk60PauxCondSwitch_kW"],
             q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+            xlabel="",
         )
         fig.savefig(actual_imb_calculated)
 
@@ -211,18 +222,18 @@ class TestPlotters:
 
     def test_scatter_compare_plot(self, comparison_data):
         # Setup
-        actual = (
-                const.DATA_FOLDER /
-                "plots/scatter-compare-plot/actual.png"
+        actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual.png"
+        expected = (
+                const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
         )
-        expected = const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
 
         # Execute
-        fig, _ = pw.scatter_compare_plot(
+        fig, _ = pw.scatter_plot(
             comparison_data,
             "VIceSscaled",
             "VIceRatioMax",
-            ("total_yearly_demand_GWh", "ratioDHWtoSH_allSinks"),
+            "yearly_demand_GWh",
+            "ratioDHWtoSH_allSinks",
         )
         fig.savefig(actual)
 

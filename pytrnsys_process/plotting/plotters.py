@@ -25,13 +25,6 @@ plot_settings = sett.settings.plot
 def configure(
         fig: _plt.Figure, ax: _plt.Axes
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    ax.set_xlabel(
-        plot_settings.x_label, fontsize=plot_settings.label_font_size
-    )
-    ax.set_ylabel(
-        plot_settings.y_label, fontsize=plot_settings.label_font_size
-    )
-    ax.set_title(plot_settings.title, fontsize=plot_settings.title_font_size)
     fig.tight_layout()
     return fig, ax
 
@@ -119,16 +112,6 @@ class StackedBarChart(ChartBase):
 
         return fig, ax
 
-    # TODO Idea for what an energy balance plot method could look like # pylint: disable=fixme
-    @staticmethod
-    def create_energy_balance_monthly(
-        df: _pd.DataFrame,
-        q_in_columns: list[str],
-        q_out_columns: list[str],
-        imbalance_column: str,
-    ) -> _tp.Tuple[_plt.Figure, _plt.Axes]:
-        raise NotImplementedError  # pragma: no cover - has not been implemented yet
-
 
 class BarChart(ChartBase):
 
@@ -204,96 +187,157 @@ class Histogram(ChartBase):
 
 
 @dataclass
-class ScatterComparePlotter(ChartBase):
+class ScatterPlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
 
+    # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
             self,
             df: _pd.DataFrame,
             columns: list[str],
             use_legend: bool = True,
             size: tuple[float, float] = const.PlotSizes.A4.value,
-            group_by_column_names: _tp.Optional[tuple[str, str]] = None,
+            color: str | None = None,
+            marker: str | None = None,
             **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
+        self._validate_inputs(columns)
+        x_column, y_column = columns
+        fig, ax = _plt.subplots(figsize=size)
+
+        if not color and not marker:
+            df.plot.scatter(x=x_column, y=y_column, ax=ax, **kwargs)
+            return fig, ax
+
+        df_grouped, group_values = self._prepare_grouping(df, color, marker)
+        color_map, marker_map = self._create_style_mappings(*group_values)
+
+        self._plot_groups(
+            df_grouped,
+            x_column,
+            y_column,
+            color_map,
+            marker_map,
+            ax,
+        )
+
+        if use_legend:
+            self._create_legends(ax, color_map, marker_map, color, marker)
+
+        return fig, ax
+
+    def _validate_inputs(
+            self,
+            columns: list[str],
+    ) -> None:
         if len(columns) != 2:
             raise ValueError(
                 "ScatterComparePlotter requires exactly 2 columns (x and y)"
             )
-        if not group_by_column_names or len(group_by_column_names) != 2:
-            raise ValueError(
-                "group_by_column_names must be a tuple of two column names"
-            )
 
-        x_column, y_column = columns
-        fig, ax = _plt.subplots(figsize=size)
+    def _prepare_grouping(
+            self,
+            df: _pd.DataFrame,
+            color: str | None,
+            marker: str | None,
+    ) -> tuple[
+        _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
+    ]:
+        group_by = []
+        if color:
+            group_by.append(color)
+        if marker:
+            group_by.append(marker)
 
-        # Grouping and style mapping
-        df_grouped = df.groupby(list(group_by_column_names))
-        group1_values = sorted(df[group_by_column_names[0]].unique())
-        group2_values = sorted(df[group_by_column_names[1]].unique())
+        df_grouped = df.groupby(group_by)
 
-        # Color and marker mapping
-        cmap = _plt.cm.get_cmap(plot_settings.color_map, len(group1_values))
-        color_map = {val: cmap(i) for i, val in enumerate(group1_values)}
-        marker_map = dict(zip(group2_values, plot_settings.markers))
+        color_values = sorted(df[color].unique()) if color else []
+        marker_values = sorted(df[marker].unique()) if marker else []
 
-        # Plot each group
-        for (group1_val, group2_val), group in df_grouped:
+        return df_grouped, (color_values, marker_values)
+
+    def _create_style_mappings(
+            self, color_values: list[str], marker_values: list[str]
+    ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
+        if color_values:
+            cmap = _plt.cm.get_cmap(plot_settings.color_map, len(color_values))
+            color_map = {val: cmap(i) for i, val in enumerate(color_values)}
+        else:
+            color_map = {}
+        if marker_values:
+            marker_map = dict(zip(marker_values, plot_settings.markers))
+        else:
+            marker_map = {}
+
+        return color_map, marker_map
+
+    # pylint: disable=too-many-arguments
+    def _plot_groups(
+            self,
+            df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
+            x_column: str,
+            y_column: str,
+            color_map: dict[str, _tp.Any],
+            marker_map: dict[str, str],
+            ax: _plt.Axes,
+    ) -> None:
+        ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
+        ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
+        for val, group in df_grouped:
             sorted_group = group.sort_values(x_column)
-            color = color_map[group1_val]
-            marker = marker_map[group2_val]
+            x = sorted_group[x_column]
+            y = sorted_group[y_column]
+            plot_args = {"color": "black"}
+            scatter_args = {"marker": "None", "color": "black", "alpha": 0.5}
+            if color_map:
+                plot_args["color"] = color_map[val[0]]
+            if marker_map:
+                scatter_args["marker"] = marker_map[val[-1]]
+            ax.plot(x, y, **plot_args)  # type: ignore
+            ax.scatter(x, y, **scatter_args)  # type: ignore
 
-            ax.plot(
-                sorted_group[x_column],
-                sorted_group[y_column],
-                color=color,
-                marker=marker,
-                linestyle="-",
-                alpha=0.5,
+    def _create_legends(
+            self,
+            ax: _plt.Axes,
+            color_map: dict[str, _tp.Any],
+            marker_map: dict[str, str],
+            color_legend_title: str | None,
+            marker_legend_title: str | None,
+    ) -> None:
+
+        if color_map:
+            color_handles = [
+                _plt.Line2D([], [], color=color, linestyle="-", label=label)
+                for label, color in color_map.items()
+            ]
+            color_legend = ax.legend(
+                handles=color_handles,
+                title=color_legend_title,
+                bbox_to_anchor=(1, 1),
+                loc="upper left",
+                alignment="left",
+                fontsize=plot_settings.legend_font_size,
             )
-
-        # Legend creation
-        if use_legend:
-            self._create_legends(
-                ax, color_map, marker_map, group_by_column_names
+            ax.add_artist(color_legend)
+        if marker_map:
+            marker_position = 0.7 if color_map else 1
+            marker_handles = [
+                _plt.Line2D(
+                    [],
+                    [],
+                    color="black",
+                    marker=marker,
+                    linestyle="None",
+                    label=label,
+                )
+                for label, marker in marker_map.items()
+                if label is not None
+            ]
+            ax.legend(
+                handles=marker_handles,
+                title=marker_legend_title,
+                bbox_to_anchor=(1, marker_position),
+                loc="upper left",
+                alignment="left",
+                fontsize=plot_settings.legend_font_size,
             )
-
-        return fig, ax
-
-    def _create_legends(self, ax, color_map, marker_map, group_names):
-        # Color legend (group 1)
-        color_handles = [
-            _plt.Line2D([], [], color=color, linestyle="-", label=label)
-            for label, color in color_map.items()
-        ]
-        color_legend = ax.legend(
-            handles=color_handles,
-            title=group_names[0],
-            bbox_to_anchor=(1, 1),
-            loc="upper left",
-            alignment="left",
-            fontsize=plot_settings.legend_font_size,
-        )
-        ax.add_artist(color_legend)
-
-        # Marker legend (group 2)
-        marker_handles = [
-            _plt.Line2D(
-                [],
-                [],
-                color="black",
-                marker=marker,
-                linestyle="None",
-                label=label,
-            )
-            for label, marker in marker_map.items()
-        ]
-        ax.legend(
-            handles=marker_handles,
-            title=group_names[1],
-            bbox_to_anchor=(1, 0.7),
-            loc="upper left",
-            alignment="left",
-            fontsize=plot_settings.legend_font_size,
-        )

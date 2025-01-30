@@ -213,9 +213,11 @@ class PrtReader(ReaderBase):
             # Increment year when we see January after December
             if previous_month == 12 and current_month == 1:
                 current_year += 1
-            timestamps.append(_dt.datetime(year=current_year, month=current_month, day=1))
+            timestamps.append(
+                _dt.datetime(year=current_year, month=current_month, day=1)
+            )
             previous_month = current_month
-        
+
         return _pd.Series(timestamps)
 
     def _validate_hourly(self, df: _pd.DataFrame) -> None:

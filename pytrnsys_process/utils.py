@@ -24,13 +24,13 @@ def get_files(
         read_deck_files: bool = sett.settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
-    
+
     Args:
         sim_folders: Sequence of paths to simulation folders
         results_folder_name: Name of folder containing printer files
         get_mfr_and_t: Whether to include step files (T and Mfr files)
         read_deck_files: Whether to include deck files
-        
+
     Returns:
         Sequence of paths to simulation files
     """

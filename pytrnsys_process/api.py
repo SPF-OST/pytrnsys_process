@@ -20,7 +20,7 @@ from pytrnsys_process.process_batch import (
     process_whole_result_set,
     process_whole_result_set_parallel,
     do_comparison,
-    ResultsForComparison
+    ResultsForComparison,
 )
 from pytrnsys_process.process_sim.process_sim import Simulation
 

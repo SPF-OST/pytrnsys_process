@@ -12,7 +12,7 @@ class Settings:
 
 
 @dataclass
-class Plot:
+class Plot:  # pylint: disable=too-many-instance-attributes
     file_formats: _abc.Sequence[str] = field(
         default_factory=lambda: [".png", ".pdf", ".emf"]
     )
@@ -35,8 +35,20 @@ class Plot:
     legend_font_size: int = 8
     title_font_size: int = 12
     markers: _abc.Sequence[str] = field(
-        default_factory=lambda: ['x', 'o', '^', 'D', 'v', '<', '>', 'p', '*', 's']
+        default_factory=lambda: [
+            "x",
+            "o",
+            "^",
+            "D",
+            "v",
+            "<",
+            ">",
+            "p",
+            "*",
+            "s",
+        ]
     )
+
 
 @dataclass
 class Reader:

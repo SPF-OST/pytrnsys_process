@@ -338,7 +338,7 @@ def _process_comparisons(
     for step in scenario:
         try:
             step(results_for_comparison)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             scenario_name = getattr(step, "__name__", str(step))
             logger.error(
                 "Scenario %s failed for comparison: ",

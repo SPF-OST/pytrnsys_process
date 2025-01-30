@@ -35,8 +35,8 @@
     "complete-1-SnkScale1.2000-StoreScale30": 69.8803338084,
     "complete-1-SnkScale1.2000-StoreScale50": 41.5011803295
   },
-  "total_yearly_demand_GWh": {
-    "complete-0-SnkScale0.8000-StoreScale9": null,
+  "yearly_demand_GWh": {
+    "complete-0-SnkScale0.8000-StoreScale9": 10.0,
     "complete-0-SnkScale1.2000-StoreScale60": 15.0,
     "complete-0-SnkScale0.8000-StoreScale25": 10.0,
     "complete-0-SnkScale1.2000-StoreScale100": 15.0,

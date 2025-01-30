@@ -86,7 +86,6 @@ class TestProcessFile:
         self.do_assert(simulation)
         assert len(simulation.files) == 4
 
-
     def test_process_file_using_file_content(self):
         simulation = pf.process_simulation(
             PATH_TO_RESULTS, detect_file_using_content=True

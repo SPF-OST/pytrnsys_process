@@ -198,66 +198,6 @@ def histogram(
     )
 
 
-def scatter_plot(
-        df: _pd.DataFrame,
-        x_column: str,
-        y_column: str,
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
-) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a scatter plot from the given DataFrame columns.
-
-    Args:
-        df: DataFrame containing the data to plot
-        x_column: Name of the column to use for x-axis values
-        y_column: Name of the column to use for y-axis values
-        use_legend: Whether to show the legend
-        size: Figure size tuple (width, height)
-        **kwargs: Additional plotting arguments
-
-    Returns:
-        Tuple of (matplotlib Figure object, matplotlib Axes object)
-
-    Example:
-        >>> from pytrnsys_process import api
-        >>> def create_scatter_plot(simulation: api.Simulation):
-        >>>     fig, ax = api.scatter_plot(
-        ...         simulation.hourly,
-        ...         x_column="var1",
-        ...         y_column="var2",
-        ...     )
-        >>>     # Customize the plot using the returned axes object:
-        >>>     ax.set_xlabel('Time')
-        >>>     ax.set_ylabel('Value')
-        >>>     ax.set_title('My Scatter Plot')
-        >>>     ax.grid(True)
-        >>>
-        >>> # run the single scenario on a single simulation
-        >>> api.process_single_simulation(
-        >>>     _pl.Path("path/to/single/simulation"),
-        >>>     create_scatter_plot,
-        >>>     )
-
-    For additional customization options, refer to:
-    - Matplotlib documentation: https://matplotlib.org/stable/api/
-    - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.scatter.html
-    """
-    _validate_column_exists(df, [x_column, y_column])
-    fig, ax = _plt.subplots(figsize=size)
-    columns = [x_column, y_column]
-
-    df[columns].plot.scatter(
-        legend=use_legend,
-        ax=ax,
-        x=x_column,
-        y=y_column,
-        **kwargs,
-    )
-
-    return pltrs.configure(fig, ax)
-
-
 def energy_balance(
         df: _pd.DataFrame,
         q_in_columns: list[str],
@@ -334,11 +274,13 @@ def energy_balance(
     )
 
 
-def scatter_compare_plot(
+# pylint: disable=too-many-arguments
+def scatter_plot(
         df: _pd.DataFrame,
         x_column: str,
         y_column: str,
-        group_by_column_names: tuple[str, str],
+        color: str | None = None,
+        marker: str | None = None,
         use_legend: bool = True,
         size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
@@ -349,7 +291,8 @@ def scatter_compare_plot(
         df: DataFrame containing the data
         x_column: Column name for x-axis values
         y_column: Column name for y-axis values
-        group_by_column_names: Tuple of two column names for grouping (color and marker)
+        color: Optional column name for color grouping
+        marker: Optional column name for marker grouping
         use_legend: Whether to show legends
         size: Figure size tuple
         **kwargs: Additional plotting arguments
@@ -357,12 +300,19 @@ def scatter_compare_plot(
     Returns:
         Tuple of (Figure, Axes) objects
     """
-    _validate_column_exists(df, [x_column, y_column, *group_by_column_names])
-    plotter = pltrs.ScatterComparePlotter()
+    columns_to_validate = [x_column, y_column]
+    if color:
+        columns_to_validate.append(color)
+    if marker:
+        columns_to_validate.append(marker)
+    _validate_column_exists(df, columns_to_validate)
+
+    plotter = pltrs.ScatterPlot()
     return plotter.plot(
         df,
         columns=[x_column, y_column],
-        group_by_column_names=group_by_column_names,
+        color=color,
+        marker=marker,
         use_legend=use_legend,
         size=size,
         **kwargs,

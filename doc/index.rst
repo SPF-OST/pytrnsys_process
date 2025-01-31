@@ -10,6 +10,10 @@ Welcome to pytrnsys_process's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   guide/overview
+   guide/getting_started
+   guide/tutorial
+   guide/iterative_workflow
    API documentation <_apidoc/modules>
 
 Indices and tables

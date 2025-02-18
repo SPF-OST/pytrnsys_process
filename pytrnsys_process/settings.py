@@ -55,6 +55,7 @@ class Reader:
     folder_name_for_printer_files: str = "temp"
     read_step_files: bool = False
     read_deck_files: bool = True
+    force_reread_prt: bool = False
 
 
 class Defaults(Enum):

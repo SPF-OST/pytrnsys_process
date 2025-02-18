@@ -6,3 +6,4 @@ pytrnsys_process.egg-info/
 __pycache__/
 .coverage
 /test-results/
+*.pickle

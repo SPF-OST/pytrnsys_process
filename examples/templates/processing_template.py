@@ -1,14 +1,15 @@
 import pathlib as _pl
 
+import data_structures
 from pytrnsys_process import api
 
 
-def processing_step_1(simulation: api.Simulation):
+def processing_step_1(simulation: data_structures.Simulation):
     """The simulation property provides you access to hourly, monthly and step data.
     Use this processing step to plot your data or process to your needs"""
 
 
-def processing_step_2(simulation: api.Simulation):
+def processing_step_2(simulation: data_structures.Simulation):
     """You can define as many processing steps as you want.
     Splitting your processing into multiple steps is useful if something goes wrong in one of your steps.
     The other steps will still be processed."""

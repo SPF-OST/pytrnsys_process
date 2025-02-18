@@ -1,13 +1,16 @@
 import datetime as _dt
+import logging as _logging
 import pathlib as _pl
 import re as _re
 
 from pytrnsys_process import constants as const
+from pytrnsys_process import logger as log
 from pytrnsys_process import readers
-from pytrnsys_process.logger import logger
 
 
-def get_file_type_using_file_content(file_path: _pl.Path) -> const.FileType:
+def get_file_type_using_file_content(
+        file_path: _pl.Path, logger: _logging.Logger = log.main_logger
+) -> const.FileType:
     """
     Determine the file type by analyzing its content.
 
@@ -48,7 +51,9 @@ def get_file_type_using_file_content(file_path: _pl.Path) -> const.FileType:
     )
 
 
-def get_file_type_using_file_name(file: _pl.Path) -> const.FileType:
+def get_file_type_using_file_name(
+        file: _pl.Path, logger: _logging.Logger = log.main_logger
+) -> const.FileType:
     """
     Determine the file type by checking the filename against known patterns.
 

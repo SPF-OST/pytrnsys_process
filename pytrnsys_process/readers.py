@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import pandas as _pd
 
-from pytrnsys_process.logger import logger as log
+from pytrnsys_process.logger import main_logger as log
 
 
 # TODO: Describe what to do when file name does not match any known patterns.  # pylint: disable=fixme

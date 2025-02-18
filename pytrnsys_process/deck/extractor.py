@@ -1,15 +1,16 @@
 import collections.abc as _cabc
+import logging as _logging
 import math as _math
 
 import lark as _lark
 
 from pytrnsys_process.deck import parser
 from pytrnsys_process.deck import visitor_helpers as vh
-from pytrnsys_process.logger import logger
+from pytrnsys_process.logger import main_logger
 
 
 def parse_deck_for_constant_expressions(
-        deck_as_string: str,
+        deck_as_string: str, logger: _logging.Logger = main_logger
 ) -> dict[str, float | int]:
     """Evaluate constant expressions in a TRNSYS deck file and return their values.
 
@@ -19,6 +20,7 @@ def parse_deck_for_constant_expressions(
 
     Args:
         deck_as_string: A string containing the contents of a TRNSYS deck file.
+        logger: provide your own logger. to for example log per simulation
 
     Returns:
         A dictionary mapping variable names to their evaluated values (float or int).
@@ -60,13 +62,12 @@ def parse_deck_for_constant_expressions(
                                   e.meta.start_pos: e.meta.end_pos
                                   ]
                 func_name, _ = failed_equation.split("(")
-                logger.error(
+                logger.warning(
                     "On line %s, %s is not supported in %s=%s",
                     e.meta.line,
                     func_name,
                     var,
                     failed_equation,
-                    exc_info=True,
                 )
                 del sub_trees_to_process[var]
 

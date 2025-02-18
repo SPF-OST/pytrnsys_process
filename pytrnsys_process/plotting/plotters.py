@@ -22,13 +22,6 @@ from pytrnsys_process import settings as sett
 plot_settings = sett.settings.plot
 
 
-def configure(
-        fig: _plt.Figure, ax: _plt.Axes
-) -> tuple[_plt.Figure, _plt.Axes]:
-    fig.tight_layout()
-    return fig, ax
-
-
 @dataclass
 class ChartBase(h.HeaderValidationMixin):
 
@@ -38,9 +31,7 @@ class ChartBase(h.HeaderValidationMixin):
         columns: list[str],
         **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-
-        fig, ax = configure(*self._do_plot(df, columns, **kwargs))
-        fig.tight_layout()
+        fig, ax = self._do_plot(df, columns, **kwargs)
         return fig, ax
 
     # TODO: Test validation # pylint: disable=fixme
@@ -97,7 +88,10 @@ class StackedBarChart(ChartBase):
             size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(figsize=size)
+        fig, ax = _plt.subplots(
+            figsize=size,
+            layout="constrained",
+        )
         plot_kwargs = {
             "stacked": True,
             "colormap": plot_settings.color_map,
@@ -123,7 +117,10 @@ class BarChart(ChartBase):
             size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(figsize=size)
+        fig, ax = _plt.subplots(
+            figsize=size,
+            layout="constrained",
+        )
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)
 
@@ -151,7 +148,10 @@ class LinePlot(ChartBase):
             size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(figsize=size)
+        fig, ax = _plt.subplots(
+            figsize=size,
+            layout="constrained",
+        )
         plot_kwargs = {
             "colormap": plot_settings.color_map,
             "legend": use_legend,
@@ -174,7 +174,10 @@ class Histogram(ChartBase):
             size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(figsize=size)
+        fig, ax = _plt.subplots(
+            figsize=size,
+            layout="constrained",
+        )
         plot_kwargs = {
             "colormap": plot_settings.color_map,
             "legend": use_legend,
@@ -197,19 +200,32 @@ class ScatterPlot(ChartBase):
             columns: list[str],
             use_legend: bool = True,
             size: tuple[float, float] = const.PlotSizes.A4.value,
-            color: str | None = None,
-            marker: str | None = None,
+            group_by_color: str | None = None,
+            group_by_marker: str | None = None,
             **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         self._validate_inputs(columns)
         x_column, y_column = columns
-        fig, ax = _plt.subplots(figsize=size)
 
-        if not color and not marker:
+        if not group_by_color and not group_by_marker:
+            fig, ax = _plt.subplots(
+                figsize=size,
+                layout="constrained",
+            )
             df.plot.scatter(x=x_column, y=y_column, ax=ax, **kwargs)
             return fig, ax
-
-        df_grouped, group_values = self._prepare_grouping(df, color, marker)
+        # See: https://stackoverflow.com/questions/4700614/
+        # how-to-put-the-legend-outside-the-plot
+        # This is required to place the legend in a dedicated subplot
+        fig, (ax, lax) = _plt.subplots(
+            layout="constrained",
+            figsize=size,
+            ncols=2,
+            gridspec_kw={"width_ratios": [4, 1]},
+        )
+        df_grouped, group_values = self._prepare_grouping(
+            df, group_by_color, group_by_marker
+        )
         color_map, marker_map = self._create_style_mappings(*group_values)
 
         self._plot_groups(
@@ -222,7 +238,9 @@ class ScatterPlot(ChartBase):
         )
 
         if use_legend:
-            self._create_legends(ax, color_map, marker_map, color, marker)
+            self._create_legends(
+                lax, color_map, marker_map, group_by_color, group_by_marker
+            )
 
         return fig, ax
 
@@ -260,7 +278,7 @@ class ScatterPlot(ChartBase):
             self, color_values: list[str], marker_values: list[str]
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
-            cmap = _plt.cm.get_cmap(plot_settings.color_map, len(color_values))
+            cmap = _plt.get_cmap(plot_settings.color_map, len(color_values))
             color_map = {val: cmap(i) for i, val in enumerate(color_values)}
         else:
             color_map = {}
@@ -298,46 +316,75 @@ class ScatterPlot(ChartBase):
 
     def _create_legends(
             self,
-            ax: _plt.Axes,
+            lax: _plt.Axes,
             color_map: dict[str, _tp.Any],
             marker_map: dict[str, str],
             color_legend_title: str | None,
             marker_legend_title: str | None,
     ) -> None:
+        lax.axis("off")
 
         if color_map:
-            color_handles = [
-                _plt.Line2D([], [], color=color, linestyle="-", label=label)
-                for label, color in color_map.items()
-            ]
-            color_legend = ax.legend(
-                handles=color_handles,
-                title=color_legend_title,
-                bbox_to_anchor=(1, 1),
-                loc="upper left",
-                alignment="left",
-                fontsize=plot_settings.legend_font_size,
+            self._create_color_legend(
+                lax, color_map, color_legend_title, bool(marker_map)
             )
-            ax.add_artist(color_legend)
         if marker_map:
-            marker_position = 0.7 if color_map else 1
-            marker_handles = [
-                _plt.Line2D(
-                    [],
-                    [],
-                    color="black",
-                    marker=marker,
-                    linestyle="None",
-                    label=label,
-                )
-                for label, marker in marker_map.items()
-                if label is not None
-            ]
-            ax.legend(
-                handles=marker_handles,
-                title=marker_legend_title,
-                bbox_to_anchor=(1, marker_position),
-                loc="upper left",
-                alignment="left",
-                fontsize=plot_settings.legend_font_size,
+            self._create_marker_legend(
+                lax, marker_map, marker_legend_title, bool(color_map)
             )
+
+    def _create_color_legend(
+            self,
+            lax: _plt.Axes,
+            color_map: dict[str, _tp.Any],
+            color_legend_title: str | None,
+            has_markers: bool,
+    ) -> None:
+        color_handles = [
+            _plt.Line2D([], [], color=color, linestyle="-", label=label)
+            for label, color in color_map.items()
+        ]
+
+        legend = lax.legend(
+            handles=color_handles,
+            title=color_legend_title,
+            bbox_to_anchor=(0, 0, 1, 1),
+            loc="upper left",
+            alignment="left",
+            fontsize=plot_settings.legend_font_size,
+            borderaxespad=0,
+        )
+
+        if has_markers:
+            lax.add_artist(legend)
+
+    def _create_marker_legend(
+            self,
+            lax: _plt.Axes,
+            marker_map: dict[str, str],
+            marker_legend_title: str | None,
+            has_colors: bool,
+    ) -> None:
+        marker_position = 0.7 if has_colors else 1
+        marker_handles = [
+            _plt.Line2D(
+                [],
+                [],
+                color="black",
+                marker=marker,
+                linestyle="None",
+                label=label,
+            )
+            for label, marker in marker_map.items()
+            if label is not None
+        ]
+
+        lax.legend(
+            handles=marker_handles,
+            title=marker_legend_title,
+            bbox_to_anchor=(0, 0, 1, marker_position),
+            loc="upper left",
+            alignment="left",
+            fontsize=plot_settings.legend_font_size,
+            borderaxespad=0,
+        )

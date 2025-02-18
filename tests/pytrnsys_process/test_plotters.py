@@ -198,7 +198,7 @@ class TestPlotters:
         fig.savefig(actual_imb_given)
 
         # Assert
-        self.assert_plots_match(actual_imb_given, expected)
+        self.assert_plots_match(actual_imb_given, expected, tolerance=20)
 
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup

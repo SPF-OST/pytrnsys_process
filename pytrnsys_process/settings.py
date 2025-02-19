@@ -12,7 +12,7 @@ class Settings:
 
 
 @dataclass
-class Plot:
+class Plot:  # pylint: disable=too-many-instance-attributes
     file_formats: _abc.Sequence[str] = field(
         default_factory=lambda: [".png", ".pdf", ".emf"]
     )
@@ -34,12 +34,28 @@ class Plot:
     label_font_size: int = 10
     legend_font_size: int = 8
     title_font_size: int = 12
+    markers: _abc.Sequence[str] = field(
+        default_factory=lambda: [
+            "x",
+            "o",
+            "^",
+            "D",
+            "v",
+            "<",
+            ">",
+            "p",
+            "*",
+            "s",
+        ]
+    )
 
 
 @dataclass
 class Reader:
     folder_name_for_printer_files: str = "temp"
-    read_step_files: bool = True
+    read_step_files: bool = False
+    read_deck_files: bool = True
+    force_reread_prt: bool = False
 
 
 class Defaults(Enum):

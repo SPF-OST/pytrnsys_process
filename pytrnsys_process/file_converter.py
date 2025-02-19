@@ -6,7 +6,7 @@ import pandas as _pd
 from pytrnsys_process import constants as const
 from pytrnsys_process import file_type_detector as ftd
 from pytrnsys_process import readers
-from pytrnsys_process.logger import logger
+from pytrnsys_process.logger import main_logger
 
 
 class CsvConverter:
@@ -34,7 +34,7 @@ class CsvConverter:
         new_path = file_path.parent / new_name
         file_path.rename(new_path)
 
-        logger.info("Renamed %s to %s", file_path, new_path)
+        main_logger.info("Renamed %s to %s", file_path, new_path)
 
     def convert_sim_results_to_csv(
         self, input_path: _pl.Path, output_dir: _pl.Path
@@ -80,7 +80,7 @@ class CsvConverter:
                     const.FileType.TIMESTEP.value.prefix,
                 )
             else:
-                logger.warning(
+                main_logger.warning(
                     "Unknown file type: %s, will try to detect via timestamps",
                     input_file.name,
                 )
@@ -101,7 +101,7 @@ class CsvConverter:
         if file_type == const.FileType.MONTHLY:
             df_monthly = readers.PrtReader().read_monthly(file_path)
             monthly_file = f"{const.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
-            logger.info(
+            main_logger.info(
                 "Converted %s to monthly file: %s", file_path, monthly_file
             )
             return monthly_file, df_monthly
@@ -110,14 +110,14 @@ class CsvConverter:
             hourly_file = (
                 f"{const.FileType.HOURLY.value.prefix}{file_path.stem}".lower()
             )
-            logger.info(
+            main_logger.info(
                 "Converted %s to hourly file: %s", file_path, hourly_file
             )
             return hourly_file, df_hourly
         if file_type == const.FileType.TIMESTEP:
             df_step = prt_reader.read_step(file_path)
             timestamp_file = f"{const.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
-            logger.info(
+            main_logger.info(
                 "Converted %s to timestamp file: %s", file_path, timestamp_file
             )
             return timestamp_file, df_step

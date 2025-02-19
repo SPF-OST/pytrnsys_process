@@ -13,11 +13,12 @@ All handlers use the same log record.
 Once the log record is modified and anything removed from it, will not be available in the other handlers.
 """
 
-import logging
-import sys
+import logging as _logging
+import pathlib as _pl
+import sys as _sys
 
 
-class TracebackInfoFilter(logging.Filter):
+class TracebackInfoFilter(_logging.Filter):
     """Clear or restore the exception on log records
     Copied from, seems to be only solution that works
     https://stackoverflow.com/questions/54605699/python-logging-disable-stack-trace
@@ -39,22 +40,24 @@ class TracebackInfoFilter(logging.Filter):
         return True
 
 
-logger = logging.getLogger("pytrnsys_process")
+main_logger = _logging.getLogger("pytrnsys_process")
 
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
+console_handler = _logging.StreamHandler(_sys.stdout)
+console_handler.setLevel(_logging.INFO)
 
 # Regular log file without stacktrace
-file_handler = logging.FileHandler("pytrnsys_process.log")
-file_handler.setLevel(logging.INFO)
+file_handler = _logging.FileHandler("pytrnsys_process.log", mode="a")
+file_handler.setLevel(_logging.INFO)
 
 # Debug log file with stacktrace
-debug_file_handler = logging.FileHandler("pytrnsys_process_debug.log")
-debug_file_handler.setLevel(logging.DEBUG)
+debug_file_handler = _logging.FileHandler(
+    "pytrnsys_process_debug.log", mode="a"
+)
+debug_file_handler.setLevel(_logging.DEBUG)
 
 # configure formatters
-console_format = logging.Formatter("%(levelname)s - %(message)s")
-file_format = logging.Formatter(
+console_format = _logging.Formatter("%(levelname)s - %(message)s")
+file_format = _logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
@@ -68,8 +71,51 @@ console_handler.addFilter(TracebackInfoFilter())
 file_handler.addFilter(TracebackInfoFilter())
 
 # Add this handler first because the other handlers will modify the log record
-logger.addHandler(debug_file_handler)
-logger.addHandler(console_handler)
-logger.addHandler(file_handler)
+main_logger.addHandler(debug_file_handler)
+main_logger.addHandler(console_handler)
+main_logger.addHandler(file_handler)
 
-logger.setLevel(logging.DEBUG)
+main_logger.setLevel(_logging.DEBUG)
+
+
+def initialize_logs():
+    """Initialize log files by clearing their contents at the start of a new run."""
+    # Clear main log files by opening them in write mode briefly
+    with open("pytrnsys_process.log", "w", encoding="utf-8"):
+        pass
+    with open("pytrnsys_process_debug.log", "w", encoding="utf-8"):
+        pass
+
+
+def get_simulation_logger(simulation_path: _pl.Path) -> _logging.Logger:
+    """Create a logger specific to a simulation directory.
+
+    Args:
+        simulation_path: Path to the simulation directory
+
+    Returns:
+        Logger instance configured to write to a log file in the simulation directory
+    """
+    sim_logger = _logging.getLogger(
+        f"pytrnsys_process.simulation.{simulation_path.name}"
+    )
+
+    # Prevent propagation to parent logger to avoid duplicate logs
+    sim_logger.propagate = False
+
+    # Check if handlers already exist to avoid duplicates
+    if sim_logger.handlers:
+        return sim_logger
+
+    log_file = simulation_path / f"{simulation_path.name}.log"
+    sim_file_handler = _logging.FileHandler(log_file, mode="w")
+    sim_file_handler.setLevel(_logging.INFO)
+
+    # Use same format as main logger but without name since it's simulation specific
+    sim_format = _logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s"
+    )
+    sim_file_handler.setFormatter(sim_format)
+
+    sim_logger.addHandler(sim_file_handler)
+    return sim_logger

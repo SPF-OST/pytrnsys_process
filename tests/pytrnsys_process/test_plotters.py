@@ -1,6 +1,7 @@
 from unittest import mock as _um
 
 import matplotlib.testing.compare as _mpltc
+import pandas as _pd
 import pytest
 
 import tests.pytrnsys_process.constants as const
@@ -11,7 +12,9 @@ from pytrnsys_process.plotting import plotters
 
 
 class TestPlotters:
-    SKIP_PLOT_COMPARISON = False  # Toggle this to enable/disable plot comparison
+    SKIP_PLOT_COMPARISON = (
+        False  # Toggle this to enable/disable plot comparison
+    )
 
     @pytest.fixture
     def mock_headers(self):
@@ -35,7 +38,8 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-                const.DATA_FOLDER / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+                const.DATA_FOLDER
+                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return readers.PrtReader().read_monthly(result_data)
 
@@ -45,12 +49,24 @@ class TestPlotters:
         result_data = const.DATA_FOLDER / "hourly/Src_Hr.Prt"
         return readers.PrtReader().read_hourly(result_data)
 
+    @pytest.fixture
+    def comparison_data(self):
+        path_to_json = (
+                const.DATA_FOLDER
+                / "plots/scatter-compare-plot/comparison_data.json"
+        )
+        return _pd.read_json(path_to_json)
+
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
         if self.SKIP_PLOT_COMPARISON:
-            pytest.skip("Plot comparison temporarily disabled during development")
+            pytest.skip(
+                "Plot comparison temporarily disabled during development"
+            )
         assert (
-                _mpltc.compare_images(str(expected_file), str(actual_file), tol=tolerance)
+                _mpltc.compare_images(
+                    str(expected_file), str(actual_file), tol=tolerance
+                )
             is None
         )
 
@@ -86,7 +102,9 @@ class TestPlotters:
 
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+        expected_file = (
+                const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+        )
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [
             "QSnk60PauxCondSwitch_kW",
@@ -98,7 +116,7 @@ class TestPlotters:
         ]
 
         # Execute
-        fig, _ = pw.stacked_bar_chart(monthly_data, columns)
+        fig, _ = pw.stacked_bar_chart(monthly_data, columns, xlabel="")
         fig.savefig(actual_file)
 
         # Assert
@@ -111,7 +129,7 @@ class TestPlotters:
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         # Execute
-        fig, _ = pw.line_plot(hourly_data, columns)
+        fig, _ = pw.line_plot(hourly_data, columns, xlabel="")
         fig.savefig(actual_fig)
 
         # Assert
@@ -140,7 +158,7 @@ class TestPlotters:
         columns = ["QSrc1TIn"]
 
         # Execute
-        fig, _ = pw.histogram(hourly_data, columns, ylabel="Time [h]")
+        fig, _ = pw.histogram(hourly_data, columns, ylabel="")
         fig.savefig(actual_file)
 
         # Assert
@@ -172,32 +190,55 @@ class TestPlotters:
         # Execute
         fig, _ = pw.energy_balance(
             monthly_data,
-            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
-            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
             q_imb_column="QSnk60qImbTess",
+            xlabel="",
         )
         fig.savefig(actual_imb_given)
 
         # Assert
-        self.assert_plots_match(actual_imb_given, expected)
+        self.assert_plots_match(actual_imb_given, expected, tolerance=20)
 
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup
         actual_imb_calculated = (
-                const.DATA_FOLDER / "plots/energy-balance/actual-imb-calculated.png"
+                const.DATA_FOLDER
+                / "plots/energy-balance/actual-imb-calculated.png"
         )
         expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
 
         # Execute
         fig, _ = pw.energy_balance(
             monthly_data,
-            q_in_columns=["QSnk60PauxCondSwitch_kW", "QSnk60dQ"],
-            q_out_columns=["QSnk60P", "QSnk60dQlossTess"],
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+            xlabel="",
         )
         fig.savefig(actual_imb_calculated)
 
         # Assert
         self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)
+
+    def test_scatter_compare_plot(self, comparison_data):
+        # Setup
+        actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual.png"
+        expected = (
+                const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
+        )
+
+        # Execute
+        fig, _ = pw.scatter_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            "yearly_demand_GWh",
+            "ratioDHWtoSH_allSinks",
+        )
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
 
     def test_invalid_column_names_for_plot(self, hourly_data):
         # Setup

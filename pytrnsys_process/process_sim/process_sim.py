@@ -1,3 +1,4 @@
+import logging as _logging
 import pathlib as _pl
 from collections import abc as _abc
 from dataclasses import dataclass, field
@@ -5,56 +6,32 @@ from dataclasses import dataclass, field
 import pandas as _pd
 
 from pytrnsys_process import constants as const
+from pytrnsys_process import data_structures as ds
 from pytrnsys_process import file_type_detector as ftd
+from pytrnsys_process import logger as log
 from pytrnsys_process import readers
 from pytrnsys_process import settings as sett
-from pytrnsys_process.logger import logger
-
-
-@dataclass
-class Simulation:
-    """Class representing a TRNSYS simulation with its associated data.
-
-    This class holds the simulation data organized in different time resolutions (monthly, hourly, timestep)
-    along with the path to the simulation files.
-
-    Attributes
-    ----------
-    path : pathlib.Path
-        Path to the simulation folder containing the input files
-    monthly : pandas.DataFrame
-        Monthly aggregated simulation data. Each column represents a different variable
-        and each row represents a month.
-    hourly : pandas.DataFrame
-        Hourly simulation data. Each column represents a different variable
-        and each row represents an hour.
-    step : pandas.DataFrame
-        Simulation data at the smallest timestep resolution. Each column represents
-        a different variable and each row represents a timestep.
-    """
-
-    path: _pl.Path
-    monthly: _pd.DataFrame
-    hourly: _pd.DataFrame
-    step: _pd.DataFrame
-    # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
+from pytrnsys_process import utils
+from pytrnsys_process.deck import extractor
 
 
 def process_sim(
         sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
-) -> Simulation:
+) -> ds.Simulation:
     # Used to store the array of dataframes for each file type.
     # Later used to concatenate all into one dataframe and saving as Sim object
     simulation_data_collector = _SimulationDataCollector()
+
+    sim_logger = log.get_simulation_logger(sim_folder)
     for sim_file in sim_files:
         try:
             _process_file(
                 simulation_data_collector,
                 sim_file,
-                _determine_file_type(sim_file),
+                _determine_file_type(sim_file, sim_logger),
             )
         except ValueError as e:
-            logger.error(
+            sim_logger.error(
                 "Error reading file %s it will not be available for processing: %s",
                 sim_file,
                 str(e),
@@ -112,12 +89,14 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
     return df
 
 
-def _determine_file_type(sim_file: _pl.Path) -> const.FileType:
+def _determine_file_type(
+        sim_file: _pl.Path, logger: _logging.Logger
+) -> const.FileType:
     """Determine the file type using name and content."""
     try:
-        return ftd.get_file_type_using_file_name(sim_file)
+        return ftd.get_file_type_using_file_name(sim_file, logger)
     except ValueError:
-        return ftd.get_file_type_using_file_content(sim_file)
+        return ftd.get_file_type_using_file_content(sim_file, logger)
 
 
 @dataclass
@@ -125,6 +104,7 @@ class _SimulationDataCollector:
     hourly: list[_pd.DataFrame] = field(default_factory=list)
     monthly: list[_pd.DataFrame] = field(default_factory=list)
     step: list[_pd.DataFrame] = field(default_factory=list)
+    deck: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
 def _read_file(
@@ -185,24 +165,39 @@ def _process_file(
         simulation_data_collector.step.append(
             _read_file(file_path, const.FileType.TIMESTEP)
         )
+    elif (
+            file_type == const.FileType.DECK
+            and sett.settings.reader.read_deck_files
+    ):
+        simulation_data_collector.deck = _get_deck_as_df(file_path)
     else:
         return False
-
     return True
+
+
+def _get_deck_as_df(
+        file_path: _pl.Path,
+) -> _pd.DataFrame:
+    deck_file_as_string = utils.get_file_content_as_string(file_path)
+    deck: dict[str, float] = extractor.parse_deck_for_constant_expressions(
+        deck_file_as_string, log.get_simulation_logger(file_path.parent)
+    )
+    deck_as_df = _pd.DataFrame([deck])
+    return deck_as_df
 
 
 def _merge_dataframes_into_simulation(
         simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
-) -> Simulation:
+) -> ds.Simulation:
+    monthly_df = _get_df_without_duplicates(simulation_data_collector.monthly)
+    hourly_df = _get_df_without_duplicates(simulation_data_collector.hourly)
+    timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
+    deck = simulation_data_collector.deck
 
-    monthly_df = get_df_without_duplicates(simulation_data_collector.monthly)
-    hourly_df = get_df_without_duplicates(simulation_data_collector.hourly)
-    timestep_df = get_df_without_duplicates(simulation_data_collector.step)
-
-    return Simulation(sim_folder, monthly_df, hourly_df, timestep_df)
+    return ds.Simulation(sim_folder, monthly_df, hourly_df, timestep_df, deck)
 
 
-def get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):
+def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):
     if len(dfs) > 0:
         return handle_duplicate_columns(_pd.concat(dfs, axis=1))
 

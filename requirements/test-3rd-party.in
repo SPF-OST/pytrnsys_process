@@ -15,3 +15,4 @@ sphinx
 numpydoc
 
 pandas-stubs
+pyarrow-stubs

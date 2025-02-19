@@ -6,7 +6,7 @@ import pandas as _pd
 from pytrnsys_process import constants as const
 from pytrnsys_process import file_type_detector as fm
 from pytrnsys_process import readers, utils
-from pytrnsys_process.logger import logger
+from pytrnsys_process.logger import main_logger
 
 
 @dataclass
@@ -34,7 +34,7 @@ def process_simulation(
             else:
                 files.append(process_file_using_file_name(sim_file))
         except ValueError as e:
-            logger.warning(
+            main_logger.warning(
                 "Error reading file %s it will not be available for processing: %s",
                 sim_file,
                 str(e),

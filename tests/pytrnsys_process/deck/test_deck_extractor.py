@@ -113,7 +113,7 @@ def test_extract_const_with_all_supported_mathematical_functions():
     """
     expected_dict = {
         "abs": 4.5,
-        'acos': 1.0471975511965979,
+        "acos": 1.0471975511965979,
         "ae": 0,
         "and": 0,
         "asin": 1.5707963267948966,

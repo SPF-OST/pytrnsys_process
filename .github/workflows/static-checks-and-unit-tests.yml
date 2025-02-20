@@ -66,6 +66,8 @@ jobs:
       PY_COLORS: "1"
     steps:
     - uses: actions/checkout@v4
+      with:
+        lfs: true
     - name: Remove old venv
       run: |
         if (Test-Path -LiteralPath venv) {

@@ -12,6 +12,7 @@ Welcome to pytrnsys_process's documentation!
 
    guide/overview
    gen_examples/index
+   gen_examples/tutorial
    guide/getting_started
    guide/tutorial
    API documentation <_apidoc/modules>

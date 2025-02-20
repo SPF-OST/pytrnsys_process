@@ -44,7 +44,7 @@ extensions = [
 
 # Configure sphinx-gallery
 sphinx_gallery_conf = {
-    'examples_dirs': '../examples/for_doc',  # path to example scripts
+    'examples_dirs': '../galleries/examples',  # path to example scripts
     'gallery_dirs': 'gen_examples',  # path to save generated examples
     'plot_gallery': 'True',  # Generate plots for examples
     'thumbnail_size': (400, 400),  # Size of thumbnails

@@ -194,7 +194,7 @@ def _merge_dataframes_into_simulation(
     timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
     deck = simulation_data_collector.deck
 
-    return ds.Simulation(sim_folder, monthly_df, hourly_df, timestep_df, deck)
+    return ds.Simulation(sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, deck)
 
 
 def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):

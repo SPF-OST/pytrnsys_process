@@ -26,6 +26,7 @@ from pytrnsys_process.process_batch import (
 # this lives here, because it needs to be available everywhere
 from pytrnsys_process.settings import settings, Defaults
 from pytrnsys_process.utils import export_plots_in_configured_formats
+from pytrnsys_process.utils import load_simulations_data_from_pickle
 
 # ============================================================
 
@@ -44,5 +45,6 @@ __all__ = [
     "Defaults",
     "REPO_ROOT",
     "Simulation",
-    "SimulationsData"
+    "SimulationsData",
+    "load_simulations_data_from_pickle"
 ]

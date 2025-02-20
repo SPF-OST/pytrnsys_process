@@ -1,0 +1,62 @@
+/* Custom styles for pytrnsys_process documentation */
+
+/* Increase the default font size slightly for better readability */
+body {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Style code blocks */
+div[class^='highlight'] pre {
+    padding: 1em;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+}
+
+/* Style inline code */
+code.literal {
+    color: #e83e8c;
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+/* Style admonitions (notes, warnings, etc.) */
+div.admonition {
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 4px;
+}
+
+/* Style API documentation */
+dl.py.method, dl.py.class, dl.py.function {
+    padding: 1em;
+    margin: 1em 0;
+    border-left: 4px solid #2780e3;
+    background-color: #f8f9fa;
+}
+
+/* Style parameter lists in API documentation */
+dl.field-list {
+    padding-left: 1em;
+    margin: 1em 0;
+}
+
+/* Style navigation sidebar */
+div.bd-sidebar {
+    border-right: 1px solid #dee2e6;
+}
+
+/* Style example gallery thumbnails */
+div.sphx-glr-thumbcontainer {
+    border: none;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* Style example gallery thumbnails on hover */
+div.sphx-glr-thumbcontainer:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.2s ease-in-out;
+} 

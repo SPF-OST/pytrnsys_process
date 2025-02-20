@@ -11,9 +11,9 @@ Welcome to pytrnsys_process's documentation!
    :caption: Contents:
 
    guide/overview
+   gen_examples/index
    guide/getting_started
    guide/tutorial
-   guide/iterative_workflow
    API documentation <_apidoc/modules>
 
 Indices and tables

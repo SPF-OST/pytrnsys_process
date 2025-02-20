@@ -75,7 +75,7 @@ def main():
         simulations_data.scalar.loc[sim_name, "yearly_demand_GWh"] = yearly_total
 
     ################################################
-    # Step 4: Create Performance Comparison Plot
+    # Step 4: Create Comparison Plot
     # ---------------------------------------
     # Scatter plot showing:
     # - X-axis: Scaled ice volume (VIceSscaled)

@@ -56,7 +56,7 @@ def get_files(
 
 def export_plots_in_configured_formats(
         fig: _plt.Figure,
-        path_to_directory: _pl.Path,
+        path_to_directory: str,
         plot_name: str,
         plots_folder_name: str = "plots",
 ) -> None:
@@ -98,7 +98,7 @@ def export_plots_in_configured_formats(
 
     """
     plot_settings = sett.settings.plot
-    plots_folder = path_to_directory / plots_folder_name
+    plots_folder = _pl.Path(path_to_directory) / plots_folder_name
     plots_folder.mkdir(exist_ok=True)
 
     for size_name, size in plot_settings.figure_sizes.items():

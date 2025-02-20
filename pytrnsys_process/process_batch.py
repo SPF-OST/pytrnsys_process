@@ -53,7 +53,7 @@ def _process_batch(
     """
     start_time = _time.time()
     results = ds.ProcessingResults()
-    simulations_data = ds.SimulationsData(path_to_simulations=results_folder)
+    simulations_data = ds.SimulationsData(path_to_simulations=results_folder.as_posix())
 
     if parallel:
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -116,9 +116,9 @@ def _handle_simulation_result(
     """
     simulation, failed_scenarios = result
     results.processed_count += 1
-    simulations_data.simulations[simulation.path.name] = simulation
+    simulations_data.simulations[_pl.Path(simulation.path).name] = simulation
     if failed_scenarios:
-        results.failed_scenarios[simulation.path.name] = failed_scenarios
+        results.failed_scenarios[_pl.Path(simulation.path).name] = failed_scenarios
 
 
 def _handle_simulation_error(

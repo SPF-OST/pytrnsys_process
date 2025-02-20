@@ -47,7 +47,7 @@ def processing_of_hourly_data(simulation: api.Simulation):
 
 def processing_for_histogram(simulation: api.Simulation):
     # create histogram using hourly data
-    fig, _ = api.histogram(simulation.hourly, ["QSrc1TIn"])
+    api.histogram(simulation.hourly, ["QSrc1TIn"])
 
     # if you don't want to export your plot, you can also just show it by calling this function
     _plt.show()

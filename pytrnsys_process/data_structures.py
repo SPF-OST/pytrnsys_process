@@ -1,4 +1,3 @@
-import pathlib as _pl
 from dataclasses import dataclass, field
 from typing import List
 
@@ -14,7 +13,7 @@ class Simulation:
 
     Attributes
     ----------
-    path : pathlib.Path
+    path : str
         Path to the simulation folder containing the input files
     monthly : pandas.DataFrame
         Monthly aggregated simulation data. Each column represents a different variable
@@ -27,7 +26,7 @@ class Simulation:
         a different variable and each row represents a timestep.
     """
 
-    path: _pl.Path
+    path: str
     monthly: _pd.DataFrame
     hourly: _pd.DataFrame
     step: _pd.DataFrame
@@ -59,32 +58,8 @@ class ProcessingResults:
     failed_simulations: List[str] = field(default_factory=list)
     failed_scenarios: dict[str, List[str]] = field(default_factory=dict)
 
-
-@dataclass
-class ResultsForComparison:
-    """Container for simulation results to be used in comparisons.
-
-    Attributes:
-        monthly: Dictionary mapping simulation names to monthly DataFrame results
-        hourly: Dictionary mapping simulation names to hourly DataFrame results
-        scalar: DataFrame containing scalar values from all simulations
-
-    Example:
-        >>> results = ResultsForComparison()
-        >>> results.monthly = {'sim1': pd.DataFrame(...)}
-        >>> results.hourly = {'sim1': pd.DataFrame(...)}
-        >>> results.scalar = pd.DataFrame(...)
-    """
-
-    monthly: dict[str, _pd.DataFrame] = field(default_factory=dict)
-    hourly: dict[str, _pd.DataFrame] = field(default_factory=dict)
-    step: dict[str, _pd.DataFrame] = field(default_factory=dict)
-    scalar: _pd.DataFrame = field(default_factory=_pd.DataFrame)
-    path_to_simulations: _pl.Path = field(default_factory=_pl.Path)
-
-
 @dataclass
 class SimulationsData:
     simulations: dict[str, Simulation] = field(default_factory=dict)
     scalar: _pd.DataFrame = field(default_factory=_pd.DataFrame)
-    path_to_simulations: _pl.Path = field(default_factory=_pl.Path)
+    path_to_simulations: str = field(default_factory=str)

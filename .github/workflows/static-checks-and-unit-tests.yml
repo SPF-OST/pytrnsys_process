@@ -20,8 +20,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         lfs: true
-    - name: get lsf
-      run: git lsf pull
     - name: Update APT cache
       run: sudo apt-get update
     - name: Install graphviz for class and package diagrams
@@ -70,6 +68,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         lfs: true
+    - name: download lsf
+      run: git lfs pull
     - name: Remove old venv
       run: |
         if (Test-Path -LiteralPath venv) {

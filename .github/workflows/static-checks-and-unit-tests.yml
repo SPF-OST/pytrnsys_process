@@ -20,8 +20,6 @@ jobs:
     - uses: actions/checkout@v4
       with:
         lfs: true
-    - name: Ensure lsf files are available
-      run: git lfs pull
     - name: Update APT cache
       run: sudo apt-get update
     - name: Install graphviz for class and package diagrams

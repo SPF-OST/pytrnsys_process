@@ -18,7 +18,7 @@ def main():
     ###############################################
 
     simulations_data = api.load_simulations_data_from_pickle(
-        _pl.Path("simulations_data.pkl")
+        _pl.Path("simulations_data_linux_support.pkl")
     )
 
     for sim_name, sim in simulations_data.simulations.items():

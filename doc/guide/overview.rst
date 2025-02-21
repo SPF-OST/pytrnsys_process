@@ -1,6 +1,6 @@
 .. _overview:
 
-Overview of pytrnsys processing
+Overview
 ====
 
 What is the point of the package?

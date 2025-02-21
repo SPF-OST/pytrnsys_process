@@ -97,7 +97,7 @@ pure-eval==0.2.3
     # via stack-data
 py-cpuinfo==9.0.0
     # via pytest-benchmark
-pyarrow-stubs==17.16
+pyarrow-stubs==17.17
     # via -r requirements\test-3rd-party.in
 pydata-sphinx-theme==0.16.1
     # via -r requirements\test-3rd-party.in

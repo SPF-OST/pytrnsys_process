@@ -44,8 +44,15 @@ extensions = [
 
 # Configure sphinx-gallery
 sphinx_gallery_conf = {
-    'examples_dirs': '../galleries/examples',  # path to example scripts
-    'gallery_dirs': 'gen_examples',  # path to save generated examples
+    'examples_dirs': [
+        '../galleries/tutorials',  # path to tutorial scripts
+        '../galleries/examples',  # path to example scripts
+    ],
+    'gallery_dirs': [
+        'gen_tutorials',  # path where to save generated tutorials
+        'gen_examples',  # path where to save generated examples
+    ],
+    'filename_pattern': r'(?:plot_|tutorial_)',  # Include files starting with 'plot_' or 'tutorial'
     'plot_gallery': 'True',  # Generate plots for examples
     'thumbnail_size': (400, 400),  # Size of thumbnails
     'remove_config_comments': True,
@@ -118,7 +125,7 @@ html_css_files = ['custom.css']
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = None  # Add your logo path here if you have one
+html_logo = "_static/spf-logo.svg"  # Add your logo path here if you have one
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

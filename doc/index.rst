@@ -11,10 +11,10 @@ Welcome to pytrnsys_process's documentation!
    :caption: Contents:
 
    guide/overview
-   gen_examples/index
-   gen_examples/tutorial
    guide/getting_started
    guide/tutorial
+   Tutorials <gen_tutorials/index>
+   Examples <gen_examples/index>
    API documentation <_apidoc/modules>
 
 Indices and tables

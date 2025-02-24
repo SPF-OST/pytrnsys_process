@@ -2,7 +2,7 @@ import pathlib as _pl
 import time as _time
 from collections import abc as _abc
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import List, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
@@ -331,38 +331,41 @@ def process_whole_result_set_parallel(
 
 
 def do_comparison(
-        simulations_data: ds.SimulationsData,
         comparison_scenario: Union[
             _abc.Callable[[ds.SimulationsData], None],
             _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
         ],
-):
+        simulations_data: Optional[ds.SimulationsData] = None,
+        results_folder: Optional[_pl.Path] = None,
+) -> None:
     """Execute comparison scenarios on processed simulation results.
 
         Args:
-            results_for_comparison: ResultsForComparison object containing the processed
-                simulation data to be compared
             comparison_scenario: Single callable or sequence of callables that implement
-                the comparison logic. Each callable should take a ResultsForComparison
+                the comparison logic. Each callable should take a SimulationsData
                 object as its only parameter.
+            simulations_data: Optional SimulationsData object containing the processed
+                simulation data to be compared.
+            results_folder: Optional Path to the directory containing simulation results.
+                Used if simulations_data is not provided.
 
         Example:
-    import data_structures        >>> from pytrnsys_process import api
+            >>> from pytrnsys_process import api
             ...
-            >>> def comparison_step(comparison_results: data_structures.ResultsForComparison):
+            >>> def comparison_step(simulations_data: ds.SimulationsData):
             ...     # Compare simulation results
             ...     pass
             ...
-            >>> api.do_comparison(processed_results, comparison_step)
+            >>> api.do_comparison(comparison_step, simulations_data=processed_results)
     """
-    try:
-        _process_comparisons(simulations_data, comparison_scenario)
-        _plt.close("all")
-    except Exception:  # pylint: disable=broad-except
-        log.main_logger.error(
-            "Failed to do comparison",
-            exc_info=True,
-        )
+    if not simulations_data:
+        if results_folder:
+            simulations_data = process_whole_result_set_parallel(results_folder, [])
+        else:
+            raise ValueError("Either simulations_data or results_folder must be provided to perform comparison")
+    _process_comparisons(simulations_data, comparison_scenario)
+    _plt.close("all")
+
 
 
 def _process_comparisons(

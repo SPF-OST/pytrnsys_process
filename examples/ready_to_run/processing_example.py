@@ -163,7 +163,7 @@ def main():
     )
 
     # using the data from processing multiple simulations, run your comparisons steps
-    api.do_comparison(simulations_data, comparison_of_scalar_data)
+    api.do_comparison(comparison_of_scalar_data, simulations_data)
 
     # run the single scenario on a single simulation
     (

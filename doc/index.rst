@@ -11,9 +11,8 @@ Welcome to pytrnsys_process's documentation!
    :caption: Contents:
 
    guide/overview
-   guide/getting_started
-   guide/tutorial
    Tutorials <gen_tutorials/index>
+   how_tos/index
    Examples <gen_examples/index>
    API documentation <_apidoc/modules>
 

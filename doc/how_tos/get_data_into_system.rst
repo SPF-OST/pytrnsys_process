@@ -12,7 +12,7 @@ which is much faster.
 
 
 Common Arguments
-______________
+________________
 
 The following arguments are commonly used across different data loading functions:
 
@@ -40,7 +40,7 @@ Reading in Multiple Simulations in Parallel
 ___________________________________________
 
 - ``max_workers``: An optional argument that defines how many processors the function should use.
- If nothing is provided it will use as many as it can.
+  If nothing is provided it will use as many as it can.
 
 .. code-block:: python
 

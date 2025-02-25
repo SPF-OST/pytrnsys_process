@@ -1,7 +1,7 @@
-.. _iterative_workflow
+.. _iterative_workflow:
 
 Iterative workflow when developing the simulations, parametric studies, and processing
-=================================================================
+======================================================================================
 This document describes a recommended way of using pytrnsys and processing together to develop simulations
 and parametric studies.
 Here we focus on using processing the increase the learning
@@ -21,7 +21,7 @@ Iterate between developing the simulation and the processing
 - run all processing steps on a single simulation
 
 Creating a first parametric study
---------------------------------
+---------------------------------
 - short simulation time to prepare all cases
 - run all processing steps on the parametric study results
 

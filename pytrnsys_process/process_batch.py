@@ -162,8 +162,9 @@ def process_single_simulation(
             Simulation object containing the processed data
 
         Example:
-    import data_structures        >>> import pathlib as _pl
-            >>> from pytrnsys_process import api
+
+            >>> import pathlib as _pl
+            >>> from pytrnsys_process import api, data_structures
             ...
             >>> def processing_step_1(sim: data_structures.Simulation):
             ...     # Process simulation data
@@ -172,6 +173,7 @@ def process_single_simulation(
             ...     _pl.Path("path/to/simulation"),
             ...     processing_step_1
             ... )
+            # TODO: Pretty sure that the following does not make sense.
             >>> api.compare_results(results, comparison_step_1)
     """
     log.initialize_logs()

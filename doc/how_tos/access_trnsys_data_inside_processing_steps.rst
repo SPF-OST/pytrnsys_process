@@ -1,4 +1,4 @@
-.. _do_calculations_on_data:
+.. _access_trnsys_data_inside_processing_steps:
 
 *************************************************
 How to Access TRNSYS Data Inside Processing Steps
@@ -52,7 +52,7 @@ Comparison steps can be defined as follows:
 
 
 During processing a :class:`pytrnsys_process.api.SimulationsData` object will automatically be passed into this comparison step.
-It contains a :class:`pytrnsys_process.api.SimulationsData` object for each simulation, as well as a :class:`pandas.DataFrame' object for all the scalar data.
+It contains a :class:`pytrnsys_process.api.SimulationsData` object for each simulation, as well as a :class:`pandas.DataFrame` object for all the scalar data.
 
 You can thus access the data as follows:
 

@@ -1,8 +1,8 @@
 """
 .. _tutorial_individual_sims:
-===============================
+=================================
 Processing Individual Simulations
-===============================
+=================================
 
 This is an introduction to the processing API. For a more in-depth view,
 please refer to the API docs :py:mod:`pytrnsys_process.api`
@@ -11,7 +11,7 @@ please refer to the API docs :py:mod:`pytrnsys_process.api`
 
 # %%
 # Introduction to processing individual simulations
-# =================================
+# =================================================
 # First, let's add the required imports to the top of the script.
 
 import pathlib as _pl
@@ -21,7 +21,7 @@ from pytrnsys_process import api
 
 # %%
 # Defining a processing step
-# -------------------------
+# --------------------------
 # This step will use the specified columns to plot a bar chart using the monthly data.
 # The Simulation object will be provided by the processing function which we will call later.
 
@@ -37,7 +37,7 @@ def plot_monthly_bar_chart(simulation: api.Simulation):
 
 # %%
 # Creating multiple processing steps
-# --------------------------------
+# ----------------------------------
 # It makes sense to split your plots into multiple steps.
 # If one step fails, the others will continue to run.
 # Let's define another step that creates a line plot using hourly data.
@@ -55,7 +55,7 @@ def plot_hourly_line_plot(simulation: api.Simulation):
 
 # %%
 # Running the processing steps
-# ---------------------------
+# ----------------------------
 # At the end of the script, we define our entry point
 # and specify which processing steps we would like to run.
 # We need to pass the path to the simulation files

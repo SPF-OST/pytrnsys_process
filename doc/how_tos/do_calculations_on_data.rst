@@ -7,7 +7,7 @@ How to Do Calculations on the Data
 This guide explains how to perform calculations on your data within different processing steps.
 
 For Simulation Step
-__________________
+___________________
 
 The simulation step allows you to perform calculations on hourly data.
 Below is an example that demonstrates how to:
@@ -28,7 +28,7 @@ Below is an example that demonstrates how to:
         )
 
 For Comparison Step
-__________________
+___________________
 
 The comparison step allows you to analyze data across multiple simulations.
 This example shows how to:

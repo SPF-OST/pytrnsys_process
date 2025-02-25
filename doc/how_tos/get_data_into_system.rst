@@ -10,12 +10,14 @@ the raw files are read and after that a pickle file is created.
 So the next time instead of the raw files we will read in the pickle,
 which is much faster.
 
-After rerunning your simulation(s) it is important to re read the raw files.
+After rerunning your simulation(s) it is important to re-read the raw files.
 This is done as follows:
 
 .. code-block:: python
 
     api.settings.reader.force_reread_prt = True
+
+Do not forget to turn this off again for faster data loading.
 
 Common Arguments
 ________________

@@ -13,5 +13,6 @@ This page should provide you solutions to the most common problems
     get_data_into_system
     access_trnsys_data_inside_processing_steps
     do_calculations_on_data
+    use_plots
 
 

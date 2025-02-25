@@ -359,10 +359,13 @@ def do_comparison(
             >>> api.do_comparison(comparison_step, simulations_data=processed_results)
     """
     if not simulations_data:
-        if results_folder:
-            simulations_data = process_whole_result_set_parallel(results_folder, [])
-        else:
+        if not results_folder:
             raise ValueError("Either simulations_data or results_folder must be provided to perform comparison")
+        path_to_simulations_data = results_folder / "simulations_data.pickle"
+        if path_to_simulations_data.exists():
+            simulations_data = utils.load_simulations_data_from_pickle(path_to_simulations_data)
+        else:
+            simulations_data = process_whole_result_set_parallel(results_folder, [])
     _process_comparisons(simulations_data, comparison_scenario)
     _plt.close("all")
 

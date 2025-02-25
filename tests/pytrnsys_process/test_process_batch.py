@@ -105,12 +105,14 @@ class TestPytrnsysProcess:
     def test_do_comparison_by_passing_path_to_results_folder(self):
         pb.do_comparison(comparison_step, results_folder=RESULTS_FOLDER)
 
-    def test_do_comparison_with_missing_data(self):
+    def test_do_comparison_with_existing_pickle(self):
+        pb.do_comparison(comparison_step, results_folder=const.DATA_FOLDER / "pickle")
+
+    def test_do_comparison_with_missing_args(self):
         with _pt.raises(ValueError) as exc_info:
             pb.do_comparison(comparison_step)
 
         assert str(exc_info.value) == "Either simulations_data or results_folder must be provided to perform comparison"
-
 
 class TestBenchmarkPytrnsysProcess:
     def test_benchmark_process_whole_result_set(self, benchmark):

@@ -3,11 +3,49 @@ from collections import abc as _abc
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
+from pandas.util import _decorators as _dec  # type: ignore
 
 from pytrnsys_process import constants as const
 from pytrnsys_process.plotting import plotters as pltrs
 
+_COMMON_DOC = """"
+Parameters
+__________
 
+df : pandas.DataFrame
+    the dataframe to plot
+columns: list of str
+    names of columns to plot
+use_legend: bool
+    whether to show the legend or not
+size: tuple of (float, float)
+    size of the figure (width, height)
+**kwargs : 
+    Additional keyword arguments are documented in
+    :meth:`pandas.DataFrame.plot`.
+Returns
+_______
+tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    """
+
+
+@_dec.Appender(
+    """
+    Examples
+    ________
+    
+    .. plot::
+        :context: close-figs
+
+        >>> from pytrnsys_process import api
+        >>> import pathlib as _pl
+        ...
+        >>> simulation = api.process_single_simulation(_pl.Path("../../galleries/data/results/sim-1"), [])
+        >>> api.line_plot(simulation.hourly, ["QSrc1TIn", "QSrc1TOut"], size=(4,6))
+    """
+)
+@_dec.Appender(_COMMON_DOC)
 def line_plot(
         df: _pd.DataFrame,
         columns: list[str],
@@ -15,40 +53,8 @@ def line_plot(
         size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a line plot from the given DataFrame columns.
-
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            **kwargs: Additional plotting arguments passed to pandas plot()
-
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
-
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> from matplotlib import pyplot as _plt
-            >>>
-            >>> def create_line_plot(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
-            >>>     # Customize the plot using the returned axes object:
-            >>>     ax.set_xlabel('Time')
-            >>>     ax.set_ylabel('Value')
-            >>>     ax.set_title('My Plot')
-            >>>     ax.grid(True)
-            >>>     _plt.show()
-            >>>
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_line_plot,
-            >>>     )
-
-        For additional customization options, refer to:
-        - Matplotlib documentation: https://matplotlib.org/stable/api/
-        - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html
+    """
+    Create a line plot from the given DataFrame columns.
     """
     _validate_column_exists(df, columns)
     plotter = pltrs.LinePlot()

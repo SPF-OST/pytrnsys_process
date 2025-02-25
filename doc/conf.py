@@ -40,7 +40,15 @@ extensions = [
     "numpydoc",  # Better docstring support
     "IPython.sphinxext.ipython_console_highlighting",
     "IPython.sphinxext.ipython_directive",
+    "matplotlib.sphinxext.plot_directive",
 ]
+
+# Configure plot_directive
+plot_include_source = True
+plot_html_show_source_link = False
+plot_html_show_formats = False
+plot_formats = [("png", 90)]
+
 
 # Configure sphinx-gallery
 sphinx_gallery_conf = {

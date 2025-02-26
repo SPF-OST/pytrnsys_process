@@ -14,6 +14,7 @@ from pytrnsys_process.plotting.plot_wrappers import (
     line_plot,
     stacked_bar_chart,
     histogram,
+    energy_balance,
     scatter_plot,
 )
 from pytrnsys_process.process_batch import (
@@ -35,6 +36,7 @@ __all__ = [
     "bar_chart",
     "stacked_bar_chart",
     "histogram",
+    "energy_balance",
     "scatter_plot",
     "process_whole_result_set_parallel",
     "process_single_simulation",

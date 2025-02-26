@@ -47,7 +47,12 @@ extensions = [
 plot_include_source = True
 plot_html_show_source_link = False
 plot_html_show_formats = False
-plot_formats = [("png", 90)]
+plot_pre_code = """from pytrnsys_process import api
+import pathlib as _pl
+import pandas as pd
+comparison_data = pd.read_json(_pl.Path("../../galleries/data/comparison_data.json"))
+simulation = api.process_single_simulation(_pl.Path("../../galleries/data/results/sim-1"), [])
+"""
 
 
 # Configure sphinx-gallery

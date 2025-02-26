@@ -36,20 +36,35 @@ def _process_batch(
     and parallel processing modes. It handles the setup of processing infrastructure,
     execution of processing tasks, and collection of results.
 
-    Args:
-        sim_folders: List of simulation folders to process
-        processing_scenario: Processing scenario(s) to apply to each simulation
-        results_folder: Root folder containing all simulations
-        parallel: Whether to process simulations in parallel
-        max_workers: Maximum number of worker processes for parallel execution
+    Parameters
+    __________
+        sim_folders:
+            List of simulation folders to process
 
-    Returns:
+        processing_scenario:
+            Processing scenario(s) to apply to each simulation
+
+        results_folder:
+            Root folder containing all simulations
+
+        parallel:
+            Whether to process simulations in parallel
+
+        max_workers:
+            Maximum number of worker processes for parallel execution
+
+
+    Returns
+    _______
         SimulationsData containing the processed simulation results and metadata
 
     Note:
+    _____
         This is an internal function that should not be called directly.
         Use process_single_simulation, process_whole_result_set, or
         process_whole_result_set_parallel instead.
+
+
     """
     start_time = _time.time()
     results = ds.ProcessingResults()
@@ -108,7 +123,8 @@ def _handle_simulation_result(
 ) -> None:
     """Handle the result of a processed simulation.
 
-    Args:
+    Parameters
+    __________
         result: Tuple of (simulation, failed_scenarios)
         sim_folder: Path to the simulation folder
         results: ProcessingResults to update
@@ -128,7 +144,8 @@ def _handle_simulation_error(
 ) -> None:
     """Handle an error that occurred during simulation processing.
 
-    Args:
+    Parameters
+    __________
         error: The exception that occurred
         sim_folder: Path to the simulation folder
         results: ProcessingResults to update
@@ -359,16 +376,21 @@ def do_comparison(
 ) -> None:
     """Execute comparison scenarios on processed simulation results.
 
-        Args:
-            comparison_scenario: Single callable or sequence of callables that implement
+        Parameters
+        __________
+            comparison_scenario:
+                Single callable or sequence of callables that implement
                 the comparison logic. Each callable should take a SimulationsData
                 object as its only parameter.
-            simulations_data: Optional SimulationsData object containing the processed
+            simulations_data:
+                Optional SimulationsData object containing the processed
                 simulation data to be compared.
-            results_folder: Optional Path to the directory containing simulation results.
+            results_folder:
+                Optional Path to the directory containing simulation results.
                 Used if simulations_data is not provided.
 
-        Example:
+        Example
+        __________
             >>> from pytrnsys_process import api
             ...
             >>> def comparison_step(simulations_data: ds.SimulationsData):

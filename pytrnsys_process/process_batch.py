@@ -185,7 +185,6 @@ def process_single_simulation(
 
     Example
     _______
-
             >>> import pathlib as _pl
             >>> from pytrnsys_process import api, data_structures
             ...
@@ -236,14 +235,13 @@ def process_whole_result_set(
 
     Returns
     _______
-        SimulationsData object containing:
+        SimulationsData: :class:`pytrnsys_process.api.SimulationsData`
             - monthly: Dict mapping simulation names to monthly DataFrame results
             - hourly: Dict mapping simulation names to hourly DataFrame results
             - scalar: DataFrame containing scalar/deck values from all simulations
-        ProcessingResults containing counts of processed and failed simulations
 
     Raises
-    _______
+    ______
         ValueError: If results_folder doesn't exist or is not a directory
         Exception: Individual simulation failures are logged but not re-raised
 

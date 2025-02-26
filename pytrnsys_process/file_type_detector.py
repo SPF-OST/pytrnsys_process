@@ -14,13 +14,18 @@ def get_file_type_using_file_content(
     """
     Determine the file type by analyzing its content.
 
-    Args:
-        file_path (Path): Path to the file to analyze
+    Parameters
+    __________
+        file_path: :class:`pathlib.Path`
+            Path to the file to analyze
 
-    Returns:
-        FileType: The detected file type (MONTHLY, HOURLY, or TIMESTEP)
+    Returns
+    _______
+        FileType: :class:`pytrnsys_process.constants.FileType`
+            The detected file type (MONTHLY, HOURLY, or TIMESTEP)
 
-    Raises:
+    Raises
+    ______
         ValueError: If the file type cannot be determined from the content
     """
     reader = readers.PrtReader()
@@ -57,13 +62,18 @@ def get_file_type_using_file_name(
     """
     Determine the file type by checking the filename against known patterns.
 
-    Args:
-        file (Path): The path to the file to check
+    Parameters
+    __________
+        file: :class:`pathlib.Path`
+            The path to the file to check
 
-    Returns:
-        FileType: The detected file type (MONTHLY, HOURLY, TIMESTEP or DECK)
+    Returns
+    ________
+        FileType: :class:`pytrnsys_process.constants.FileType`
+            The detected file type (MONTHLY, HOURLY, TIMESTEP or DECK)
 
-    Raises:
+    Raises
+    ______
         ValueError: If no matching pattern is found
     """
 
@@ -92,12 +102,18 @@ def has_pattern(file: _pl.Path, file_type: const.FileType) -> bool:
     """
     Check if a filename contains any of the patterns associated with a specific FileType.
 
-    Args:
-        file (Path): The path to the file to check
-        file_type (FileType): The FileType enum containing patterns to match against
+    Parameters
+    __________
+        file: :class:`pathlib.Path`
+            The path to the file to check
 
-    Returns:
-        bool: True if the filename contains any of the patterns, False otherwise
+        file_type: :class:`pytrnsys_process.constants.FileType`
+            The FileType enum containing patterns to match against
+
+    Returns
+    _______
+        bool: bool
+            True if the filename contains any of the patterns, False otherwise
     """
     file_name = file.stem.lower()
     return any(

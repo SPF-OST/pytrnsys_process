@@ -18,14 +18,19 @@ def parse_deck_for_constant_expressions(
     and evaluates them to their numerical values. It handles mathematical operations,
     functions, and variable references.
 
-    Args:
+    Parameters
+    __________
         deck_as_string: A string containing the contents of a TRNSYS deck file.
         logger: provide your own logger. to for example log per simulation
 
-    Returns:
-        A dictionary mapping variable names to their evaluated values (float or int).
-        The original case of variable names is preserved in the returned dictionary.
-        Expressions that could not be evaluated are not included in the returned dictionary.
+    Returns
+    _______
+        variable_values: dict
+            A dictionary mapping variable names to their evaluated values (float or int).
+            The original case of variable names is preserved in the returned dictionary.
+            Expressions that could not be evaluated are not included in the returned dictionary.
+
+
     """
 
     equations = _get_equation_trees(deck_as_string)

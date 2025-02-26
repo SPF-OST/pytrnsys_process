@@ -90,10 +90,13 @@ def initialize_logs():
 def get_simulation_logger(simulation_path: _pl.Path) -> _logging.Logger:
     """Create a logger specific to a simulation directory.
 
-    Args:
-        simulation_path: Path to the simulation directory
+    Parameters
+    __________
+        simulation_path:
+            Path to the simulation directory
 
-    Returns:
+    Returns
+    _______
         Logger instance configured to write to a log file in the simulation directory
     """
     sim_logger = _logging.getLogger(

@@ -149,6 +149,7 @@ class BarChart(ChartBase):
 
 
 class LinePlot(ChartBase):
+    cmap: str | None = None
 
     def _do_plot(
         self,
@@ -163,11 +164,13 @@ class LinePlot(ChartBase):
             layout="constrained",
         )
         plot_kwargs = {
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
+        if "cmap" not in kwargs and "colormap" not in kwargs:
+            plot_kwargs["cmap"] = self.cmap
+
         df[columns].plot.line(**plot_kwargs)
         return fig, ax
 

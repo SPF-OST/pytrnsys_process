@@ -72,14 +72,19 @@ class HeaderValidationMixin(ABC):
     ) -> tuple[bool, list[str]]:
         """Validates that all columns exist in the headers index.
 
-        Args:
-            headers: Headers instance containing the index of available headers
-            columns: List of column names to validate
+        Parameters
+        __________
+            headers:
+                Headers instance containing the index of available headers
 
-        Returns:
-            Tuple of (is_valid, missing_columns)
-            - is_valid: True if all columns exist
-            - missing_columns: List of column names that are missing
+            columns:
+                List of column names to validate
+
+        Returns
+        _______
+            Tuple of (is_valid, missing_columns): Tuple
+                - is_valid: True if all columns exist
+                - missing_columns: List of column names that are missing
         """
         missing_columns = []
         for column in columns:

@@ -36,20 +36,35 @@ def _process_batch(
     and parallel processing modes. It handles the setup of processing infrastructure,
     execution of processing tasks, and collection of results.
 
-    Args:
-        sim_folders: List of simulation folders to process
-        processing_scenario: Processing scenario(s) to apply to each simulation
-        results_folder: Root folder containing all simulations
-        parallel: Whether to process simulations in parallel
-        max_workers: Maximum number of worker processes for parallel execution
+    Parameters
+    __________
+        sim_folders:
+            List of simulation folders to process
 
-    Returns:
+        processing_scenario:
+            Processing scenario(s) to apply to each simulation
+
+        results_folder:
+            Root folder containing all simulations
+
+        parallel:
+            Whether to process simulations in parallel
+
+        max_workers:
+            Maximum number of worker processes for parallel execution
+
+
+    Returns
+    _______
         SimulationsData containing the processed simulation results and metadata
 
     Note:
+    _____
         This is an internal function that should not be called directly.
         Use process_single_simulation, process_whole_result_set, or
         process_whole_result_set_parallel instead.
+
+
     """
     start_time = _time.time()
     results = ds.ProcessingResults()
@@ -108,7 +123,8 @@ def _handle_simulation_result(
 ) -> None:
     """Handle the result of a processed simulation.
 
-    Args:
+    Parameters
+    __________
         result: Tuple of (simulation, failed_scenarios)
         sim_folder: Path to the simulation folder
         results: ProcessingResults to update
@@ -128,7 +144,8 @@ def _handle_simulation_error(
 ) -> None:
     """Handle an error that occurred during simulation processing.
 
-    Args:
+    Parameters
+    __________
         error: The exception that occurred
         sim_folder: Path to the simulation folder
         results: ProcessingResults to update
@@ -152,16 +169,22 @@ def process_single_simulation(
 ) -> ds.Simulation:
     """Process a single simulation folder using the provided processing scenario(s).
 
-        Args:
-            sim_folder: Path to the simulation folder to process
-            processing_scenarios: Single callable or sequence of callables that implement
-                the processing logic for a simulation. Each callable should take a Simulation
-                object as its only parameter.
+    Parameters
+    __________
+        sim_folder:
+            Path to the simulation folder to process
 
-        Returns:
+        processing_scenarios:
+            Single callable or sequence of callables that implement
+            the processing logic for a simulation. Each callable should take a Simulation
+            object as its only parameter.
+
+    Returns
+    _______
             Simulation object containing the processed data
 
-        Example:
+    Example
+    _______
 
             >>> import pathlib as _pl
             >>> from pytrnsys_process import api, data_structures
@@ -173,8 +196,6 @@ def process_single_simulation(
             ...     _pl.Path("path/to/simulation"),
             ...     processing_step_1
             ... )
-            # TODO: Pretty sure that the following does not make sense.
-            >>> api.compare_results(results, comparison_step_1)
     """
     log.initialize_logs()
     log.main_logger.info("Starting processing of simulation %s", sim_folder)
@@ -202,27 +223,32 @@ def process_whole_result_set(
     Processes each simulation folder found in the results directory one at a time,
     applying the provided processing scenario(s) to each simulation.
 
-    Args:
-        results_folder: Path to the directory containing simulation folders.
+    Parameters
+    __________
+        results_folder:
+            Path to the directory containing simulation folders.
             Each subfolder should contain valid simulation data files.
-        processing_scenario: Single callable or sequence of callables that implement
+
+        processing_scenario:
+            Single callable or sequence of callables that implement
             the processing logic for each simulation. Each callable should take a
             Simulation object as its only parameter and modify it in place.
 
-    Returns:
-        ResultsForComparison object containing:
+    Returns
+    _______
+        SimulationsData object containing:
             - monthly: Dict mapping simulation names to monthly DataFrame results
             - hourly: Dict mapping simulation names to hourly DataFrame results
             - scalar: DataFrame containing scalar/deck values from all simulations
-
         ProcessingResults containing counts of processed and failed simulations
 
-    Raises:
+    Raises
+    _______
         ValueError: If results_folder doesn't exist or is not a directory
-
         Exception: Individual simulation failures are logged but not re-raised
 
-    Example:
+    Example
+    _______
         >>> import pathlib as _pl
         >>> from pytrnsys_process import api
         ...
@@ -236,8 +262,6 @@ def process_whole_result_set(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
-        >>> api.compare_results(results, comparison_step_1)
-    :returns:
     """
     _validate_folder(results_folder)
     log.initialize_logs()
@@ -273,34 +297,33 @@ def process_whole_result_set_parallel(
 
     Uses a ProcessPoolExecutor to process multiple simulations concurrently.
 
-    |
-    |
-
-    | **Parameters**
-    *results_folder*: Path to the directory containing simulation folders.
-                           Each subfolder should contain valid simulation data files.
-    *processing_scenario*: Single callable or sequence of callables that implement
+    Parameters
+    __________
+        results_folder:
+            Path to the directory containing simulation folders.
+            Each subfolder should contain valid simulation data files.
+        processing_scenario:
+            Single callable or sequence of callables that implement
             the processing logic for each simulation. Each callable should take a
             Simulation object as its only parameter.
-    *max_workers*: Maximum number of worker processes to use. If None, defaults to
+        max_workers:
+            Maximum number of worker processes to use. If None, defaults to
             the number of processors on the machine.
 
+    Returns
+    _______
+        SimulationsData: :class:`pytrnsys_process.api.SimulationsData`
+            - monthly: Dict mapping simulation names to monthly DataFrame results
+            - hourly: Dict mapping simulation names to hourly DataFrame results
+            - scalar: DataFrame containing scalar/deck values from all simulations
 
-    | **Returns**
-    *SimulationsData* object containing:
-            - *monthly*: Dict mapping simulation names to monthly DataFrame results
-            - *hourly*: Dict mapping simulation names to hourly DataFrame results
-            - *scalar*: DataFrame containing scalar/deck values from all simulations
+    Raises
+    _______
+        ValueError: If results_folder doesn't exist or is not a directory
+        Exception: Individual simulation failures are logged but not re-raised
 
-    **Raises:**
-
-    | *ValueError*: If results_folder doesn't exist or is not a directory
-    | *Exception*: Individual simulation failures are logged but not re-raised
-
-    |
-    |
-
-    **Example:**
+    Example
+    _______
         >>> import pathlib as _pl
         >>> from pytrnsys_process import api
         ...
@@ -314,7 +337,6 @@ def process_whole_result_set_parallel(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
-    :returns:
     """
     # The last :returns: ensures that the formatting works in PyCharm
     _validate_folder(results_folder)
@@ -354,16 +376,21 @@ def do_comparison(
 ) -> None:
     """Execute comparison scenarios on processed simulation results.
 
-        Args:
-            comparison_scenario: Single callable or sequence of callables that implement
+        Parameters
+        __________
+            comparison_scenario:
+                Single callable or sequence of callables that implement
                 the comparison logic. Each callable should take a SimulationsData
                 object as its only parameter.
-            simulations_data: Optional SimulationsData object containing the processed
+            simulations_data:
+                Optional SimulationsData object containing the processed
                 simulation data to be compared.
-            results_folder: Optional Path to the directory containing simulation results.
+            results_folder:
+                Optional Path to the directory containing simulation results.
                 Used if simulations_data is not provided.
 
-        Example:
+        Example
+        __________
             >>> from pytrnsys_process import api
             ...
             >>> def comparison_step(simulations_data: ds.SimulationsData):

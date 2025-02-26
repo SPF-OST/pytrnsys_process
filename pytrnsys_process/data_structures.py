@@ -12,16 +12,19 @@ class Simulation:
     along with the path to the simulation files.
 
     Attributes
-    ----------
-    path : str
+    __________
+    path: str
         Path to the simulation folder containing the input files
-    monthly : pandas.DataFrame
+
+    monthly: pandas.DataFrame
         Monthly aggregated simulation data. Each column represents a different variable
         and each row represents a month.
-    hourly : pandas.DataFrame
+
+    hourly: pandas.DataFrame
         Hourly simulation data. Each column represents a different variable
         and each row represents an hour.
-    step : pandas.DataFrame
+
+    step: pandas.DataFrame
         Simulation data at the smallest timestep resolution. Each column represents
         a different variable and each row represents a timestep.
     """
@@ -31,7 +34,6 @@ class Simulation:
     hourly: _pd.DataFrame
     step: _pd.DataFrame
     scalar: _pd.DataFrame
-    # TODO: Add results data here. Not sure yet, what this will look like # pylint: disable=fixme
 
 
 @dataclass
@@ -39,13 +41,24 @@ class ProcessingResults:
     """Results from processing one or more simulations.
 
     Attributes:
-        processed_count: Number of successfully processed simulations
-        error_count: Number of simulations that failed to process
-        failed_simulations: List of simulation names that failed to process
-        failed_scenarios: Dictionary mapping simulation names to lists of failed scenario names
-        simulations: Dictionary mapping simulation names to processed Simulation objects
+    __________
+    processed_count:
+            Number of successfully processed simulations
 
-    Example:
+    error_count:
+        Number of simulations that failed to process
+
+    failed_simulations:
+        List of simulation names that failed to process
+
+    failed_scenarios:
+        Dictionary mapping simulation names to lists of failed scenario names
+
+    simulations:
+        Dictionary mapping simulation names to processed Simulation objects
+
+    Example
+    _______
         >>> results = ProcessingResults()
         >>> results.processed_count = 5
         >>> results.error_count = 1

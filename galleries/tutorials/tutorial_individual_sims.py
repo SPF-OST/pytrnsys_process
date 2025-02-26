@@ -4,8 +4,8 @@
 Processing Individual Simulations
 =================================
 
-This is an introduction to the processing API. For a more in-depth view,
-please refer to the API docs :py:mod:`pytrnsys_process.api`
+This is an introduction to the processing API.
+For a more in-depth view, please refer to the :ref:`how_tos` and the API docs :py:mod:`pytrnsys_process.api`
 
 """
 
@@ -52,6 +52,15 @@ def plot_hourly_line_plot(simulation: api.Simulation):
     ax.set_xlabel("Timeline")
     fig.show()
 
+# %%
+# Note
+# ____
+# By setting up processing steps in this way, we enable you to take full advantage of both Pandas and
+# MatPlotLib functionality. If you have not already, check out their respective tutorials and guides.
+# For Pandas: `Tutorials <https://pandas.pydata.org/docs/getting_started/index.html>`_ and `User's Guide
+# <https://pandas.pydata.org/docs/user_guide/index.html>`_.
+# For MatPlotLib: `Quick start guide <https://matplotlib.org/stable/users/explain/quick_start.html>`_ and `User's
+# Guide <https://matplotlib.org/stable/users/index.html>`_.
 
 # %%
 # Running the processing steps

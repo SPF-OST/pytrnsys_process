@@ -52,22 +52,24 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
     2. All non-NaN values must be identical across duplicate columns
 
     Parameters
-    ----------
-    df : pandas.DataFrame
+    __________
+    df: pandas.DataFrame
         Input DataFrame to process
 
     Returns
-    -------
-    pandas.DataFrame
+    _______
+    df: pandas.DataFrame
         DataFrame with duplicate columns removed, keeping only the first occurrence
 
     Raises
-    ------
+    ______
     ValueError
         If duplicate columns have:
-        - NaN values in one column while having actual values in another at the same index
-        - Different non-NaN values at the same index
+        1. NaN values in one column while having actual values in another at the same index, or
+        2. Different non-NaN values at the same index
 
+    Note
+    ____
     https://stackoverflow.com/questions/14984119/python-pandas-remove-duplicate-columns
     """
     for col in df.columns[df.columns.duplicated(keep=False)]:
@@ -114,19 +116,20 @@ def _read_file(
     Factory method to read data from a file using the appropriate reader.
 
     Parameters
-    ----------
-    file_path : pathlib.Path
+    __________
+    file_path: pathlib.Path
         Path to the file to be read
-    file_type : const.FileType
+
+    file_type: const.FileType
         Type of data in the file (MONTHLY, HOURLY, or TIMESTEP)
 
     Returns
-    -------
+    _______
     pandas.DataFrame
         Data read from the file
 
     Raises
-    ------
+    ______
     ValueError
         If file extension is not supported
     """

@@ -22,8 +22,8 @@ from pytrnsys_process import settings as sett
 plot_settings = sett.settings.plot
 
 
-@dataclass
 class ChartBase(h.HeaderValidationMixin):
+    cmap: str | None = None
 
     def plot(
         self,
@@ -87,8 +87,13 @@ class ChartBase(h.HeaderValidationMixin):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
 
+    def check_for_cmap(self, kwargs, plot_kwargs):
+        if "cmap" not in kwargs and "colormap" not in kwargs:
+            plot_kwargs["cmap"] = self.cmap
+
 
 class StackedBarChart(ChartBase):
+    cmap = "inferno_r"
 
     def _do_plot(
         self,
@@ -104,11 +109,11 @@ class StackedBarChart(ChartBase):
         )
         plot_kwargs = {
             "stacked": True,
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
+        self.check_for_cmap(kwargs, plot_kwargs)
         ax = df[columns].plot.bar(**plot_kwargs)
         ax.set_xticklabels(
             _pd.to_datetime(df.index).strftime(plot_settings.date_format)
@@ -127,6 +132,7 @@ class BarChart(ChartBase):
             size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
+        # TODO: deal with cmap
         fig, ax = _plt.subplots(
             figsize=size,
             layout="constrained",
@@ -168,8 +174,7 @@ class LinePlot(ChartBase):
             "ax": ax,
             **kwargs,
         }
-        if "cmap" not in kwargs and "colormap" not in kwargs:
-            plot_kwargs["cmap"] = self.cmap
+        self.check_for_cmap(kwargs, plot_kwargs)
 
         df[columns].plot.line(**plot_kwargs)
         return fig, ax
@@ -192,12 +197,12 @@ class Histogram(ChartBase):
             layout="constrained",
         )
         plot_kwargs = {
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             "bins": self.bins,
             **kwargs,
         }
+        self.check_for_cmap(kwargs, plot_kwargs)
         df[columns].plot.hist(**plot_kwargs)
         return fig, ax
 
@@ -239,6 +244,7 @@ class ScatterPlot(ChartBase):
         df_grouped, group_values = self._prepare_grouping(
             df, group_by_color, group_by_marker
         )
+        #TODO: deal with cmap
         color_map, marker_map = self._create_style_mappings(*group_values)
 
         self._plot_groups(

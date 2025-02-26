@@ -44,13 +44,23 @@ class ChartBase(h.HeaderValidationMixin):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Base plot method with header validation.
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            headers: Headers instance for validation
-            **kwargs: Additional plotting arguments
+        Parameters
+        __________
+            df:
+                DataFrame containing the data to plot
 
-        Raises:
+            columns:
+                List of column names to plot
+
+            headers:
+                Headers instance for validation
+
+            **kwargs:
+                Additional plotting arguments
+
+
+        Raises
+        ______
             ValueError: If any columns are missing from the headers index
         """
         # TODO: Might live somewhere else in the future # pylint: disable=fixme

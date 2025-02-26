@@ -1,3 +1,11 @@
+""" Plotting wrappers to provide a simplified interface to the User, while allow development of reusable OOP structures.
+
+    Note
+    ____
+        Many of these plotting routines do not add labels and legends.
+        This should be done using the figure and axis handles afterwards.
+"""
+
 import typing as _tp
 from collections import abc as _abc
 
@@ -80,7 +88,7 @@ def bar_chart(
         size of the figure (width, height)
 
     **kwargs :
-        Additional keyword arguments are documented in
+        Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.
 
     Returns
@@ -126,7 +134,7 @@ def stacked_bar_chart(
         size of the figure (width, height)
 
     **kwargs :
-        Additional keyword arguments are documented in
+        Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.
 
     Returns
@@ -176,7 +184,7 @@ def histogram(
         number of histogram bins to be used
 
     **kwargs :
-        Additional keyword arguments are documented in
+        Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.
 
     Returns
@@ -235,7 +243,7 @@ def energy_balance(
         size of the figure (width, height)
 
     **kwargs :
-        Additional keyword arguments are documented in
+        Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.
 
     Returns
@@ -328,7 +336,7 @@ def scatter_plot(
         size of the figure (width, height)
 
     **kwargs :
-        Additional keyword arguments are documented in
+        Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.
 
     Returns
@@ -388,11 +396,13 @@ def _validate_column_exists(
     Since PyTRNSYS is case-insensitive but Python is case-sensitive, this function
     provides helpful suggestions when columns differ only by case.
 
-    Args:
+    Parameters
+    __________
         df: DataFrame to check
         columns: Sequence of column names to validate
 
-    Raises:
+    Raises
+    ______
         ColumnNotFoundError: If any columns are missing, with suggestions for case-mismatched names
     """
     missing_columns = set(columns) - set(df.columns)

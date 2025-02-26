@@ -214,10 +214,12 @@ def process_whole_result_set(
             - monthly: Dict mapping simulation names to monthly DataFrame results
             - hourly: Dict mapping simulation names to hourly DataFrame results
             - scalar: DataFrame containing scalar/deck values from all simulations
+
         ProcessingResults containing counts of processed and failed simulations
 
     Raises:
         ValueError: If results_folder doesn't exist or is not a directory
+
         Exception: Individual simulation failures are logged but not re-raised
 
     Example:
@@ -235,6 +237,7 @@ def process_whole_result_set(
         ...     [processing_step_1, processing_step_2]
         ... )
         >>> api.compare_results(results, comparison_step_1)
+    :returns:
     """
     _validate_folder(results_folder)
     log.initialize_logs()
@@ -270,31 +273,34 @@ def process_whole_result_set_parallel(
 
     Uses a ProcessPoolExecutor to process multiple simulations concurrently.
 
-    Parameters
-    ----------
-    results_folder: Path to the directory containing simulation folders.
+    |
+    |
+
+    | **Parameters**
+    *results_folder*: Path to the directory containing simulation folders.
                            Each subfolder should contain valid simulation data files.
-    processing_scenario: Single callable or sequence of callables that implement
+    *processing_scenario*: Single callable or sequence of callables that implement
             the processing logic for each simulation. Each callable should take a
             Simulation object as its only parameter.
-    max_workers: Maximum number of worker processes to use. If None, defaults to
+    *max_workers*: Maximum number of worker processes to use. If None, defaults to
             the number of processors on the machine.
 
 
-    Returns
-    -------
-    SimulationsData object containing:
-            - monthly: Dict mapping simulation names to monthly DataFrame results
-            - hourly: Dict mapping simulation names to hourly DataFrame results
-            - scalar: DataFrame containing scalar/deck values from all simulations
+    | **Returns**
+    *SimulationsData* object containing:
+            - *monthly*: Dict mapping simulation names to monthly DataFrame results
+            - *hourly*: Dict mapping simulation names to hourly DataFrame results
+            - *scalar*: DataFrame containing scalar/deck values from all simulations
 
-    Raises
-    ------
-    - ValueError: If results_folder doesn't exist or is not a directory
-    - Exception: Individual simulation failures are logged but not re-raised
+    **Raises:**
 
-    Example:
-    --------
+    | *ValueError*: If results_folder doesn't exist or is not a directory
+    | *Exception*: Individual simulation failures are logged but not re-raised
+
+    |
+    |
+
+    **Example:**
         >>> import pathlib as _pl
         >>> from pytrnsys_process import api
         ...
@@ -308,7 +314,6 @@ def process_whole_result_set_parallel(
         ...     _pl.Path("path/to/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
-        >>> api.compare_results(results, comparison_step_1)
     :returns:
     """
     # The last :returns: ensures that the formatting works in PyCharm

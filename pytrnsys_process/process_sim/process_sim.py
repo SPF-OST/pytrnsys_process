@@ -13,6 +13,7 @@ from pytrnsys_process import readers
 from pytrnsys_process import settings as sett
 from pytrnsys_process import utils
 from pytrnsys_process.deck import extractor
+from pytrnsys_process.settings import settings
 
 
 def process_sim(
@@ -133,15 +134,17 @@ def _read_file(
     ValueError
         If file extension is not supported
     """
+    # TODO: Use starting year of settings.
+    starting_year = settings.reader.starting_year
     extension = file_path.suffix.lower()
     if extension in [".prt", ".hr"]:
         reader = readers.PrtReader()
         if file_type == const.FileType.MONTHLY:
-            return reader.read_monthly(file_path)
+            return reader.read_monthly(file_path, starting_year)
         if file_type == const.FileType.HOURLY:
-            return reader.read_hourly(file_path)
+            return reader.read_hourly(file_path, starting_year)
         if file_type == const.FileType.TIMESTEP:
-            return reader.read_step(file_path)
+            return reader.read_step(file_path, starting_year)
     elif extension == ".csv":
         return readers.CsvReader().read_csv(file_path)
 

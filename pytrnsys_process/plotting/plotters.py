@@ -92,7 +92,7 @@ class ChartBase(h.HeaderValidationMixin):
             plot_kwargs["cmap"] = self.cmap
         return plot_kwargs
 
-    def get_cmap(self, kwargs) -> str:
+    def get_cmap(self, kwargs) -> str | None:
         if "cmap" not in kwargs and "colormap" not in kwargs:
             return self.cmap
 
@@ -164,8 +164,6 @@ class BarChart(ChartBase):
         for i, col in enumerate(columns):
             ax.bar(x + i * width, df[col], width, label=col, color=colors[i])
 
-
-
         if use_legend:
             ax.legend()
 
@@ -233,7 +231,8 @@ class Histogram(ChartBase):
 @dataclass
 class ScatterPlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
-    cmap = 'Paired'  # This is ignored when no categorical groupings are used.
+
+    cmap = "Paired"  # This is ignored when no categorical groupings are used.
 
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
@@ -269,7 +268,9 @@ class ScatterPlot(ChartBase):
             df, group_by_color, group_by_marker
         )
         cmap = self.get_cmap(kwargs)
-        color_map, marker_map = self._create_style_mappings(*group_values, cmap=cmap)
+        color_map, marker_map = self._create_style_mappings(
+            *group_values, cmap=cmap
+        )
 
         self._plot_groups(
             df_grouped,
@@ -318,11 +319,14 @@ class ScatterPlot(ChartBase):
         return df_grouped, (color_values, marker_values)
 
     def _create_style_mappings(
-        self, color_values: list[str], marker_values: list[str], cmap: str
+        self,
+        color_values: list[str],
+        marker_values: list[str],
+        cmap: str | None,
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
-            cmap = _plt.get_cmap(cmap, len(color_values))
-            color_map = {val: cmap(i) for i, val in enumerate(color_values)}
+            cm = _plt.get_cmap(cmap, len(color_values))
+            color_map = {val: cm(i) for i, val in enumerate(color_values)}
         else:
             color_map = {}
         if marker_values:

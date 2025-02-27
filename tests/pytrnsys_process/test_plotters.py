@@ -11,6 +11,7 @@ from pytrnsys_process.plotting import plot_wrappers as pw
 from pytrnsys_process.plotting import plotters
 
 
+# pylint: disable=too-many-public-methods
 class TestPlotters:
     SKIP_PLOT_COMPARISON = (
         False  # Toggle this to enable/disable plot comparison
@@ -127,7 +128,9 @@ class TestPlotters:
         expected_file = (
             const.DATA_FOLDER / "plots/stacked-bar-chart/expected_cmap.png"
         )
-        actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual_cmap.png"
+        actual_file = (
+            const.DATA_FOLDER / "plots/stacked-bar-chart/actual_cmap.png"
+        )
         columns = [
             "QSnk60PauxCondSwitch_kW",
             "QSnk60dQ",
@@ -138,7 +141,9 @@ class TestPlotters:
         ]
 
         # Execute
-        fig, _ = pw.stacked_bar_chart(monthly_data, columns, xlabel="", cmap=None)
+        fig, _ = pw.stacked_bar_chart(
+            monthly_data, columns, xlabel="", cmap=None
+        )
         fig.savefig(actual_file)
 
         # Assert
@@ -217,12 +222,14 @@ class TestPlotters:
 
     def test_create_histogram_for_hourly_color(self, hourly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/histogram/expected_color.png"
+        expected_file = (
+            const.DATA_FOLDER / "plots/histogram/expected_color.png"
+        )
         actual_file = const.DATA_FOLDER / "plots/histogram/actual_color.png"
         columns = ["QSrc1TIn"]
 
         # Execute
-        fig, _ = pw.histogram(hourly_data, columns, ylabel="", color='red')
+        fig, _ = pw.histogram(hourly_data, columns, ylabel="", color="red")
         fig.savefig(actual_file)
 
         # Assert
@@ -247,14 +254,16 @@ class TestPlotters:
     def test_scatter_plot_for_monthly_color(self, monthly_data):
         # Setup
         actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual_color.png"
-        expected_file = const.DATA_FOLDER / "plots/scatter-plot/expected_color.png"
+        expected_file = (
+            const.DATA_FOLDER / "plots/scatter-plot/expected_color.png"
+        )
 
         # Execute
         fig, _ = pw.scatter_plot(
             monthly_data,
             x_column="QSnk60dQlossTess",
             y_column="QSnk60dQ",
-            color='red'
+            color="red",
         )
         fig.savefig(actual_file)
 
@@ -266,7 +275,9 @@ class TestPlotters:
         actual_imb_given = (
             const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
         )
-        expected = const.DATA_FOLDER / "plots/energy-balance/expected_given.png"
+        expected = (
+            const.DATA_FOLDER / "plots/energy-balance/expected_given.png"
+        )
 
         # Execute
         fig, _ = pw.energy_balance(
@@ -287,7 +298,9 @@ class TestPlotters:
             const.DATA_FOLDER
             / "plots/energy-balance/actual-imb-calculated.png"
         )
-        expected = const.DATA_FOLDER / "plots/energy-balance/expected_calculated.png"
+        expected = (
+            const.DATA_FOLDER / "plots/energy-balance/expected_calculated.png"
+        )
 
         # Execute
         fig, _ = pw.energy_balance(
@@ -315,7 +328,7 @@ class TestPlotters:
             q_in_columns=["QSnk60PauxCondSwitch_kW"],
             q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
             xlabel="",
-            cmap="Paired"
+            cmap="Paired",
         )
         fig.savefig(actual_imb_calculated)
 
@@ -344,7 +357,9 @@ class TestPlotters:
 
     def test_scatter_compare_plot_cmap(self, comparison_data):
         # Setup
-        actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual_cmap.png"
+        actual = (
+            const.DATA_FOLDER / "plots/scatter-compare-plot/actual_cmap.png"
+        )
         expected = (
             const.DATA_FOLDER / "plots/scatter-compare-plot/expected_cmap.png"
         )
@@ -356,7 +371,7 @@ class TestPlotters:
             "VIceRatioMax",
             "yearly_demand_GWh",
             "ratioDHWtoSH_allSinks",
-            cmap='viridis',
+            cmap="viridis",
         )
         fig.savefig(actual)
 

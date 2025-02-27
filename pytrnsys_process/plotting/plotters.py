@@ -90,6 +90,19 @@ class ChartBase(h.HeaderValidationMixin):
     def check_for_cmap(self, kwargs, plot_kwargs):
         if "cmap" not in kwargs and "colormap" not in kwargs:
             plot_kwargs["cmap"] = self.cmap
+        return plot_kwargs
+
+    def get_cmap(self, kwargs) -> str:
+        if "cmap" not in kwargs and "colormap" not in kwargs:
+            return self.cmap
+
+        if "cmap" in kwargs:
+            return kwargs["cmap"]
+
+        if "colormap" in kwargs:
+            return kwargs["colormap"]
+
+        raise ValueError
 
 
 class StackedBarChart(ChartBase):
@@ -123,6 +136,7 @@ class StackedBarChart(ChartBase):
 
 
 class BarChart(ChartBase):
+    cmap = None
 
     def _do_plot(
         self,
@@ -132,7 +146,7 @@ class BarChart(ChartBase):
         size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        # TODO: deal with cmap  # pylint: disable=fixme
+        # TODO: deal with colors  # pylint: disable=fixme
         fig, ax = _plt.subplots(
             figsize=size,
             layout="constrained",
@@ -140,8 +154,17 @@ class BarChart(ChartBase):
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)
 
+        cmap = self.get_cmap(kwargs)
+        if cmap:
+            cm = _plt.cm.get_cmap(cmap)
+            colors = cm(_np.linspace(0, 1, len(columns)))
+        else:
+            colors = [None] * len(columns)
+
         for i, col in enumerate(columns):
-            ax.bar(x + i * width, df[col], width, label=col)
+            ax.bar(x + i * width, df[col], width, label=col, color=colors[i])
+
+
 
         if use_legend:
             ax.legend()
@@ -210,6 +233,7 @@ class Histogram(ChartBase):
 @dataclass
 class ScatterPlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
+    cmap = 'Paired'  # This is ignored when no categorical groupings are used.
 
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
@@ -244,8 +268,8 @@ class ScatterPlot(ChartBase):
         df_grouped, group_values = self._prepare_grouping(
             df, group_by_color, group_by_marker
         )
-        # TODO: deal with cmap  # pylint: disable=fixme
-        color_map, marker_map = self._create_style_mappings(*group_values)
+        cmap = self.get_cmap(kwargs)
+        color_map, marker_map = self._create_style_mappings(*group_values, cmap=cmap)
 
         self._plot_groups(
             df_grouped,
@@ -294,10 +318,10 @@ class ScatterPlot(ChartBase):
         return df_grouped, (color_values, marker_values)
 
     def _create_style_mappings(
-        self, color_values: list[str], marker_values: list[str]
+        self, color_values: list[str], marker_values: list[str], cmap: str
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
-            cmap = _plt.get_cmap(plot_settings.color_map, len(color_values))
+            cmap = _plt.get_cmap(cmap, len(color_values))
             color_map = {val: cmap(i) for i, val in enumerate(color_values)}
         else:
             color_map = {}

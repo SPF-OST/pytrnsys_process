@@ -72,6 +72,7 @@ def bar_chart(
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a bar chart with multiple columns displayed as grouped bars.
+    The **kwargs are currently not passed on.
 
     Parameters
     __________
@@ -311,6 +312,13 @@ def scatter_plot(
     - Numerical relationships between x and y variables
     - Categorical grouping through color encoding
     - Secondary categorical grouping through marker styles
+
+    Note
+    ____
+    The way to changing colors depends on how this function is used.
+    Categorical grouping -> use eg: cmap="viridis"
+    No grouping          -> use eg: color="red"
+
 
     Parameters
     __________

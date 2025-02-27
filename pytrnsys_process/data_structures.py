@@ -40,7 +40,7 @@ class Simulation:
 class ProcessingResults:
     """Results from processing one or more simulations.
 
-    Attributes:
+    Attributes
     __________
     processed_count:
             Number of successfully processed simulations

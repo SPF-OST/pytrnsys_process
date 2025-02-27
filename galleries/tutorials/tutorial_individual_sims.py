@@ -47,7 +47,7 @@ def plot_monthly_bar_chart(simulation: api.Simulation):
 
 def plot_hourly_line_plot(simulation: api.Simulation):
     columns_to_plot = ["QSrc1TIn", "QSrc1TOut"]
-    fig, ax = api.line_plot(simulation.hourly, columns_to_plot)
+    fig, ax = api.line_plot(simulation.hourly, columns_to_plot, cmap="Paired")
     ax.set_ylabel("In/Out")
     ax.set_xlabel("Timeline")
     fig.show()
@@ -70,6 +70,7 @@ def plot_hourly_line_plot(simulation: api.Simulation):
 # We need to pass the path to the simulation files
 # and the processing steps we defined above
 # to the processing function.
+
 
 if __name__ == "__main__":
     path_to_sim = _pl.Path(

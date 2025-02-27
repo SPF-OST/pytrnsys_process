@@ -9,7 +9,7 @@ from pytrnsys_process import readers
 
 
 def get_file_type_using_file_content(
-        file_path: _pl.Path, logger: _logging.Logger = log.main_logger
+    file_path: _pl.Path, logger: _logging.Logger = log.main_logger
 ) -> const.FileType:
     """
     Determine the file type by analyzing its content.
@@ -57,7 +57,7 @@ def get_file_type_using_file_content(
 
 
 def get_file_type_using_file_name(
-        file: _pl.Path, logger: _logging.Logger = log.main_logger
+    file: _pl.Path, logger: _logging.Logger = log.main_logger
 ) -> const.FileType:
     """
     Determine the file type by checking the filename against known patterns.
@@ -89,8 +89,8 @@ def get_file_type_using_file_name(
         if file_type == const.FileType.DECK:
             continue
         if any(
-                _re.search(pattern, file_name)
-                for pattern in file_type.value.patterns
+            _re.search(pattern, file_name)
+            for pattern in file_type.value.patterns
         ):
             return file_type
 

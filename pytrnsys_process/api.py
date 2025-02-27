@@ -23,6 +23,7 @@ from pytrnsys_process.process_batch import (
     process_whole_result_set_parallel,
     do_comparison,
 )
+
 # ============================================================
 # this lives here, because it needs to be available everywhere
 from pytrnsys_process.settings import settings, Defaults
@@ -48,5 +49,5 @@ __all__ = [
     "REPO_ROOT",
     "Simulation",
     "SimulationsData",
-    "load_simulations_data_from_pickle"
+    "load_simulations_data_from_pickle",
 ]

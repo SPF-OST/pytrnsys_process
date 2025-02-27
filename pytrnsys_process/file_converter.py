@@ -13,7 +13,7 @@ class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-            file_path: _pl.Path, prefix: const.FileType
+        file_path: _pl.Path, prefix: const.FileType
     ) -> None:
         """Rename a file with a given prefix.
 

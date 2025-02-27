@@ -23,11 +23,11 @@ class ReaderBase:
     # ===================================
 
     def read(
-            self,
-            file_path: _pl.Path,
-            skipfooter: int = SKIPFOOTER,
-            header: int = HEADER,
-            delimiter: str = DELIMITER,
+        self,
+        file_path: _pl.Path,
+        skipfooter: int = SKIPFOOTER,
+        header: int = HEADER,
+        delimiter: str = DELIMITER,
     ) -> _pd.DataFrame:
         """Common read function for all readers"""
         df = _pd.read_csv(
@@ -159,7 +159,7 @@ class PrtReader(ReaderBase):
         return df.set_index("Timestamp")
 
     def _create_step_timestamps(
-            self, minutes_elapsed: _pd.Series, starting_year: int
+        self, minutes_elapsed: _pd.Series, starting_year: int
     ) -> _pd.Series:
         """Create step timestamps from elapsed minutes since start of year.
 

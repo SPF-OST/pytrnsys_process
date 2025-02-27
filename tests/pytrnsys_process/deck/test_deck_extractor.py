@@ -191,8 +191,8 @@ THxNetInSetMaxErrCheck = GTWARN(THxNetInSetMaxErr, 0, 2)
     with caplog.at_level(_logging.WARNING):
         extractor.parse_deck_for_constant_expressions(deck_as_string)
     assert (
-            "On line 4, GTWARN is not supported in THxNetInSetMaxErrCheck=GTWARN(THxNetInSetMaxErr, 0, 2)"
-            in caplog.text
+        "On line 4, GTWARN is not supported in THxNetInSetMaxErrCheck=GTWARN(THxNetInSetMaxErr, 0, 2)"
+        in caplog.text
     )
 
 
@@ -204,8 +204,8 @@ def test_handling_of_visit_error_error(caplog):
     with caplog.at_level(_logging.WARNING):
         extractor.parse_deck_for_constant_expressions(deck_as_string)
     assert (
-            "On line 2, unable to compute equation powerScalingFactor=max(3)"
-            ' because: Error trying to process rule "func_call"' in caplog.text
+        "On line 2, unable to compute equation powerScalingFactor=max(3)"
+        ' because: Error trying to process rule "func_call"' in caplog.text
     )
 
 

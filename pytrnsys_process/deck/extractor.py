@@ -10,7 +10,7 @@ from pytrnsys_process.logger import main_logger
 
 
 def parse_deck_for_constant_expressions(
-        deck_as_string: str, logger: _logging.Logger = main_logger
+    deck_as_string: str, logger: _logging.Logger = main_logger
 ) -> dict[str, float | int]:
     """Evaluate constant expressions in a TRNSYS deck file and return their values.
 
@@ -64,8 +64,8 @@ def parse_deck_for_constant_expressions(
 
             except MathFuncNotFoundError as e:
                 failed_equation = deck_as_string[
-                                  e.meta.start_pos: e.meta.end_pos
-                                  ]
+                    e.meta.start_pos : e.meta.end_pos
+                ]
                 func_name, _ = failed_equation.split("(")
                 logger.warning(
                     "On line %s, %s is not supported in %s=%s",
@@ -78,8 +78,8 @@ def parse_deck_for_constant_expressions(
 
             except _lark.exceptions.VisitError as e:
                 failed_equation = deck_as_string[
-                                  e.obj.meta.start_pos: e.obj.meta.end_pos  # type: ignore
-                                  ]
+                    e.obj.meta.start_pos : e.obj.meta.end_pos  # type: ignore
+                ]
                 logger.error(
                     "On line %s, unable to compute equation %s=%s because: %s",
                     e.obj.meta.line,  # type: ignore
@@ -243,7 +243,7 @@ def _get_equation_trees(deck_as_string):
 
 
 def _rename_dict_keys_to_original_format(
-        evaluated_variables, original_variable_names
+    evaluated_variables, original_variable_names
 ) -> dict[str, float | int]:
     for original_name in original_variable_names:
         evaluated_variables[original_name] = evaluated_variables.pop(
@@ -253,7 +253,7 @@ def _rename_dict_keys_to_original_format(
 
 
 def _get_expression_sub_trees_by_variable_name(
-        list_of_equation_trees: list[_lark.Tree],
+    list_of_equation_trees: list[_lark.Tree],
 ) -> dict[str, _lark.Tree]:
     equations_dict = {}
     for equation_tree in list_of_equation_trees:
@@ -269,7 +269,7 @@ def _get_expression_sub_trees_by_variable_name(
 
 
 def _evaluate_or_none_if_variable_could_not_be_found(
-        tree: _lark.Tree, evaluated_variables: _cabc.Mapping[str, float]
+    tree: _lark.Tree, evaluated_variables: _cabc.Mapping[str, float]
 ):
     # Exceptions raised in callback need to be caught here
     try:

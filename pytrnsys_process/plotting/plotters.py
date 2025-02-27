@@ -82,7 +82,7 @@ class ChartBase(h.HeaderValidationMixin):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
@@ -100,7 +100,7 @@ class StackedBarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -129,10 +129,10 @@ class BarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        # TODO: deal with cmap
+        # TODO: deal with cmap  # pylint: disable=fixme
         fig, ax = _plt.subplots(
             figsize=size,
             layout="constrained",
@@ -162,7 +162,7 @@ class LinePlot(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -189,7 +189,7 @@ class Histogram(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -213,14 +213,14 @@ class ScatterPlot(ChartBase):
 
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
-            group_by_color: str | None = None,
-            group_by_marker: str | None = None,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
+        group_by_color: str | None = None,
+        group_by_marker: str | None = None,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         self._validate_inputs(columns)
         x_column, y_column = columns
@@ -244,7 +244,7 @@ class ScatterPlot(ChartBase):
         df_grouped, group_values = self._prepare_grouping(
             df, group_by_color, group_by_marker
         )
-        #TODO: deal with cmap
+        # TODO: deal with cmap  # pylint: disable=fixme
         color_map, marker_map = self._create_style_mappings(*group_values)
 
         self._plot_groups(
@@ -264,8 +264,8 @@ class ScatterPlot(ChartBase):
         return fig, ax
 
     def _validate_inputs(
-            self,
-            columns: list[str],
+        self,
+        columns: list[str],
     ) -> None:
         if len(columns) != 2:
             raise ValueError(
@@ -273,10 +273,10 @@ class ScatterPlot(ChartBase):
             )
 
     def _prepare_grouping(
-            self,
-            df: _pd.DataFrame,
-            color: str | None,
-            marker: str | None,
+        self,
+        df: _pd.DataFrame,
+        color: str | None,
+        marker: str | None,
     ) -> tuple[
         _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
     ]:
@@ -294,7 +294,7 @@ class ScatterPlot(ChartBase):
         return df_grouped, (color_values, marker_values)
 
     def _create_style_mappings(
-            self, color_values: list[str], marker_values: list[str]
+        self, color_values: list[str], marker_values: list[str]
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
             cmap = _plt.get_cmap(plot_settings.color_map, len(color_values))
@@ -310,13 +310,13 @@ class ScatterPlot(ChartBase):
 
     # pylint: disable=too-many-arguments
     def _plot_groups(
-            self,
-            df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
-            x_column: str,
-            y_column: str,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str],
-            ax: _plt.Axes,
+        self,
+        df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
+        x_column: str,
+        y_column: str,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str],
+        ax: _plt.Axes,
     ) -> None:
         ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
         ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
@@ -334,12 +334,12 @@ class ScatterPlot(ChartBase):
             ax.scatter(x, y, **scatter_args)  # type: ignore
 
     def _create_legends(
-            self,
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str],
-            color_legend_title: str | None,
-            marker_legend_title: str | None,
+        self,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str],
+        color_legend_title: str | None,
+        marker_legend_title: str | None,
     ) -> None:
         lax.axis("off")
 
@@ -353,11 +353,11 @@ class ScatterPlot(ChartBase):
             )
 
     def _create_color_legend(
-            self,
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            color_legend_title: str | None,
-            has_markers: bool,
+        self,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        color_legend_title: str | None,
+        has_markers: bool,
     ) -> None:
         color_handles = [
             _plt.Line2D([], [], color=color, linestyle="-", label=label)
@@ -378,11 +378,11 @@ class ScatterPlot(ChartBase):
             lax.add_artist(legend)
 
     def _create_marker_legend(
-            self,
-            lax: _plt.Axes,
-            marker_map: dict[str, str],
-            marker_legend_title: str | None,
-            has_colors: bool,
+        self,
+        lax: _plt.Axes,
+        marker_map: dict[str, str],
+        marker_legend_title: str | None,
+        has_colors: bool,
     ) -> None:
         marker_position = 0.7 if has_colors else 1
         marker_handles = [

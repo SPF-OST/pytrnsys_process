@@ -38,8 +38,8 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-                const.DATA_FOLDER
-                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+            const.DATA_FOLDER
+            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return readers.PrtReader().read_monthly(result_data)
 
@@ -52,8 +52,8 @@ class TestPlotters:
     @pytest.fixture
     def comparison_data(self):
         path_to_json = (
-                const.DATA_FOLDER
-                / "plots/scatter-compare-plot/comparison_data.json"
+            const.DATA_FOLDER
+            / "plots/scatter-compare-plot/comparison_data.json"
         )
         return _pd.read_json(path_to_json)
 
@@ -64,9 +64,9 @@ class TestPlotters:
                 "Plot comparison temporarily disabled during development"
             )
         assert (
-                _mpltc.compare_images(
-                    str(expected_file), str(actual_file), tol=tolerance
-                )
+            _mpltc.compare_images(
+                str(expected_file), str(actual_file), tol=tolerance
+            )
             is None
         )
 
@@ -74,7 +74,7 @@ class TestPlotters:
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         with _um.patch(
-                "pytrnsys_process.plotting.plotters.LinePlot._do_plot"
+            "pytrnsys_process.plotting.plotters.LinePlot._do_plot"
         ) as mock_do_plot:
             # Execute
             line_plot = plotters.LinePlot()
@@ -96,14 +96,14 @@ class TestPlotters:
                 hourly_data, columns, headers=mock_headers
             )
         assert (
-                "The following columns are not available in the headers index:\nDoesNotExist\nAlsoMissing"
-                in str(excinfo.value)
+            "The following columns are not available in the headers index:\nDoesNotExist\nAlsoMissing"
+            in str(excinfo.value)
         )
 
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
         expected_file = (
-                const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+            const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
         )
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [
@@ -183,7 +183,7 @@ class TestPlotters:
     def test_energy_balance_imb_given(self, monthly_data):
         # Setup
         actual_imb_given = (
-                const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
+            const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
         )
         expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
 
@@ -203,8 +203,8 @@ class TestPlotters:
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup
         actual_imb_calculated = (
-                const.DATA_FOLDER
-                / "plots/energy-balance/actual-imb-calculated.png"
+            const.DATA_FOLDER
+            / "plots/energy-balance/actual-imb-calculated.png"
         )
         expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
 
@@ -224,7 +224,7 @@ class TestPlotters:
         # Setup
         actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual.png"
         expected = (
-                const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
+            const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
         )
 
         # Execute
@@ -248,9 +248,9 @@ class TestPlotters:
         suggestion1 = r"'qSrc1tIn' did you mean: 'QSrc1TIn', "
         suggestion2 = r"'QSrc1Tout' did you mean: 'QSrc1TOut'"
         expected_message = (
-                r"Column validation failed\. Case-insensitive matches found:\n"
-                + f"({suggestion1}\n{suggestion2}|{suggestion2}, \n{suggestion1[:-2]})"  # Either order
-                + r"\nNo matches found for:\n'DoesNotExist'"
+            r"Column validation failed\. Case-insensitive matches found:\n"
+            + f"({suggestion1}\n{suggestion2}|{suggestion2}, \n{suggestion1[:-2]})"  # Either order
+            + r"\nNo matches found for:\n'DoesNotExist'"
         )
 
         with pytest.raises(pw.ColumnNotFoundError, match=expected_message):

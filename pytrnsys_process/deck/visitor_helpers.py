@@ -7,9 +7,9 @@ _T = _tp.TypeVar("_T")
 
 
 def get_child_token_value(
-        token_type: str,
-        tree: _lark.Tree,
-        conversion_function: _cabc.Callable[[str], _T],
+    token_type: str,
+    tree: _lark.Tree,
+    conversion_function: _cabc.Callable[[str], _T],
 ) -> _T:
     token = get_child_token_value_or_none(
         token_type, tree, conversion_function
@@ -25,9 +25,9 @@ def get_child_token_value(
 
 
 def get_child_token_value_or_none(
-        token_type: str,
-        tree: _lark.Tree,
-        conversion_function: _tp.Callable[[str], _T],
+    token_type: str,
+    tree: _lark.Tree,
+    conversion_function: _tp.Callable[[str], _T],
 ) -> _T | None:
     token_or_none = get_child_token_or_none(token_type, tree)
 
@@ -40,7 +40,7 @@ def get_child_token_value_or_none(
 
 
 def get_child_token_or_none(
-        token_type: str, tree: _lark.Tree
+    token_type: str, tree: _lark.Tree
 ) -> _lark.Token | None:
     tokens = get_child_tokens_or_empty_sequence(token_type, tree)
 
@@ -57,7 +57,7 @@ def get_child_token_or_none(
 
 
 def get_child_token_values_or_empty_sequence(
-        token_type: str, tree: _lark.Tree
+    token_type: str, tree: _lark.Tree
 ) -> _cabc.Sequence[str]:
     return [
         t.value for t in get_child_tokens_or_empty_sequence(token_type, tree)
@@ -77,7 +77,7 @@ def get_child_token(token_type: str, tree: _lark.Tree) -> _lark.Token:
 
 
 def get_child_tokens_or_empty_sequence(
-        token_type: str, tree: _lark.Tree
+    token_type: str, tree: _lark.Tree
 ) -> _cabc.Sequence[_lark.Token]:
     return [
         c

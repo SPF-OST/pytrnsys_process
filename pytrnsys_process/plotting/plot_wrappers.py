@@ -1,9 +1,9 @@
-""" Plotting wrappers to provide a simplified interface to the User, while allow development of reusable OOP structures.
+"""Plotting wrappers to provide a simplified interface to the User, while allow development of reusable OOP structures.
 
-    Note
-    ____
-        Many of these plotting routines do not add labels and legends.
-        This should be done using the figure and axis handles afterwards.
+Note
+____
+    Many of these plotting routines do not add labels and legends.
+    This should be done using the figure and axis handles afterwards.
 """
 
 import typing as _tp
@@ -18,11 +18,11 @@ from pytrnsys_process.plotting import plotters as pltrs
 
 
 def line_plot(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a line plot using the provided DataFrame columns.
@@ -64,11 +64,11 @@ def line_plot(
 
 
 def bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a bar chart with multiple columns displayed as grouped bars.
@@ -110,11 +110,11 @@ def bar_chart(
 
 
 def stacked_bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Bar chart with stacked bars
@@ -156,12 +156,12 @@ def stacked_bar_chart(
 
 
 def histogram(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        bins: int = 50,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    bins: int = 50,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a histogram from the given DataFrame columns.
@@ -206,13 +206,13 @@ def histogram(
 
 
 def energy_balance(
-        df: _pd.DataFrame,
-        q_in_columns: list[str],
-        q_out_columns: list[str],
-        q_imb_column: _tp.Optional[str] = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    q_in_columns: list[str],
+    q_out_columns: list[str],
+    q_imb_column: _tp.Optional[str] = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
@@ -264,9 +264,9 @@ def energy_balance(
         >>> )
     """
     all_columns_vor_validation = (
-            q_in_columns
-            + q_out_columns
-            + ([q_imb_column] if q_imb_column is not None else [])
+        q_in_columns
+        + q_out_columns
+        + ([q_imb_column] if q_imb_column is not None else [])
     )
     _validate_column_exists(df, all_columns_vor_validation)
 
@@ -295,14 +295,14 @@ def energy_balance(
 
 # pylint: disable=too-many-arguments
 def scatter_plot(
-        df: _pd.DataFrame,
-        x_column: str,
-        y_column: str,
-        group_by_color: str | None = None,
-        group_by_marker: str | None = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    x_column: str,
+    y_column: str,
+    group_by_color: str | None = None,
+    group_by_marker: str | None = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a scatter plot with up to two grouping variables.
@@ -389,7 +389,7 @@ def scatter_plot(
 
 
 def _validate_column_exists(
-        df: _pd.DataFrame, columns: _abc.Sequence[str]
+    df: _pd.DataFrame, columns: _abc.Sequence[str]
 ) -> None:
     """Validate that all requested columns exist in the DataFrame.
 

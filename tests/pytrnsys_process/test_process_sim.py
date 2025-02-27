@@ -20,8 +20,8 @@ class TestProcessSim:
 
         with _pt.raises(Exception) as exc_info:
             assert (
-                    "don-not-process.xlsx: No columns to parse from file"
-                    in str(exc_info.value)
+                "don-not-process.xlsx: No columns to parse from file"
+                in str(exc_info.value)
             )
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)

@@ -71,6 +71,7 @@ class ProcessingResults:
     failed_simulations: List[str] = field(default_factory=list)
     failed_scenarios: dict[str, List[str]] = field(default_factory=dict)
 
+
 @dataclass
 class SimulationsData:
     simulations: dict[str, Simulation] = field(default_factory=dict)

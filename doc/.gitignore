@@ -1,2 +1,5 @@
 /_build/
 /_apidoc/
+/gen_examples/
+/gen_tutorials/
+sg_execution_times.rst

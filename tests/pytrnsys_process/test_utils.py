@@ -111,8 +111,8 @@ def test_convert_svg_to_emf_inkscape_not_found(tmp_path):
         # Verify error was logged
         mock_logger.error.assert_called_once()
         assert (
-                "System error running Inkscape: %s"
-                in mock_logger.error.call_args[0][0]
+            "System error running Inkscape: %s"
+            in mock_logger.error.call_args[0][0]
         )
 
 
@@ -131,7 +131,7 @@ def test_convert_svg_to_emf_subprocess_error(tmp_path):
         # Verify error was logged
         mock_logger.error.assert_called_once()
         assert (
-                "Inkscape conversion failed" in mock_logger.error.call_args[0][0]
+            "Inkscape conversion failed" in mock_logger.error.call_args[0][0]
         )
 
 
@@ -174,9 +174,7 @@ def test_get_file_content_as_string(tmp_path):
 def test_simulation_pickle(tmp_path):
     sim_pickle = tmp_path / "simulation.pickle"
     sim_folder = _pl.Path(RESULTS_FOLDER / "sim-1")
-    simulation = pb.process_single_simulation(
-        sim_folder, lambda x: None
-    )
+    simulation = pb.process_single_simulation(sim_folder, lambda x: None)
 
     utils.save_to_pickle(simulation, sim_pickle)
     sim_from_pickle = utils.load_simulation_from_pickle(sim_pickle)
@@ -190,19 +188,37 @@ def test_simulation_pickle(tmp_path):
 def test_simulations_data_pickle(tmp_path):
     simulation_data_pickle = tmp_path / "simulations_data.pickle"
     sim_folder = _pl.Path(RESULTS_FOLDER)
-    simulations_data = pb.process_whole_result_set(
-        sim_folder, lambda x: None
-    )
+    simulations_data = pb.process_whole_result_set(sim_folder, lambda x: None)
 
     utils.save_to_pickle(simulations_data, simulation_data_pickle)
-    simulations_data_from_pickle = utils.load_simulations_data_from_pickle(simulation_data_pickle)
+    simulations_data_from_pickle = utils.load_simulations_data_from_pickle(
+        simulation_data_pickle
+    )
 
-    assert simulations_data_from_pickle.simulations["sim-1"].hourly.shape == (3, 18)
-    assert simulations_data_from_pickle.simulations["sim-1"].monthly.shape == (14, 11)
-    assert simulations_data_from_pickle.simulations["sim-1"].step.shape == (0, 0)
-    assert simulations_data_from_pickle.simulations["sim-2"].hourly.shape == (0, 0)
-    assert simulations_data_from_pickle.simulations["sim-2"].monthly.shape == (14, 11)
-    assert simulations_data_from_pickle.simulations["sim-2"].step.shape == (0, 0)
+    assert simulations_data_from_pickle.simulations["sim-1"].hourly.shape == (
+        3,
+        18,
+    )
+    assert simulations_data_from_pickle.simulations["sim-1"].monthly.shape == (
+        14,
+        11,
+    )
+    assert simulations_data_from_pickle.simulations["sim-1"].step.shape == (
+        0,
+        0,
+    )
+    assert simulations_data_from_pickle.simulations["sim-2"].hourly.shape == (
+        0,
+        0,
+    )
+    assert simulations_data_from_pickle.simulations["sim-2"].monthly.shape == (
+        14,
+        11,
+    )
+    assert simulations_data_from_pickle.simulations["sim-2"].step.shape == (
+        0,
+        0,
+    )
     assert simulations_data_from_pickle.scalar.shape == (2, 10)
 
 

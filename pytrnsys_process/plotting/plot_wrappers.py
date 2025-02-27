@@ -1,54 +1,60 @@
+"""Plotting wrappers to provide a simplified interface to the User, while allow development of reusable OOP structures.
+
+Note
+____
+    Many of these plotting routines do not add labels and legends.
+    This should be done using the figure and axis handles afterwards.
+"""
+
 import typing as _tp
 from collections import abc as _abc
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
+from pandas.util import _decorators as _dec  # type: ignore
 
 from pytrnsys_process import constants as const
 from pytrnsys_process.plotting import plotters as pltrs
 
 
 def line_plot(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a line plot from the given DataFrame columns.
+    """
+    Create a line plot using the provided DataFrame columns.
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            **kwargs: Additional plotting arguments passed to pandas plot()
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
+    columns: list of str
+        names of columns to plot
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> from matplotlib import pyplot as _plt
-            >>>
-            >>> def create_line_plot(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.line_plot(simulation.hourly, columns=['var1', 'var2'])
-            >>>     # Customize the plot using the returned axes object:
-            >>>     ax.set_xlabel('Time')
-            >>>     ax.set_ylabel('Value')
-            >>>     ax.set_title('My Plot')
-            >>>     ax.grid(True)
-            >>>     _plt.show()
-            >>>
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_line_plot,
-            >>>     )
+    use_legend: bool, default 'True'
+        whether to show the legend or not
 
-        For additional customization options, refer to:
-        - Matplotlib documentation: https://matplotlib.org/stable/api/
-        - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.html
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments are documented in
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.line_plot(simulation.hourly, ["QSrc1TIn", "QSrc1TOut"])
     """
     _validate_column_exists(df, columns)
     plotter = pltrs.LinePlot()
@@ -58,44 +64,44 @@ def line_plot(
 
 
 def bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    # TODO: add description of visual grouping of bars with increasing number of columns. #pylint: disable=fixme
-    """Create a bar chart with multiple columns displayed as grouped bars.
+    """
+    Create a bar chart with multiple columns displayed as grouped bars.
+    The **kwargs are currently not passed on.
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot as bars
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            **kwargs: Additional plotting arguments
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
+    columns: list of str
+        names of columns to plot
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> def create_bar_chart(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.bar_chart(simulation.monthly, columns=['var1', 'var2'])
-            >>>     # Customize the plot using the returned axes object:
-            >>>     ax.set_xlabel('Time')
-            >>>     ax.set_ylabel('Value')
-            >>>     ax.set_title('My Plot')
-            >>>     ax.grid(True)
-            >>>
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_bar_chart,
-            >>>     )
+    use_legend: bool, default 'True'
+        whether to show the legend or not
 
-        For additional customization options, refer to:
-        - Matplotlib documentation: https://matplotlib.org/stable/api/
-        - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.bar.html
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.bar_chart(simulation.monthly, ["QSnk60P","QSnk60PauxCondSwitch_kW"])
     """
     _validate_column_exists(df, columns)
     plotter = pltrs.BarChart()
@@ -105,43 +111,43 @@ def bar_chart(
 
 
 def stacked_bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a stacked bar chart from the given DataFrame columns.
-        - See pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.bar.html
+    """
+    Bar chart with stacked bars
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            **kwargs: Additional plotting arguments
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
+    columns: list of str
+        names of columns to plot
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> def create_stacked_bar_chart(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.stacked_bar_chart(simulation.monthly, columns=['var1', 'var2', 'var3'])
-            >>>     # Customize the plot using the returned axes object:
-            >>>     ax.set_xlabel('Time')
-            >>>     ax.set_ylabel('Value')
-            >>>     ax.set_title('My Plot')
-            >>>     ax.grid(True)
-            >>>
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_stacked_bar_chart,
-            >>>     )
+    use_legend: bool, default 'True'
+        whether to show the legend or not
 
-        For additional customization options, refer to:
-        - Matplotlib documentation: https://matplotlib.org/stable/api/
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.stacked_bar_chart(simulation.monthly, ["QSnk60P","QSnk60PauxCondSwitch_kW"])
     """
     _validate_column_exists(df, columns)
     plotter = pltrs.StackedBarChart()
@@ -151,45 +157,47 @@ def stacked_bar_chart(
 
 
 def histogram(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        bins: int = 50,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    bins: int = 50,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a histogram from the given DataFrame columns.
+    """
+    Create a histogram from the given DataFrame columns.
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            bins: Number of bins to use in the histogram (default: 50)
-            **kwargs: Additional plotting arguments
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
+    columns: list of str
+        names of columns to plot
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> def create_histogram(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.histogram(simulation.hourly, columns=['var1', 'var2'])
-            >>>     # Customize the plot using the returned axes object:
-            >>>     ax.set_xlabel('Value')
-            >>>     ax.set_ylabel('Frequency')
-            >>>     ax.set_title('My Histogram')
-            >>>     ax.grid(True)
-            >>>
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_histogram,
-            >>>     )
+    use_legend: bool, default 'True'
+        whether to show the legend or not
 
-        For additional customization options, refer to:
-        - Matplotlib documentation: https://matplotlib.org/stable/api/
-        - Pandas plotting: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.hist.html
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    bins: int
+        number of histogram bins to be used
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.histogram(simulation.hourly, ["QSrc1TIn"], ylabel="")
     """
     _validate_column_exists(df, columns)
     plotter = pltrs.Histogram(bins)
@@ -199,55 +207,67 @@ def histogram(
 
 
 def energy_balance(
-        df: _pd.DataFrame,
-        q_in_columns: list[str],
-        q_out_columns: list[str],
-        q_imb_column: _tp.Optional[str] = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    q_in_columns: list[str],
+    q_out_columns: list[str],
+    q_imb_column: _tp.Optional[str] = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
+    """
+    Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
+    This function creates an energy balance visualization where:
 
-        This function creates an energy balance visualization where:
-        - Input energies are shown as positive values
-        - Output energies are shown as negative values
-        - Energy imbalance is either provided or calculated as (sum of inputs + sum of outputs)
+    - Input energies are shown as positive values
+    - Output energies are shown as negative values
+    - Energy imbalance is either provided or calculated as (sum of inputs + sum of outputs)
 
-        Args:
-            df: DataFrame containing the energy data
-            q_in_columns: List of column names representing energy inputs
-            q_out_columns: List of column names representing energy outputs
-            q_imb_column: Optional column name containing pre-calculated energy imbalance
-            use_legend: Whether to show the legend
-            size: Figure size tuple (width, height)
-            **kwargs: Additional plotting arguments passed to the stacked bar chart
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        Returns:
-            Tuple of (matplotlib Figure object, matplotlib Axes object)
+    q_in_columns: list of str
+        column names representing energy inputs
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> def create_energy_balance(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.energy_balance(
-            ...         simulation.monthly,
-            ...         q_in_columns=['solar_gain', 'auxiliary_power'],
-            ...         q_out_columns=['thermal_losses', 'consumption'],
-            ...     )
-            >>>     ax.set_xlabel('Time')
-            >>>     ax.set_ylabel('Energy [kWh]')
-            >>>     ax.set_title('Monthly Energy Balance')
-            >>>     ax.grid(True)
-            >>> # run the single scenario on a single simulation
-            >>> api.process_single_simulation(
-            >>>     _pl.Path("path/to/single/simulation"),
-            >>>     create_energy_balance,
-            >>>     )
+    q_out_columns: list of str
+        column names representing energy outputs
+
+    q_imb_column: list of str, optional
+        column name containing pre-calculated energy imbalance
+
+    use_legend: bool, default 'True'
+        whether to show the legend or not
+
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.energy_balance(
+        >>> simulation.monthly,
+        >>> q_in_columns=["QSnk60PauxCondSwitch_kW"],
+        >>> q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+        >>> q_imb_column="QSnk60qImbTess",
+        >>> xlabel=""
+        >>> )
     """
     all_columns_vor_validation = (
-            q_in_columns
-            + q_out_columns
-            + ([q_imb_column] if q_imb_column is not None else [])
+        q_in_columns
+        + q_out_columns
+        + ([q_imb_column] if q_imb_column is not None else [])
     )
     _validate_column_exists(df, all_columns_vor_validation)
 
@@ -276,59 +296,86 @@ def energy_balance(
 
 # pylint: disable=too-many-arguments
 def scatter_plot(
-        df: _pd.DataFrame,
-        x_column: str,
-        y_column: str,
-        group_by_color: str | None = None,
-        group_by_marker: str | None = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    x_column: str,
+    y_column: str,
+    group_by_color: str | None = None,
+    group_by_marker: str | None = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = const.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    """Create a scatter plot with up to two grouping variables.
+    """
+    Create a scatter plot with up to two grouping variables.
+    This visualization allows simultaneous analysis of:
 
-        This visualization allows simultaneous analysis of:
-        - Numerical relationships between x and y variables
-        - Categorical grouping through color encoding
-        - Secondary categorical grouping through marker styles
+    - Numerical relationships between x and y variables
+    - Categorical grouping through color encoding
+    - Secondary categorical grouping through marker styles
 
-        Args:
-            df: DataFrame containing the data to plot
-            x_column: Column name for x-axis values (numerical)
-            y_column: Column name for y-axis values (numerical)
-            group_by_color: Optional column name for color grouping (categorical)
-            group_by_marker: Optional column name for marker style grouping (categorical)
-            use_legend: Whether to show legends for color/marker groups
-            size: Figure size tuple (width, height) in inches
-            **kwargs: Additional plotting arguments passed to pandas plot.scatter()
+    Note
+    ____
+    The way to changing colors depends on how this function is used.
+    Categorical grouping -> use eg: cmap="viridis"
+    No grouping          -> use eg: color="red"
 
-        Returns:
-            Tuple containing (matplotlib Figure object, matplotlib Axes object)
 
-        Example:
-    import data_structures        >>> from pytrnsys_process import api
-            >>> def create_scatter_plot(simulation: data_structures.Simulation):
-            >>>     fig, ax = api.scatter_plot(
-            ...         simulation.hourly,
-            ...         x_column='solar_radiation',
-            ...         y_column='temperature',
-            ...         group_by_color='season',
-            ...         group_by_marker='weather_condition'
-            ...     )
-            >>>     ax.set_xlabel('Solar Radiation [W/m²]')
-            >>>     ax.set_ylabel('Temperature [°C]')
-            >>>     ax.set_title('Weather Correlation Analysis')
-            >>>     ax.grid(True)
-            >>>
-            >>> # Process simulation and plot
-            >>> api.process_single_simulation(
-            ...     _pl.Path("path/to/simulation"),
-            ...     create_scatter_plot
-            ... )
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
 
-        For customization options, see:
-        - Matplotlib scatter: https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html
-        - Pandas scatter: https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.plot.scatter.html
+    x_column: str
+        coloumn name for x-axis values
+
+    y_column: str
+        coloumn name for y-axis values
+
+    group_by_color: str, optional
+        column name for color grouping
+
+    group_by_marker: str, optional
+        column name for marker style grouping
+
+    use_legend: bool, default 'True'
+        whether to show the legend or not
+
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        Simple scatter plot
+
+        >>> api.scatter_plot(
+        ...     simulation.monthly, x_column="QSnk60dQlossTess", y_column="QSnk60dQ"
+        ... )
+
+    .. plot::
+        :context: close-figs
+
+        Compare plot
+
+        >>> api.scatter_plot(
+        ...     comparison_data,
+        ...     "VIceSscaled",
+        ...     "VIceRatioMax",
+        ...     "yearly_demand_GWh",
+        ...     "ratioDHWtoSH_allSinks",
+        ... )
+
+
     """
     columns_to_validate = [x_column, y_column]
     if group_by_color:
@@ -350,18 +397,20 @@ def scatter_plot(
 
 
 def _validate_column_exists(
-        df: _pd.DataFrame, columns: _abc.Sequence[str]
+    df: _pd.DataFrame, columns: _abc.Sequence[str]
 ) -> None:
     """Validate that all requested columns exist in the DataFrame.
 
     Since PyTRNSYS is case-insensitive but Python is case-sensitive, this function
     provides helpful suggestions when columns differ only by case.
 
-    Args:
+    Parameters
+    __________
         df: DataFrame to check
         columns: Sequence of column names to validate
 
-    Raises:
+    Raises
+    ______
         ColumnNotFoundError: If any columns are missing, with suggestions for case-mismatched names
     """
     missing_columns = set(columns) - set(df.columns)

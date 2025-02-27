@@ -22,8 +22,8 @@ from pytrnsys_process import settings as sett
 plot_settings = sett.settings.plot
 
 
-@dataclass
 class ChartBase(h.HeaderValidationMixin):
+    cmap: str | None = None
 
     def plot(
         self,
@@ -44,13 +44,23 @@ class ChartBase(h.HeaderValidationMixin):
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Base plot method with header validation.
 
-        Args:
-            df: DataFrame containing the data to plot
-            columns: List of column names to plot
-            headers: Headers instance for validation
-            **kwargs: Additional plotting arguments
+        Parameters
+        __________
+            df:
+                DataFrame containing the data to plot
 
-        Raises:
+            columns:
+                List of column names to plot
+
+            headers:
+                Headers instance for validation
+
+            **kwargs:
+                Additional plotting arguments
+
+
+        Raises
+        ______
             ValueError: If any columns are missing from the headers index
         """
         # TODO: Might live somewhere else in the future # pylint: disable=fixme
@@ -72,20 +82,38 @@ class ChartBase(h.HeaderValidationMixin):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
 
+    def check_for_cmap(self, kwargs, plot_kwargs):
+        if "cmap" not in kwargs and "colormap" not in kwargs:
+            plot_kwargs["cmap"] = self.cmap
+        return plot_kwargs
+
+    def get_cmap(self, kwargs) -> str | None:
+        if "cmap" not in kwargs and "colormap" not in kwargs:
+            return self.cmap
+
+        if "cmap" in kwargs:
+            return kwargs["cmap"]
+
+        if "colormap" in kwargs:
+            return kwargs["colormap"]
+
+        raise ValueError
+
 
 class StackedBarChart(ChartBase):
+    cmap = "inferno_r"
 
     def _do_plot(
         self,
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -94,11 +122,11 @@ class StackedBarChart(ChartBase):
         )
         plot_kwargs = {
             "stacked": True,
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
+        self.check_for_cmap(kwargs, plot_kwargs)
         ax = df[columns].plot.bar(**plot_kwargs)
         ax.set_xticklabels(
             _pd.to_datetime(df.index).strftime(plot_settings.date_format)
@@ -108,15 +136,17 @@ class StackedBarChart(ChartBase):
 
 
 class BarChart(ChartBase):
+    cmap = None
 
     def _do_plot(
         self,
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
+        # TODO: deal with colors  # pylint: disable=fixme
         fig, ax = _plt.subplots(
             figsize=size,
             layout="constrained",
@@ -124,8 +154,15 @@ class BarChart(ChartBase):
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)
 
+        cmap = self.get_cmap(kwargs)
+        if cmap:
+            cm = _plt.cm.get_cmap(cmap)
+            colors = cm(_np.linspace(0, 1, len(columns)))
+        else:
+            colors = [None] * len(columns)
+
         for i, col in enumerate(columns):
-            ax.bar(x + i * width, df[col], width, label=col)
+            ax.bar(x + i * width, df[col], width, label=col, color=colors[i])
 
         if use_legend:
             ax.legend()
@@ -139,13 +176,14 @@ class BarChart(ChartBase):
 
 
 class LinePlot(ChartBase):
+    cmap: str | None = None
 
     def _do_plot(
         self,
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -153,11 +191,12 @@ class LinePlot(ChartBase):
             layout="constrained",
         )
         plot_kwargs = {
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             **kwargs,
         }
+        self.check_for_cmap(kwargs, plot_kwargs)
+
         df[columns].plot.line(**plot_kwargs)
         return fig, ax
 
@@ -171,7 +210,7 @@ class Histogram(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -179,12 +218,12 @@ class Histogram(ChartBase):
             layout="constrained",
         )
         plot_kwargs = {
-            "colormap": plot_settings.color_map,
             "legend": use_legend,
             "ax": ax,
             "bins": self.bins,
             **kwargs,
         }
+        self.check_for_cmap(kwargs, plot_kwargs)
         df[columns].plot.hist(**plot_kwargs)
         return fig, ax
 
@@ -193,16 +232,18 @@ class Histogram(ChartBase):
 class ScatterPlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
 
+    cmap = "Paired"  # This is ignored when no categorical groupings are used.
+
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = const.PlotSizes.A4.value,
-            group_by_color: str | None = None,
-            group_by_marker: str | None = None,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = const.PlotSizes.A4.value,
+        group_by_color: str | None = None,
+        group_by_marker: str | None = None,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         self._validate_inputs(columns)
         x_column, y_column = columns
@@ -226,7 +267,10 @@ class ScatterPlot(ChartBase):
         df_grouped, group_values = self._prepare_grouping(
             df, group_by_color, group_by_marker
         )
-        color_map, marker_map = self._create_style_mappings(*group_values)
+        cmap = self.get_cmap(kwargs)
+        color_map, marker_map = self._create_style_mappings(
+            *group_values, cmap=cmap
+        )
 
         self._plot_groups(
             df_grouped,
@@ -245,8 +289,8 @@ class ScatterPlot(ChartBase):
         return fig, ax
 
     def _validate_inputs(
-            self,
-            columns: list[str],
+        self,
+        columns: list[str],
     ) -> None:
         if len(columns) != 2:
             raise ValueError(
@@ -254,10 +298,10 @@ class ScatterPlot(ChartBase):
             )
 
     def _prepare_grouping(
-            self,
-            df: _pd.DataFrame,
-            color: str | None,
-            marker: str | None,
+        self,
+        df: _pd.DataFrame,
+        color: str | None,
+        marker: str | None,
     ) -> tuple[
         _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
     ]:
@@ -275,11 +319,14 @@ class ScatterPlot(ChartBase):
         return df_grouped, (color_values, marker_values)
 
     def _create_style_mappings(
-            self, color_values: list[str], marker_values: list[str]
+        self,
+        color_values: list[str],
+        marker_values: list[str],
+        cmap: str | None,
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
-            cmap = _plt.get_cmap(plot_settings.color_map, len(color_values))
-            color_map = {val: cmap(i) for i, val in enumerate(color_values)}
+            cm = _plt.get_cmap(cmap, len(color_values))
+            color_map = {val: cm(i) for i, val in enumerate(color_values)}
         else:
             color_map = {}
         if marker_values:
@@ -291,13 +338,13 @@ class ScatterPlot(ChartBase):
 
     # pylint: disable=too-many-arguments
     def _plot_groups(
-            self,
-            df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
-            x_column: str,
-            y_column: str,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str],
-            ax: _plt.Axes,
+        self,
+        df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
+        x_column: str,
+        y_column: str,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str],
+        ax: _plt.Axes,
     ) -> None:
         ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
         ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
@@ -315,12 +362,12 @@ class ScatterPlot(ChartBase):
             ax.scatter(x, y, **scatter_args)  # type: ignore
 
     def _create_legends(
-            self,
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str],
-            color_legend_title: str | None,
-            marker_legend_title: str | None,
+        self,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str],
+        color_legend_title: str | None,
+        marker_legend_title: str | None,
     ) -> None:
         lax.axis("off")
 
@@ -334,11 +381,11 @@ class ScatterPlot(ChartBase):
             )
 
     def _create_color_legend(
-            self,
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            color_legend_title: str | None,
-            has_markers: bool,
+        self,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        color_legend_title: str | None,
+        has_markers: bool,
     ) -> None:
         color_handles = [
             _plt.Line2D([], [], color=color, linestyle="-", label=label)
@@ -359,11 +406,11 @@ class ScatterPlot(ChartBase):
             lax.add_artist(legend)
 
     def _create_marker_legend(
-            self,
-            lax: _plt.Axes,
-            marker_map: dict[str, str],
-            marker_legend_title: str | None,
-            has_colors: bool,
+        self,
+        lax: _plt.Axes,
+        marker_map: dict[str, str],
+        marker_legend_title: str | None,
+        has_colors: bool,
     ) -> None:
         marker_position = 0.7 if has_colors else 1
         marker_handles = [

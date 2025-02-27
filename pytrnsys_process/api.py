@@ -14,6 +14,7 @@ from pytrnsys_process.plotting.plot_wrappers import (
     line_plot,
     stacked_bar_chart,
     histogram,
+    energy_balance,
     scatter_plot,
 )
 from pytrnsys_process.process_batch import (
@@ -22,10 +23,12 @@ from pytrnsys_process.process_batch import (
     process_whole_result_set_parallel,
     do_comparison,
 )
+
 # ============================================================
 # this lives here, because it needs to be available everywhere
 from pytrnsys_process.settings import settings, Defaults
 from pytrnsys_process.utils import export_plots_in_configured_formats
+from pytrnsys_process.utils import load_simulations_data_from_pickle
 
 # ============================================================
 
@@ -34,6 +37,7 @@ __all__ = [
     "bar_chart",
     "stacked_bar_chart",
     "histogram",
+    "energy_balance",
     "scatter_plot",
     "process_whole_result_set_parallel",
     "process_single_simulation",
@@ -44,5 +48,6 @@ __all__ = [
     "Defaults",
     "REPO_ROOT",
     "Simulation",
-    "SimulationsData"
+    "SimulationsData",
+    "load_simulations_data_from_pickle",
 ]

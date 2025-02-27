@@ -56,6 +56,7 @@ class Reader:
     read_step_files: bool = False
     read_deck_files: bool = True
     force_reread_prt: bool = False
+    starting_year = 2024
 
 
 class Defaults(Enum):

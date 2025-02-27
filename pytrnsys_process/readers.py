@@ -23,11 +23,11 @@ class ReaderBase:
     # ===================================
 
     def read(
-            self,
-            file_path: _pl.Path,
-            skipfooter: int = SKIPFOOTER,
-            header: int = HEADER,
-            delimiter: str = DELIMITER,
+        self,
+        file_path: _pl.Path,
+        skipfooter: int = SKIPFOOTER,
+        header: int = HEADER,
+        delimiter: str = DELIMITER,
     ) -> _pd.DataFrame:
         """Common read function for all readers"""
         df = _pd.read_csv(
@@ -47,14 +47,21 @@ class PrtReader(ReaderBase):
     ) -> _pd.DataFrame:
         """Read hourly TRNSYS output data from a file.
 
-        Args:
-            hourly_file: Path to the hourly TRNSYS output file
-            starting_year: Year to use as the start of the simulation (default: 1990)
+        Parameters
+        __________
+            hourly_file:
+                Path to the hourly TRNSYS output file
 
-        Returns:
-            DataFrame with hourly data indexed by timestamp, with 'Period' and 'time' columns removed
+            starting_year:
+                Year to use as the start of the simulation (default: 1990)
 
-        Raises:
+        Returns
+        _______
+            df: :class:`pandas.DataFrame`
+                DataFrame with hourly data indexed by timestamp, with 'Period' and 'time' columns removed
+
+        Raises
+        ______
             ValueError: If the timestamps are not exactly on the hour (minutes or seconds != 0)
         """
         try:
@@ -74,14 +81,21 @@ class PrtReader(ReaderBase):
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 
-        Args:
-            monthly_file: Path to the monthly TRNSYS output file
-            starting_year: Year to use as the start of the simulation (default: 1990)
+        Parameters
+        __________
+            monthly_file:
+                Path to the monthly TRNSYS output file
 
-        Returns:
-            DataFrame with monthly data indexed by timestamp, with 'Month' and 'time' columns removed
+            starting_year:
+                Year to use as the start of the simulation (default: 1990)
 
-        Raises:
+        Returns
+        _______
+            df: :class:`pandas.DataFrame`
+                DataFrame with monthly data indexed by timestamp, with 'Month' and 'time' columns removed
+
+        Raises
+        ______
             ValueError: If the timestamps are not at the start of each month at midnight
                       (not month start or hours/minutes/seconds != 0)
         """
@@ -106,10 +120,16 @@ class PrtReader(ReaderBase):
     ) -> _pd.DataFrame:
         """Process the dataframe by formatting column names and creating timestamps.
 
-        Args:
-            df: DataFrame to process
-            starting_year: Year to use as the start of the simulation
-            time_column_name: Name of the time column ('Period' or 'Month')
+        Parameters
+        __________
+            df:
+                DataFrame to process
+
+            starting_year:
+                Year to use as the start of the simulation
+
+            time_column_name:
+                Name of the time column ('Period' or 'Month')
         """
 
         # Create timestamps based on the time column type
@@ -139,15 +159,20 @@ class PrtReader(ReaderBase):
         return df.set_index("Timestamp")
 
     def _create_step_timestamps(
-            self, minutes_elapsed: _pd.Series, starting_year: int
+        self, minutes_elapsed: _pd.Series, starting_year: int
     ) -> _pd.Series:
         """Create step timestamps from elapsed minutes since start of year.
 
-        Args:
-            minutes_elapsed: Series containing number of minutes since start of year
-            starting_year: Year to use as the start of the simulation
+        Parameters
+        __________
+            minutes_elapsed:
+                Series containing number of minutes since start of year
 
-        Returns:
+            starting_year:
+                Year to use as the start of the simulation
+
+        Returns
+        _______
             Series of datetime objects with minute intervals
         """
         minutes = [_dt.timedelta(minutes=float(m)) for m in minutes_elapsed]
@@ -159,11 +184,16 @@ class PrtReader(ReaderBase):
     ) -> _pd.Series:
         """Create hourly timestamps from elapsed hours since start of year.
 
-        Args:
-            hours_elapsed: Series containing number of hours since start of year
-            starting_year: Year to use as the start of the simulation
+        Parameters
+        __________
+            hours_elapsed:
+                Series containing number of hours since start of year
 
-        Returns:
+            starting_year:
+                Year to use as the start of the simulation
+
+        Returns
+        _______
             Series of datetime objects with hourly intervals
         """
         hours = [_dt.timedelta(hours=float(h)) for h in hours_elapsed]
@@ -175,11 +205,16 @@ class PrtReader(ReaderBase):
     ) -> _pd.Series:
         """Create monthly timestamps from month names.
 
-        Args:
-            month_names: Series containing month names (e.g., 'January', 'February')
-            year: Year to use for the timestamps (default: 1990)
+        Parameters
+        __________
+            month_names:
+                Series containing month names (e.g., 'January', 'February')
 
-        Returns:
+            year:
+                Year to use for the timestamps (default: 1990)
+
+        Returns
+        _______
             Series of datetime objects set to the first day of each month
         """
         month_map = {

@@ -11,6 +11,7 @@ from pytrnsys_process.plotting import plot_wrappers as pw
 from pytrnsys_process.plotting import plotters
 
 
+# pylint: disable=too-many-public-methods
 class TestPlotters:
     SKIP_PLOT_COMPARISON = (
         False  # Toggle this to enable/disable plot comparison
@@ -38,8 +39,8 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-                const.DATA_FOLDER
-                / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+            const.DATA_FOLDER
+            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return readers.PrtReader().read_monthly(result_data)
 
@@ -52,8 +53,8 @@ class TestPlotters:
     @pytest.fixture
     def comparison_data(self):
         path_to_json = (
-                const.DATA_FOLDER
-                / "plots/scatter-compare-plot/comparison_data.json"
+            const.DATA_FOLDER
+            / "plots/scatter-compare-plot/comparison_data.json"
         )
         return _pd.read_json(path_to_json)
 
@@ -64,9 +65,9 @@ class TestPlotters:
                 "Plot comparison temporarily disabled during development"
             )
         assert (
-                _mpltc.compare_images(
-                    str(expected_file), str(actual_file), tol=tolerance
-                )
+            _mpltc.compare_images(
+                str(expected_file), str(actual_file), tol=tolerance
+            )
             is None
         )
 
@@ -74,7 +75,7 @@ class TestPlotters:
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         with _um.patch(
-                "pytrnsys_process.plotting.plotters.LinePlot._do_plot"
+            "pytrnsys_process.plotting.plotters.LinePlot._do_plot"
         ) as mock_do_plot:
             # Execute
             line_plot = plotters.LinePlot()
@@ -96,14 +97,14 @@ class TestPlotters:
                 hourly_data, columns, headers=mock_headers
             )
         assert (
-                "The following columns are not available in the headers index:\nDoesNotExist\nAlsoMissing"
-                in str(excinfo.value)
+            "The following columns are not available in the headers index:\nDoesNotExist\nAlsoMissing"
+            in str(excinfo.value)
         )
 
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
         expected_file = (
-                const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+            const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
         )
         actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
         columns = [
@@ -122,6 +123,32 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
+    def test_create_stacked_bar_chart_for_monthly_cmap(self, monthly_data):
+        # Setup
+        expected_file = (
+            const.DATA_FOLDER / "plots/stacked-bar-chart/expected_cmap.png"
+        )
+        actual_file = (
+            const.DATA_FOLDER / "plots/stacked-bar-chart/actual_cmap.png"
+        )
+        columns = [
+            "QSnk60PauxCondSwitch_kW",
+            "QSnk60dQ",
+            "QSnk60P",
+            "QSnk60PDhw",
+            "QSnk60dQlossTess",
+            "QSnk60qImbTess",
+        ]
+
+        # Execute
+        fig, _ = pw.stacked_bar_chart(
+            monthly_data, columns, xlabel="", cmap=None
+        )
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)
+
     def test_create_line_plot_for_hourly(self, hourly_data):
         # Setup
         expected_fig = const.DATA_FOLDER / "plots/line-plot/expected.png"
@@ -130,6 +157,19 @@ class TestPlotters:
 
         # Execute
         fig, _ = pw.line_plot(hourly_data, columns, xlabel="")
+        fig.savefig(actual_fig)
+
+        # Assert
+        self.assert_plots_match(actual_fig, expected_fig)
+
+    def test_create_line_plot_for_hourly_cmap(self, hourly_data):
+        # Setup
+        expected_fig = const.DATA_FOLDER / "plots/line-plot/expected_cmap.png"
+        actual_fig = const.DATA_FOLDER / "plots/line-plot/actual_cmap.png"
+        columns = ["QSrc1TIn", "QSrc1TOut"]
+
+        # Execute
+        fig, _ = pw.line_plot(hourly_data, columns, xlabel="", cmap="Paired")
         fig.savefig(actual_fig)
 
         # Assert
@@ -151,6 +191,22 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
+    def test_create_bar_chart_for_monthly_with_cmap(self, monthly_data):
+        # Setup
+        expected_file = const.DATA_FOLDER / "plots/bar-chart/expected_cmap.png"
+        actual_file = const.DATA_FOLDER / "plots/bar-chart/actual_cmap.png"
+        columns = [
+            "QSnk60P",
+            "QSnk60PauxCondSwitch_kW",
+        ]
+
+        # Execute
+        fig, _ = pw.bar_chart(monthly_data, columns, colormap="tab20c")
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)
+
     def test_create_histogram_for_hourly(self, hourly_data):
         # Setup
         expected_file = const.DATA_FOLDER / "plots/histogram/expected.png"
@@ -159,6 +215,21 @@ class TestPlotters:
 
         # Execute
         fig, _ = pw.histogram(hourly_data, columns, ylabel="")
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)
+
+    def test_create_histogram_for_hourly_color(self, hourly_data):
+        # Setup
+        expected_file = (
+            const.DATA_FOLDER / "plots/histogram/expected_color.png"
+        )
+        actual_file = const.DATA_FOLDER / "plots/histogram/actual_color.png"
+        columns = ["QSrc1TIn"]
+
+        # Execute
+        fig, _ = pw.histogram(hourly_data, columns, ylabel="", color="red")
         fig.savefig(actual_file)
 
         # Assert
@@ -180,12 +251,33 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
+    def test_scatter_plot_for_monthly_color(self, monthly_data):
+        # Setup
+        actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual_color.png"
+        expected_file = (
+            const.DATA_FOLDER / "plots/scatter-plot/expected_color.png"
+        )
+
+        # Execute
+        fig, _ = pw.scatter_plot(
+            monthly_data,
+            x_column="QSnk60dQlossTess",
+            y_column="QSnk60dQ",
+            color="red",
+        )
+        fig.savefig(actual_file)
+
+        # Assert
+        self.assert_plots_match(actual_file, expected_file)
+
     def test_energy_balance_imb_given(self, monthly_data):
         # Setup
         actual_imb_given = (
-                const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
+            const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
         )
-        expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
+        expected = (
+            const.DATA_FOLDER / "plots/energy-balance/expected_given.png"
+        )
 
         # Execute
         fig, _ = pw.energy_balance(
@@ -198,15 +290,17 @@ class TestPlotters:
         fig.savefig(actual_imb_given)
 
         # Assert
-        self.assert_plots_match(actual_imb_given, expected, tolerance=20)
+        self.assert_plots_match(actual_imb_given, expected)
 
     def test_energy_balance_imb_calculated(self, monthly_data):
         # Setup
         actual_imb_calculated = (
-                const.DATA_FOLDER
-                / "plots/energy-balance/actual-imb-calculated.png"
+            const.DATA_FOLDER
+            / "plots/energy-balance/actual-imb-calculated.png"
         )
-        expected = const.DATA_FOLDER / "plots/energy-balance/expected.png"
+        expected = (
+            const.DATA_FOLDER / "plots/energy-balance/expected_calculated.png"
+        )
 
         # Execute
         fig, _ = pw.energy_balance(
@@ -218,13 +312,34 @@ class TestPlotters:
         fig.savefig(actual_imb_calculated)
 
         # Assert
-        self.assert_plots_match(actual_imb_calculated, expected, tolerance=50)
+        self.assert_plots_match(actual_imb_calculated, expected)
+
+    def test_energy_balance_imb_calculated_cmap(self, monthly_data):
+        # Setup
+        actual_imb_calculated = (
+            const.DATA_FOLDER
+            / "plots/energy-balance/actual-imb-calculated_cmap.png"
+        )
+        expected = const.DATA_FOLDER / "plots/energy-balance/expected_cmap.png"
+
+        # Execute
+        fig, _ = pw.energy_balance(
+            monthly_data,
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+            xlabel="",
+            cmap="Paired",
+        )
+        fig.savefig(actual_imb_calculated)
+
+        # Assert
+        self.assert_plots_match(actual_imb_calculated, expected)
 
     def test_scatter_compare_plot(self, comparison_data):
         # Setup
         actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual.png"
         expected = (
-                const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
+            const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
         )
 
         # Execute
@@ -240,6 +355,29 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual, expected)
 
+    def test_scatter_compare_plot_cmap(self, comparison_data):
+        # Setup
+        actual = (
+            const.DATA_FOLDER / "plots/scatter-compare-plot/actual_cmap.png"
+        )
+        expected = (
+            const.DATA_FOLDER / "plots/scatter-compare-plot/expected_cmap.png"
+        )
+
+        # Execute
+        fig, _ = pw.scatter_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            "yearly_demand_GWh",
+            "ratioDHWtoSH_allSinks",
+            cmap="viridis",
+        )
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
+
     def test_invalid_column_names_for_plot(self, hourly_data):
         # Setup
         columns = ["qSrc1tIn", "QSrc1Tout", "DoesNotExist"]
@@ -248,9 +386,9 @@ class TestPlotters:
         suggestion1 = r"'qSrc1tIn' did you mean: 'QSrc1TIn', "
         suggestion2 = r"'QSrc1Tout' did you mean: 'QSrc1TOut'"
         expected_message = (
-                r"Column validation failed\. Case-insensitive matches found:\n"
-                + f"({suggestion1}\n{suggestion2}|{suggestion2}, \n{suggestion1[:-2]})"  # Either order
-                + r"\nNo matches found for:\n'DoesNotExist'"
+            r"Column validation failed\. Case-insensitive matches found:\n"
+            + f"({suggestion1}\n{suggestion2}|{suggestion2}, \n{suggestion1[:-2]})"  # Either order
+            + r"\nNo matches found for:\n'DoesNotExist'"
         )
 
         with pytest.raises(pw.ColumnNotFoundError, match=expected_message):

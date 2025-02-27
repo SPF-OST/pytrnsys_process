@@ -47,7 +47,7 @@ def processing_of_hourly_data(simulation: api.Simulation):
 
 def processing_for_histogram(simulation: api.Simulation):
     # create histogram using hourly data
-    fig, _ = api.histogram(simulation.hourly, ["QSrc1TIn"])
+    api.histogram(simulation.hourly, ["QSrc1TIn"])
 
     # if you don't want to export your plot, you can also just show it by calling this function
     _plt.show()
@@ -163,7 +163,7 @@ def main():
     )
 
     # using the data from processing multiple simulations, run your comparisons steps
-    api.do_comparison(simulations_data, comparison_of_scalar_data)
+    api.do_comparison(comparison_of_scalar_data, simulations_data)
 
     # run the single scenario on a single simulation
     (

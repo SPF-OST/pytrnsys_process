@@ -13,10 +13,11 @@ from pytrnsys_process import readers
 from pytrnsys_process import settings as sett
 from pytrnsys_process import utils
 from pytrnsys_process.deck import extractor
+from pytrnsys_process.settings import settings
 
 
 def process_sim(
-        sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
+    sim_files: _abc.Sequence[_pl.Path], sim_folder: _pl.Path
 ) -> ds.Simulation:
     # Used to store the array of dataframes for each file type.
     # Later used to concatenate all into one dataframe and saving as Sim object
@@ -52,22 +53,24 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
     2. All non-NaN values must be identical across duplicate columns
 
     Parameters
-    ----------
-    df : pandas.DataFrame
+    __________
+    df: pandas.DataFrame
         Input DataFrame to process
 
     Returns
-    -------
-    pandas.DataFrame
+    _______
+    df: pandas.DataFrame
         DataFrame with duplicate columns removed, keeping only the first occurrence
 
     Raises
-    ------
+    ______
     ValueError
         If duplicate columns have:
-        - NaN values in one column while having actual values in another at the same index
-        - Different non-NaN values at the same index
+        1. NaN values in one column while having actual values in another at the same index, or
+        2. Different non-NaN values at the same index
 
+    Note
+    ____
     https://stackoverflow.com/questions/14984119/python-pandas-remove-duplicate-columns
     """
     for col in df.columns[df.columns.duplicated(keep=False)]:
@@ -90,7 +93,7 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
 
 
 def _determine_file_type(
-        sim_file: _pl.Path, logger: _logging.Logger
+    sim_file: _pl.Path, logger: _logging.Logger
 ) -> const.FileType:
     """Determine the file type using name and content."""
     try:
@@ -108,37 +111,39 @@ class _SimulationDataCollector:
 
 
 def _read_file(
-        file_path: _pl.Path, file_type: const.FileType
+    file_path: _pl.Path, file_type: const.FileType
 ) -> _pd.DataFrame:
     """
     Factory method to read data from a file using the appropriate reader.
 
     Parameters
-    ----------
-    file_path : pathlib.Path
+    __________
+    file_path: pathlib.Path
         Path to the file to be read
-    file_type : const.FileType
+
+    file_type: const.FileType
         Type of data in the file (MONTHLY, HOURLY, or TIMESTEP)
 
     Returns
-    -------
+    _______
     pandas.DataFrame
         Data read from the file
 
     Raises
-    ------
+    ______
     ValueError
         If file extension is not supported
     """
+    starting_year = settings.reader.starting_year
     extension = file_path.suffix.lower()
     if extension in [".prt", ".hr"]:
         reader = readers.PrtReader()
         if file_type == const.FileType.MONTHLY:
-            return reader.read_monthly(file_path)
+            return reader.read_monthly(file_path, starting_year)
         if file_type == const.FileType.HOURLY:
-            return reader.read_hourly(file_path)
+            return reader.read_hourly(file_path, starting_year)
         if file_type == const.FileType.TIMESTEP:
-            return reader.read_step(file_path)
+            return reader.read_step(file_path, starting_year)
     elif extension == ".csv":
         return readers.CsvReader().read_csv(file_path)
 
@@ -146,9 +151,9 @@ def _read_file(
 
 
 def _process_file(
-        simulation_data_collector: _SimulationDataCollector,
-        file_path: _pl.Path,
-        file_type: const.FileType,
+    simulation_data_collector: _SimulationDataCollector,
+    file_path: _pl.Path,
+    file_type: const.FileType,
 ) -> bool:
     if file_type == const.FileType.MONTHLY:
         simulation_data_collector.monthly.append(
@@ -159,15 +164,15 @@ def _process_file(
             _read_file(file_path, const.FileType.HOURLY)
         )
     elif (
-            file_type == const.FileType.TIMESTEP
-            and sett.settings.reader.read_step_files
+        file_type == const.FileType.TIMESTEP
+        and sett.settings.reader.read_step_files
     ):
         simulation_data_collector.step.append(
             _read_file(file_path, const.FileType.TIMESTEP)
         )
     elif (
-            file_type == const.FileType.DECK
-            and sett.settings.reader.read_deck_files
+        file_type == const.FileType.DECK
+        and sett.settings.reader.read_deck_files
     ):
         simulation_data_collector.deck = _get_deck_as_df(file_path)
     else:
@@ -176,7 +181,7 @@ def _process_file(
 
 
 def _get_deck_as_df(
-        file_path: _pl.Path,
+    file_path: _pl.Path,
 ) -> _pd.DataFrame:
     deck_file_as_string = utils.get_file_content_as_string(file_path)
     deck: dict[str, float] = extractor.parse_deck_for_constant_expressions(
@@ -187,14 +192,16 @@ def _get_deck_as_df(
 
 
 def _merge_dataframes_into_simulation(
-        simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
+    simulation_data_collector: _SimulationDataCollector, sim_folder: _pl.Path
 ) -> ds.Simulation:
     monthly_df = _get_df_without_duplicates(simulation_data_collector.monthly)
     hourly_df = _get_df_without_duplicates(simulation_data_collector.hourly)
     timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
     deck = simulation_data_collector.deck
 
-    return ds.Simulation(sim_folder, monthly_df, hourly_df, timestep_df, deck)
+    return ds.Simulation(
+        sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, deck
+    )
 
 
 def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):

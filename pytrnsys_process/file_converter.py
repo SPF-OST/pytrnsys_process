@@ -13,18 +13,24 @@ class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-            file_path: _pl.Path, prefix: const.FileType
+        file_path: _pl.Path, prefix: const.FileType
     ) -> None:
         """Rename a file with a given prefix.
 
-        Args:
-            file_path: Path to the file to rename
-            prefix: FileType enum value specifying the prefix to use
+        Parameters
+        __________
+            file_path:
+                Path to the file to rename
+            prefix:
+                FileType enum value specifying the prefix to use
 
-        Returns:
-            Path: Path to the renamed file
+        Returns
+        _______
+            Path: :class:`pathlib.Path`
+                Path to the renamed file
 
-        Raises:
+        Raises
+        ______
             FileNotFoundError: If the file doesn't exist
         """
         if not file_path.exists():
@@ -41,11 +47,16 @@ class CsvConverter:
     ) -> None:
         """Convert TRNSYS simulation results to CSV format.
 
-        Args:
-            input_path: Path to input file or directory containing input files
-            output_dir: Directory where CSV files will be saved
+        Parameters
+        __________
+            input_path: :class:`pathlib.Path`
+                Path to input file or directory containing input files
 
-        Raises:
+            output_dir: :class:`pathlib.Path`
+                Directory where CSV files will be saved
+
+        Raises
+        ______
             ValueError: If a file doesn't match any known pattern
         """
         output_dir.mkdir(parents=True, exist_ok=True)
@@ -95,7 +106,7 @@ class CsvConverter:
     def using_file_content_read_appropriately(
         file_path: _pl.Path,
     ) -> tuple[str, _pd.DataFrame]:
-        """Depending on file content read the file appropriately"""
+        """Read the file according to the file contents."""
         prt_reader = readers.PrtReader()
         file_type = ftd.get_file_type_using_file_content(file_path)
         if file_type == const.FileType.MONTHLY:
@@ -131,12 +142,19 @@ class CsvConverter:
     ) -> str:
         """Process filename by removing patterns and adding appropriate prefix.
 
-        Args:
-            filename: The original filename to process
-            patterns: List of regex patterns to remove from filename
-            prefix: Prefix to add to the processed filename
+        Parameters
+        __________
+            filename:
+                The original filename to process
 
-        Returns:
+            patterns:
+                List of regex patterns to remove from filename
+
+            prefix:
+                Prefix to add to the processed filename
+
+        Returns
+        _______
             The processed filename with patterns removed and prefix added
         """
         processed_name = filename.lower()

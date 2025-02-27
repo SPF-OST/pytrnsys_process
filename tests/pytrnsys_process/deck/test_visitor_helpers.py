@@ -23,7 +23,7 @@ class TestVisitorHelpers:
 
         # Test error case when token doesn't exist
         with _pytest.raises(
-                ValueError, match="doesn't contain a direct child token"
+            ValueError, match="doesn't contain a direct child token"
         ):
             visitor_helpers.get_child_token_value("FLOAT", tree, float)
 
@@ -32,14 +32,14 @@ class TestVisitorHelpers:
 
         # Test successful conversion
         assert (
-                visitor_helpers.get_child_token_value_or_none("INT", tree, int)
-                == 42
+            visitor_helpers.get_child_token_value_or_none("INT", tree, int)
+            == 42
         )
 
         # Test when token doesn't exist
         assert (
-                visitor_helpers.get_child_token_value_or_none("MISSING", tree, str)
-                is None
+            visitor_helpers.get_child_token_value_or_none("MISSING", tree, str)
+            is None
         )
 
     def test_get_child_token_or_none(self, sample_tree):
@@ -49,8 +49,8 @@ class TestVisitorHelpers:
 
         # Test when token doesn't exist
         assert (
-                visitor_helpers.get_child_token_or_none("MISSING", sample_tree)
-                is None
+            visitor_helpers.get_child_token_or_none("MISSING", sample_tree)
+            is None
         )
 
         # Test error case with multiple tokens
@@ -68,10 +68,10 @@ class TestVisitorHelpers:
 
         # Test empty case
         assert (
-                visitor_helpers.get_child_token_values_or_empty_sequence(
-                    "MISSING", sample_tree
-                )
-                == []
+            visitor_helpers.get_child_token_values_or_empty_sequence(
+                "MISSING", sample_tree
+            )
+            == []
         )
 
     def test_get_child_token(self, sample_tree):
@@ -81,7 +81,7 @@ class TestVisitorHelpers:
 
         # Test error case when direct token doesn't exist
         with _pytest.raises(
-                ValueError, match="doesn't contain a direct child token"
+            ValueError, match="doesn't contain a direct child token"
         ):
             visitor_helpers.get_child_token("MISSING", sample_tree)
 
@@ -95,8 +95,8 @@ class TestVisitorHelpers:
 
         # Test empty case
         assert (
-                visitor_helpers.get_child_tokens_or_empty_sequence(
-                    "MISSING", sample_tree
-                )
-                == []
+            visitor_helpers.get_child_tokens_or_empty_sequence(
+                "MISSING", sample_tree
+            )
+            == []
         )

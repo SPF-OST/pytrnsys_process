@@ -80,8 +80,8 @@ class TestPytrnsysProcess:
             pb.process_single_simulation(sim_folder, processing_step)
 
         assert (
-                str(exc_info.value)
-                == f"Failed to process simulation in {sim_folder}"
+            str(exc_info.value)
+            == f"Failed to process simulation in {sim_folder}"
         )
 
     def test_process_whole_result_set_with_invalid_data(self):
@@ -98,9 +98,26 @@ class TestPytrnsysProcess:
         assert len(results.simulations) == 0
         assert results.scalar.empty
 
-    def test_do_comparison(self):
+    def test_do_comparison_with_existing_results_for_comparison(self):
         results = pb.process_whole_result_set(RESULTS_FOLDER, processing_step)
-        pb.do_comparison(results, comparison_step)
+        pb.do_comparison(comparison_step, simulations_data=results)
+
+    def test_do_comparison_by_passing_path_to_results_folder(self):
+        pb.do_comparison(comparison_step, results_folder=RESULTS_FOLDER)
+
+    def test_do_comparison_with_existing_pickle(self):
+        pb.do_comparison(
+            comparison_step, results_folder=const.DATA_FOLDER / "pickle"
+        )
+
+    def test_do_comparison_with_missing_args(self):
+        with _pt.raises(ValueError) as exc_info:
+            pb.do_comparison(comparison_step)
+
+        assert (
+            str(exc_info.value)
+            == "Either simulations_data or results_folder must be provided to perform comparison"
+        )
 
 
 class TestBenchmarkPytrnsysProcess:

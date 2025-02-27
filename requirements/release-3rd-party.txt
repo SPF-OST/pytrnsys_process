@@ -17,7 +17,7 @@ lark==1.2.2
     # via -r requirements\release-3rd-party.in
 matplotlib==3.10.0
     # via -r requirements\release-3rd-party.in
-numpy==2.2.2
+numpy==2.2.3
     # via
     #   contourpy
     #   matplotlib
@@ -28,7 +28,7 @@ pandas==2.2.3
     # via -r requirements\release-3rd-party.in
 pillow==11.1.0
     # via matplotlib
-pyarrow==19.0.0
+pyarrow==19.0.1
     # via -r requirements\release-3rd-party.in
 pyparsing==3.2.1
     # via matplotlib

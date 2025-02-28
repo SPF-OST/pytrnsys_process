@@ -7,22 +7,22 @@ TRNSYS simulation output data.
 
 __version__ = "0.0.2"
 
-from pytrnsys_process.config import REPO_ROOT, settings, Defaults
+from pytrnsys_process.config import REPO_ROOT, Defaults, settings
 from pytrnsys_process.plot import (
-    line_plot,
     bar_chart,
-    stacked_bar_chart,
-    histogram,
     energy_balance,
+    histogram,
+    line_plot,
     scatter_plot,
+    stacked_bar_chart,
 )
 from pytrnsys_process.process import (
     Simulation,
     SimulationsData,
+    do_comparison,
     process_single_simulation,
     process_whole_result_set,
     process_whole_result_set_parallel,
-    do_comparison,
 )
 from pytrnsys_process.util import (
     export_plots_in_configured_formats,

@@ -5,9 +5,8 @@ import re as _re
 import pandas as _pd
 
 from pytrnsys_process import config as conf
-from pytrnsys_process import log
-from pytrnsys_process import process
-from pytrnsys_process import read
+from pytrnsys_process import log, read
+from pytrnsys_process.process import file_type_detector as ftd
 
 
 class CsvConverter:
@@ -70,21 +69,21 @@ class CsvConverter:
             if input_file.is_dir():
                 continue
 
-            if process.has_pattern(input_file, conf.FileType.MONTHLY):
+            if ftd.has_pattern(input_file, conf.FileType.MONTHLY):
                 df = read.PrtReader().read_monthly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
                     conf.FileType.MONTHLY.value.patterns,
                     conf.FileType.MONTHLY.value.prefix,
                 )
-            elif process.has_pattern(input_file, conf.FileType.HOURLY):
+            elif ftd.has_pattern(input_file, conf.FileType.HOURLY):
                 df = read.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
                     conf.FileType.HOURLY.value.patterns,
                     conf.FileType.HOURLY.value.prefix,
                 )
-            elif process.has_pattern(input_file, conf.FileType.TIMESTEP):
+            elif ftd.has_pattern(input_file, conf.FileType.TIMESTEP):
                 df = read.PrtReader().read_step(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
@@ -109,7 +108,7 @@ class CsvConverter:
     ) -> tuple[str, _pd.DataFrame]:
         """Read the file according to the file contents."""
         prt_reader = read.PrtReader()
-        file_type = process.get_file_type_using_file_content(file_path)
+        file_type = ftd.get_file_type_using_file_content(file_path)
         if file_type == conf.FileType.MONTHLY:
             df_monthly = read.PrtReader().read_monthly(file_path)
             monthly_file = f"{conf.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()

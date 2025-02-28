@@ -6,11 +6,9 @@ from dataclasses import dataclass, field
 import pandas as _pd
 
 from pytrnsys_process import config as conf
-from pytrnsys_process import deck
-from pytrnsys_process import log
-from pytrnsys_process import read
-from pytrnsys_process import util
-from pytrnsys_process.process import file_type_detector as ftd, data_structures as ds
+from pytrnsys_process import deck, log, read, util
+from pytrnsys_process.process import data_structures as ds
+from pytrnsys_process.process import file_type_detector as ftd
 
 
 def process_sim(

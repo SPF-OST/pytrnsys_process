@@ -10,7 +10,7 @@ import matplotlib.pyplot as _plt
 
 from pytrnsys_process import config as conf
 from pytrnsys_process import log
-from pytrnsys_process import process
+from pytrnsys_process.process import data_structures as ds
 
 
 def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
@@ -184,7 +184,7 @@ def get_file_content_as_string(
 
 
 def save_to_pickle(
-        data: process.Simulation | process.SimulationsData,
+        data: ds.Simulation | ds.SimulationsData,
         path: _pl.Path,
         logger: _logging.Logger = log.default_console_logger,
 ) -> None:
@@ -217,7 +217,7 @@ def save_to_pickle(
 
 def load_simulations_data_from_pickle(
         path: _pl.Path, logger: _logging.Logger = log.default_console_logger
-) -> process.SimulationsData:
+) -> ds.SimulationsData:
     """Load ResultsForComparison data from a pickle file.
 
     This function loads a previously saved ResultsForComparison object from a pickle file.
@@ -247,7 +247,7 @@ def load_simulations_data_from_pickle(
         # Check if it has the expected attributes of SimulationsData
         required_attrs = {"simulations", "scalar", "path_to_simulations"}
         if all(hasattr(simulations_data, attr) for attr in required_attrs):
-            return _tp.cast(process.SimulationsData, simulations_data)
+            return _tp.cast(ds.SimulationsData, simulations_data)
 
         raise ValueError(
             f"Loaded object is missing required SimulationsData attributes. Type: {type(simulations_data).__name__}"
@@ -269,7 +269,7 @@ def load_simulations_data_from_pickle(
 
 def load_simulation_from_pickle(
         path: _pl.Path, logger: _logging.Logger = log.default_console_logger
-) -> process.Simulation:
+) -> ds.Simulation:
     try:
         with open(path, "rb") as f:
             simulation = _pickle.load(f)
@@ -277,7 +277,7 @@ def load_simulation_from_pickle(
         # Check if it has the expected attributes of a Simulation
         required_attrs = {"monthly", "hourly", "step", "scalar", "path"}
         if all(hasattr(simulation, attr) for attr in required_attrs):
-            return _tp.cast(process.Simulation, simulation)
+            return _tp.cast(ds.Simulation, simulation)
 
         raise ValueError(
             f"Loaded object is missing required Simulation attributes. Type: {type(simulation).__name__}"

@@ -9,8 +9,7 @@ import matplotlib.pyplot as _plt
 import pandas as _pd
 
 from pytrnsys_process import config as conf
-from pytrnsys_process import log
-from pytrnsys_process import util
+from pytrnsys_process import log, util
 from pytrnsys_process.process import data_structures as ds
 from pytrnsys_process.process import process_sim as ps
 

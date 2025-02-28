@@ -1,3 +1,4 @@
+import logging as _logging
 import pathlib as _pl
 import time as _time
 from collections import abc as _abc
@@ -7,12 +8,11 @@ from typing import List, Optional, Sequence, Union
 import matplotlib.pyplot as _plt
 import pandas as _pd
 
-from pytrnsys_process import constants as const
-from pytrnsys_process import data_structures as ds
-from pytrnsys_process import logger as log
-from pytrnsys_process import settings as sett
-from pytrnsys_process import utils
-from pytrnsys_process.process_sim import process_sim as ps
+from pytrnsys_process import config as conf
+from pytrnsys_process import log
+from pytrnsys_process import util
+from pytrnsys_process.process import data_structures as ds
+from pytrnsys_process.process import process_sim as ps
 
 
 class UnableToProcessSimulationError(Exception):
@@ -72,11 +72,13 @@ def _process_batch(
         path_to_simulations=results_folder.as_posix()
     )
 
+    main_logger = log.get_main_logger(results_folder)
+
     if parallel:
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
             tasks = {}
             for sim_folder in sim_folders:
-                log.main_logger.info(
+                main_logger.info(
                     "Submitting simulation folder for processing: %s",
                     sim_folder.name,
                 )
@@ -92,24 +94,24 @@ def _process_batch(
                         future.result(), results, simulations_data
                     )
                 except Exception as e:  # pylint: disable=broad-except
-                    _handle_simulation_error(e, tasks[future], results)
+                    _handle_simulation_error(e, tasks[future], results, main_logger)
     else:
         for sim_folder in sim_folders:
             try:
-                log.main_logger.info(
+                main_logger.info(
                     "Processing simulation: %s", sim_folder.name
                 )
                 result = _process_simulation(sim_folder, processing_scenario)
                 _handle_simulation_result(result, results, simulations_data)
             except Exception as e:  # pylint: disable=broad-except
-                _handle_simulation_error(e, sim_folder, results)
+                _handle_simulation_error(e, sim_folder, results, main_logger)
 
     simulations_data = _concat_scalar(simulations_data)
-    _log_processing_results(results)
+    _log_processing_results(results, main_logger)
 
     end_time = _time.time()
     execution_time = end_time - start_time
-    log.main_logger.info(
+    main_logger.info(
         "%s execution time: %.2f seconds",
         "Parallel" if parallel else "Total",
         execution_time,
@@ -142,9 +144,10 @@ def _handle_simulation_result(
 
 
 def _handle_simulation_error(
-    error: Exception,
-    sim_folder: _pl.Path,
-    results: ds.ProcessingResults,
+        error: Exception,
+        sim_folder: _pl.Path,
+        results: ds.ProcessingResults,
+        main_logger: _logging.Logger
 ) -> None:
     """Handle an error that occurred during simulation processing.
 
@@ -156,7 +159,7 @@ def _handle_simulation_error(
     """
     results.error_count += 1
     results.failed_simulations.append(sim_folder.name)
-    log.main_logger.error(
+    main_logger.error(
         "Failed to process simulation in %s: %s",
         sim_folder,
         str(error),
@@ -189,8 +192,8 @@ def process_single_simulation(
 
     Example
     _______
-            >>> import pathlib as _pl
-            >>> from pytrnsys_process import api, data_structures
+            >>> from process import data_structures            >>> import pathlib as _pl
+            >>> from pytrnsys_process import api
             ...
             >>> def processing_step_1(sim: data_structures.Simulation):
             ...     # Process simulation data
@@ -200,8 +203,9 @@ def process_single_simulation(
             ...     processing_step_1
             ... )
     """
-    log.initialize_logs()
-    log.main_logger.info("Starting processing of simulation %s", sim_folder)
+    main_logger = log.get_main_logger(sim_folder)
+    log.initialize_logs(sim_folder)
+    main_logger.info("Starting processing of simulation %s", sim_folder)
     sim_folders = [sim_folder]
     simulations_data = _process_batch(
         sim_folders, processing_scenarios, sim_folder.parent
@@ -266,8 +270,9 @@ def process_whole_result_set(
         ... )
     """
     _validate_folder(results_folder)
-    log.initialize_logs()
-    log.main_logger.info(
+    main_logger = log.get_main_logger(results_folder)
+    log.initialize_logs(results_folder)
+    main_logger.info(
         "Starting batch processing of simulations in %s", results_folder
     )
 
@@ -279,9 +284,9 @@ def process_whole_result_set(
     simulations_data = _process_batch(
         sim_folders, processing_scenario, results_folder
     )
-    utils.save_to_pickle(
+    util.save_to_pickle(
         simulations_data,
-        results_folder / const.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value,
+        results_folder / conf.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value,
     )
 
     return simulations_data
@@ -342,8 +347,9 @@ def process_whole_result_set_parallel(
     """
     # The last :returns: ensures that the formatting works in PyCharm
     _validate_folder(results_folder)
-    log.initialize_logs()
-    log.main_logger.info(
+    log.initialize_logs(results_folder)
+    main_logger = log.get_main_logger(results_folder)
+    main_logger.info(
         "Starting batch processing of simulations in %s with parallel execution",
         results_folder,
     )
@@ -360,9 +366,9 @@ def process_whole_result_set_parallel(
         parallel=True,
         max_workers=max_workers,
     )
-    utils.save_to_pickle(
+    util.save_to_pickle(
         simulations_data,
-        results_folder / const.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value,
+        results_folder / conf.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value,
     )
 
     return simulations_data
@@ -408,23 +414,21 @@ def do_comparison(
             )
         path_to_simulations_data = results_folder / "simulations_data.pickle"
         if path_to_simulations_data.exists():
-            simulations_data = utils.load_simulations_data_from_pickle(
-                path_to_simulations_data
-            )
+            simulations_data = util.load_simulations_data_from_pickle(path_to_simulations_data)
         else:
-            simulations_data = process_whole_result_set_parallel(
-                results_folder, []
-            )
-    _process_comparisons(simulations_data, comparison_scenario)
+            simulations_data = process_whole_result_set_parallel(results_folder, [])
+    main_logger = log.get_main_logger(_pl.Path(simulations_data.path_to_simulations))
+    _process_comparisons(simulations_data, comparison_scenario, main_logger)
     _plt.close("all")
 
 
 def _process_comparisons(
-    simulations_data: ds.SimulationsData,
-    comparison_scenario: Union[
-        _abc.Callable[[ds.SimulationsData], None],
-        _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
-    ],
+        simulations_data: ds.SimulationsData,
+        comparison_scenario: Union[
+            _abc.Callable[[ds.SimulationsData], None],
+            _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
+        ],
+        main_logger: _logging.Logger
 ):
     scenario = (
         [comparison_scenario]
@@ -436,7 +440,7 @@ def _process_comparisons(
             step(simulations_data)
         except Exception as e:  # pylint: disable=broad-except
             scenario_name = getattr(step, "__name__", str(step))
-            log.main_logger.error(
+            main_logger.error(
                 "Scenario %s failed for comparison: %s ",
                 scenario_name,
                 str(e),
@@ -474,18 +478,18 @@ def _process_simulation(
 ) -> tuple[ds.Simulation, List[str]]:
     sim_logger = log.get_simulation_logger(sim_folder)
     sim_logger.info("Starting simulation processing")
-    sim_pickle_file = sim_folder / const.FileNames.SIMULATION_PICKLE_FILE.value
+    sim_pickle_file = sim_folder / conf.FileNames.SIMULATION_PICKLE_FILE.value
     simulation: ds.Simulation
-    if sim_pickle_file.exists() and not sett.settings.reader.force_reread_prt:
+    if sim_pickle_file.exists() and not conf.settings.reader.force_reread_prt:
         sim_logger.info("Loading simulation from pickle file")
-        simulation = utils.load_simulation_from_pickle(
+        simulation = util.load_simulation_from_pickle(
             sim_pickle_file, sim_logger
         )
     else:
         sim_logger.info("Processing simulation from raw files")
-        sim_files = utils.get_files([sim_folder])
+        sim_files = util.get_files([sim_folder])
         simulation = ps.process_sim(sim_files, sim_folder)
-        utils.save_to_pickle(simulation, sim_pickle_file, sim_logger)
+        util.save_to_pickle(simulation, sim_pickle_file, sim_logger)
 
     failed_scenarios = []
 
@@ -525,29 +529,29 @@ def _process_simulation(
     return simulation, failed_scenarios
 
 
-def _log_processing_results(results: ds.ProcessingResults) -> None:
-    log.main_logger.info("=" * 80)
-    log.main_logger.info("BATCH PROCESSING SUMMARY")
-    log.main_logger.info("-" * 80)
-    log.main_logger.info(
+def _log_processing_results(results: ds.ProcessingResults, main_logger: _logging.Logger) -> None:
+    main_logger.info("=" * 80)
+    main_logger.info("BATCH PROCESSING SUMMARY")
+    main_logger.info("-" * 80)
+    main_logger.info(
         "Total simulations processed: %d | Failed: %d",
         results.processed_count,
         results.error_count,
     )
 
     if results.error_count > 0:
-        log.main_logger.warning(
+        main_logger.warning(
             "Some simulations failed to process. Check the log for details."
         )
-        log.main_logger.warning("Failed simulations:")
+        main_logger.warning("Failed simulations:")
         for sim in results.failed_simulations:
-            log.main_logger.warning("  • %s", sim)
+            main_logger.warning("  • %s", sim)
 
     if results.failed_scenarios:
-        log.main_logger.warning("Failed scenarios by simulation:")
+        main_logger.warning("Failed scenarios by simulation:")
         for sim, scenarios in results.failed_scenarios.items():
             if scenarios:
-                log.main_logger.warning("  • %s:", sim)
+                main_logger.warning("  • %s:", sim)
                 for scenario in scenarios:
-                    log.main_logger.warning("    - %s", scenario)
-    log.main_logger.info("=" * 80)
+                    main_logger.warning("    - %s", scenario)
+    main_logger.info("=" * 80)

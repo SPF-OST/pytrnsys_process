@@ -40,50 +40,65 @@ class TracebackInfoFilter(_logging.Filter):
         return True
 
 
-main_logger = _logging.getLogger("pytrnsys_process")
-
-console_handler = _logging.StreamHandler(_sys.stdout)
-console_handler.setLevel(_logging.INFO)
-
-# Regular log file without stacktrace
-file_handler = _logging.FileHandler("pytrnsys_process.log", mode="a")
-file_handler.setLevel(_logging.INFO)
-
-# Debug log file with stacktrace
-debug_file_handler = _logging.FileHandler(
-    "pytrnsys_process_debug.log", mode="a"
-)
-debug_file_handler.setLevel(_logging.DEBUG)
-
-# configure formatters
 console_format = _logging.Formatter("%(levelname)s - %(message)s")
-file_format = _logging.Formatter(
-    "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 
-# set formatters
-console_handler.setFormatter(console_format)
-file_handler.setFormatter(file_format)
-debug_file_handler.setFormatter(file_format)
-
-# add filters
-console_handler.addFilter(TracebackInfoFilter())
-file_handler.addFilter(TracebackInfoFilter())
-
-# Add this handler first because the other handlers will modify the log record
-main_logger.addHandler(debug_file_handler)
-main_logger.addHandler(console_handler)
-main_logger.addHandler(file_handler)
-
-main_logger.setLevel(_logging.DEBUG)
+# Default console logger, used as default logger in functions
+default_console_logger = _logging.getLogger("default_pytrnsys_process")
+default_console_handler = _logging.StreamHandler(_sys.stdout)
+default_console_handler.setLevel(_logging.INFO)
+default_console_logger.addHandler(default_console_handler)
 
 
-def initialize_logs():
+def get_main_logger(path: _pl.Path) -> _logging.Logger:
+    main_logger = _logging.getLogger("pytrnsys_process")
+
+    # Check if handlers already exist to avoid duplicates
+    if main_logger.handlers:
+        return main_logger
+
+    console_handler = _logging.StreamHandler(_sys.stdout)
+    console_handler.setLevel(_logging.INFO)
+
+    # Regular log file without stacktrace
+    file_handler = _logging.FileHandler(path / "pytrnsys_process.log", mode="a")
+    file_handler.setLevel(_logging.INFO)
+
+    # Debug log file with stacktrace
+    debug_file_handler = _logging.FileHandler(path /
+                                              "pytrnsys_process_debug.log", mode="a"
+                                              )
+    debug_file_handler.setLevel(_logging.DEBUG)
+
+    # configure formatters
+    file_format = _logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
+    # set formatters
+    console_handler.setFormatter(console_format)
+    file_handler.setFormatter(file_format)
+    debug_file_handler.setFormatter(file_format)
+
+    # add filters
+    console_handler.addFilter(TracebackInfoFilter())
+    file_handler.addFilter(TracebackInfoFilter())
+
+    # Add this handler first because the other handlers will modify the log record
+    main_logger.addHandler(debug_file_handler)
+    main_logger.addHandler(console_handler)
+    main_logger.addHandler(file_handler)
+
+    main_logger.setLevel(_logging.DEBUG)
+
+    return main_logger
+
+
+def initialize_logs(path: _pl.Path):
     """Initialize log files by clearing their contents at the start of a new run."""
     # Clear main log files by opening them in write mode briefly
-    with open("pytrnsys_process.log", "w", encoding="utf-8"):
+    with open(path / "pytrnsys_process.log", "w", encoding="utf-8"):
         pass
-    with open("pytrnsys_process_debug.log", "w", encoding="utf-8"):
+    with open(path / "pytrnsys_process_debug.log", "w", encoding="utf-8"):
         pass
 
 

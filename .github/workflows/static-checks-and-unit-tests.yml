@@ -86,6 +86,8 @@ jobs:
       run: venv\Scripts\python dev-tools\dev_tools.py --type
     - name: Lint with pylint
       run: venv\Scripts\python dev-tools\dev_tools.py --lint --keep-results
+    - name: Syntax checking with black
+      run: venv\Scripts\python dev-tools/devTools.py --black --keep-results
     - name: Test with pytest
       run: venv\Scripts\python dev-tools\dev_tools.py --unit "not manual and not linux and not tool" --keep-results
     - name: Build documentation

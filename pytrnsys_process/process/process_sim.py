@@ -5,15 +5,12 @@ from dataclasses import dataclass, field
 
 import pandas as _pd
 
-from pytrnsys_process import constants as const
-from pytrnsys_process import data_structures as ds
-from pytrnsys_process import file_type_detector as ftd
-from pytrnsys_process import logger as log
-from pytrnsys_process import readers
-from pytrnsys_process import settings as sett
-from pytrnsys_process import utils
-from pytrnsys_process.deck import extractor
-from pytrnsys_process.settings import settings
+from pytrnsys_process import config as conf
+from pytrnsys_process import deck
+from pytrnsys_process import log
+from pytrnsys_process import read
+from pytrnsys_process import util
+from pytrnsys_process.process import file_type_detector as ftd, data_structures as ds
 
 
 def process_sim(
@@ -93,8 +90,8 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
 
 
 def _determine_file_type(
-    sim_file: _pl.Path, logger: _logging.Logger
-) -> const.FileType:
+        sim_file: _pl.Path, logger: _logging.Logger
+) -> conf.FileType:
     """Determine the file type using name and content."""
     try:
         return ftd.get_file_type_using_file_name(sim_file, logger)
@@ -107,11 +104,11 @@ class _SimulationDataCollector:
     hourly: list[_pd.DataFrame] = field(default_factory=list)
     monthly: list[_pd.DataFrame] = field(default_factory=list)
     step: list[_pd.DataFrame] = field(default_factory=list)
-    deck: _pd.DataFrame = field(default_factory=_pd.DataFrame)
+    parsed_deck: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
 def _read_file(
-    file_path: _pl.Path, file_type: const.FileType
+        file_path: _pl.Path, file_type: conf.FileType
 ) -> _pd.DataFrame:
     """
     Factory method to read data from a file using the appropriate reader.
@@ -121,7 +118,7 @@ def _read_file(
     file_path: pathlib.Path
         Path to the file to be read
 
-    file_type: const.FileType
+    file_type: conf.FileType
         Type of data in the file (MONTHLY, HOURLY, or TIMESTEP)
 
     Returns
@@ -134,47 +131,48 @@ def _read_file(
     ValueError
         If file extension is not supported
     """
-    starting_year = settings.reader.starting_year
+    starting_year = conf.settings.reader.starting_year
     extension = file_path.suffix.lower()
+    logger = log.get_simulation_logger(file_path.parent)
     if extension in [".prt", ".hr"]:
-        reader = readers.PrtReader()
-        if file_type == const.FileType.MONTHLY:
-            return reader.read_monthly(file_path, starting_year)
-        if file_type == const.FileType.HOURLY:
-            return reader.read_hourly(file_path, starting_year)
-        if file_type == const.FileType.TIMESTEP:
-            return reader.read_step(file_path, starting_year)
+        reader = read.PrtReader()
+        if file_type == conf.FileType.MONTHLY:
+            return reader.read_monthly(file_path, logger=logger, starting_year=starting_year)
+        if file_type == conf.FileType.HOURLY:
+            return reader.read_hourly(file_path, logger=logger, starting_year=starting_year)
+        if file_type == conf.FileType.TIMESTEP:
+            return reader.read_step(file_path, starting_year=starting_year)
     elif extension == ".csv":
-        return readers.CsvReader().read_csv(file_path)
+        return read.CsvReader().read_csv(file_path)
 
     raise ValueError(f"Unsupported file extension: {extension}")
 
 
 def _process_file(
-    simulation_data_collector: _SimulationDataCollector,
-    file_path: _pl.Path,
-    file_type: const.FileType,
+        simulation_data_collector: _SimulationDataCollector,
+        file_path: _pl.Path,
+        file_type: conf.FileType,
 ) -> bool:
-    if file_type == const.FileType.MONTHLY:
+    if file_type == conf.FileType.MONTHLY:
         simulation_data_collector.monthly.append(
-            _read_file(file_path, const.FileType.MONTHLY)
+            _read_file(file_path, conf.FileType.MONTHLY)
         )
-    elif file_type == const.FileType.HOURLY:
+    elif file_type == conf.FileType.HOURLY:
         simulation_data_collector.hourly.append(
-            _read_file(file_path, const.FileType.HOURLY)
+            _read_file(file_path, conf.FileType.HOURLY)
         )
     elif (
-        file_type == const.FileType.TIMESTEP
-        and sett.settings.reader.read_step_files
+            file_type == conf.FileType.TIMESTEP
+            and conf.settings.reader.read_step_files
     ):
         simulation_data_collector.step.append(
-            _read_file(file_path, const.FileType.TIMESTEP)
+            _read_file(file_path, conf.FileType.TIMESTEP)
         )
     elif (
-        file_type == const.FileType.DECK
-        and sett.settings.reader.read_deck_files
+            file_type == conf.FileType.DECK
+            and conf.settings.reader.read_deck_files
     ):
-        simulation_data_collector.deck = _get_deck_as_df(file_path)
+        simulation_data_collector.parsed_deck = _get_deck_as_df(file_path)
     else:
         return False
     return True
@@ -183,11 +181,11 @@ def _process_file(
 def _get_deck_as_df(
     file_path: _pl.Path,
 ) -> _pd.DataFrame:
-    deck_file_as_string = utils.get_file_content_as_string(file_path)
-    deck: dict[str, float] = extractor.parse_deck_for_constant_expressions(
+    deck_file_as_string = util.get_file_content_as_string(file_path)
+    parsed_deck: dict[str, float] = deck.parse_deck_for_constant_expressions(
         deck_file_as_string, log.get_simulation_logger(file_path.parent)
     )
-    deck_as_df = _pd.DataFrame([deck])
+    deck_as_df = _pd.DataFrame([parsed_deck])
     return deck_as_df
 
 
@@ -197,11 +195,9 @@ def _merge_dataframes_into_simulation(
     monthly_df = _get_df_without_duplicates(simulation_data_collector.monthly)
     hourly_df = _get_df_without_duplicates(simulation_data_collector.hourly)
     timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
-    deck = simulation_data_collector.deck
+    parsed_deck = simulation_data_collector.parsed_deck
 
-    return ds.Simulation(
-        sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, deck
-    )
+    return ds.Simulation(sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, parsed_deck)
 
 
 def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):

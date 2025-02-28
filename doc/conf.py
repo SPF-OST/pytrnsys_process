@@ -131,14 +131,15 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_end": ["navbar-icon-links", "theme-switcher"],
     "footer_items": ["copyright", "sphinx-version", "theme-version"],
+    "logo": {
+        "image_light": "_static/spf-logo.svg",
+        "image_dark": "_static/spf-logo-dark.svg",
+    }
+
 }
 
 html_static_path = ['_static']
 html_css_files = ['custom.css']
-
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-html_logo = "_static/spf-logo.svg"  # Add your logo path here if you have one
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

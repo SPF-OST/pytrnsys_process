@@ -1,8 +1,8 @@
 import logging as _logging
 
-from pytrnsys_process import utils
 from pytrnsys_process.deck import extractor
 from tests.pytrnsys_process import constants
+from util import utils
 
 
 def test_extract_constants_and_ignore_outputs():

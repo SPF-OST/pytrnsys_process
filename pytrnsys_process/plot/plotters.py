@@ -6,9 +6,7 @@ import matplotlib.pyplot as _plt
 import numpy as _np
 import pandas as _pd
 
-import pytrnsys_process.constants as const
-import pytrnsys_process.headers as h
-from pytrnsys_process import settings as sett
+from pytrnsys_process import config as conf
 
 # TODO: provide A4 and half A4 plots to test sizes in latex # pylint: disable=fixme
 # TODO: provide height as input for plot?  # pylint: disable=fixme
@@ -19,10 +17,10 @@ from pytrnsys_process import settings as sett
 
 
 # TODO find a better place for this to live in # pylint : disable=fixme
-plot_settings = sett.settings.plot
+plot_settings = conf.settings.plot
 
 
-class ChartBase(h.HeaderValidationMixin):
+class ChartBase():
     cmap: str | None = None
 
     def plot(
@@ -34,55 +32,13 @@ class ChartBase(h.HeaderValidationMixin):
         fig, ax = self._do_plot(df, columns, **kwargs)
         return fig, ax
 
-    # TODO: Test validation # pylint: disable=fixme
-    def plot_with_column_validation(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        headers: h.Headers,
-        **kwargs,
-    ) -> tuple[_plt.Figure, _plt.Axes]:
-        """Base plot method with header validation.
-
-        Parameters
-        __________
-            df:
-                DataFrame containing the data to plot
-
-            columns:
-                List of column names to plot
-
-            headers:
-                Headers instance for validation
-
-            **kwargs:
-                Additional plotting arguments
-
-
-        Raises
-        ______
-            ValueError: If any columns are missing from the headers index
-        """
-        # TODO: Might live somewhere else in the future # pylint: disable=fixme
-        is_valid, missing = self.validate_headers(headers, columns)
-        if not is_valid:
-            missing_details = []
-            for col in missing:
-                missing_details.append(col)
-            raise ValueError(
-                "The following columns are not available in the headers index:\n"
-                + "\n".join(missing_details)
-            )
-
-        return self._do_plot(df, columns, **kwargs)
-
     @abstractmethod
     def _do_plot(
         self,
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
@@ -104,16 +60,15 @@ class ChartBase(h.HeaderValidationMixin):
 
         raise ValueError
 
-
 class StackedBarChart(ChartBase):
-    cmap = "inferno_r"
+    cmap: str | None = "inferno_r"
 
     def _do_plot(
         self,
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -143,7 +98,7 @@ class BarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         # TODO: deal with colors  # pylint: disable=fixme
@@ -183,7 +138,7 @@ class LinePlot(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -201,7 +156,7 @@ class LinePlot(ChartBase):
         return fig, ax
 
 
-@dataclass
+@dataclass()
 class Histogram(ChartBase):
     bins: int = 50
 
@@ -210,7 +165,7 @@ class Histogram(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -228,7 +183,6 @@ class Histogram(ChartBase):
         return fig, ax
 
 
-@dataclass
 class ScatterPlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
 
@@ -236,14 +190,14 @@ class ScatterPlot(ChartBase):
 
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = const.PlotSizes.A4.value,
-        group_by_color: str | None = None,
-        group_by_marker: str | None = None,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            group_by_color: str | None = None,
+            group_by_marker: str | None = None,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         self._validate_inputs(columns)
         x_column, y_column = columns

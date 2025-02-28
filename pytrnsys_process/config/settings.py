@@ -2,7 +2,7 @@ from collections import abc as _abc
 from dataclasses import dataclass, field
 from enum import Enum
 
-from pytrnsys_process import constants as const
+from pytrnsys_process.config import constants as const
 
 
 @dataclass

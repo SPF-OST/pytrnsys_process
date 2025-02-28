@@ -2,9 +2,8 @@ import pandas as _pd
 import pytest as _pt
 
 import tests.pytrnsys_process.constants as const
-from pytrnsys_process import utils
-from pytrnsys_process.process_sim import process_file as pf
-from pytrnsys_process.process_sim import process_sim as ps
+from pytrnsys_process import util
+from pytrnsys_process.process import process_sim as ps
 
 PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
 
@@ -13,9 +12,9 @@ class TestProcessSim:
 
     def test_process_sim_prt(self, monkeypatch):
         monkeypatch.setattr(
-            "pytrnsys_process.settings.settings.reader.read_step_files", True
+            "pytrnsys_process.config.settings.reader.read_step_files", True
         )
-        sim_files = utils.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
+        sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
         with _pt.raises(Exception) as exc_info:
@@ -27,29 +26,29 @@ class TestProcessSim:
         assert simulation.scalar.shape == (1, 10)
 
     def test_process_sim_csv(self, monkeypatch):
-        sim_files = utils.get_files(
+        sim_files = util.get_files(
             [PATH_TO_RESULTS],
             results_folder_name="converted",
             get_mfr_and_t=False,
         )
         monkeypatch.setattr(
-            "pytrnsys_process.settings.settings.reader.read_step_files", True
+            "pytrnsys_process.config.settings.reader.read_step_files", True
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         self.do_assert(simulation)
 
     def test_process_sim_ignore_step(self, monkeypatch):
-        sim_files = utils.get_files([PATH_TO_RESULTS])
+        sim_files = util.get_files([PATH_TO_RESULTS])
         monkeypatch.setattr(
-            "pytrnsys_process.settings.settings.reader.read_step_files", False
+            "pytrnsys_process.config.settings.reader.read_step_files", False
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.step.shape == (0, 0)
 
     def test_process_sim_ignore_deck(self, monkeypatch):
-        sim_files = utils.get_files([PATH_TO_RESULTS])
+        sim_files = util.get_files([PATH_TO_RESULTS])
         monkeypatch.setattr(
-            "pytrnsys_process.settings.settings.reader.read_deck_files", False
+            "pytrnsys_process.config.settings.reader.read_deck_files", False
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)
@@ -77,23 +76,6 @@ class TestProcessFile:
         ]
         for file in simulation.files:
             assert file.name in expected_file_names
-
-    def test_process_file_using_file_name(self):
-        simulation = pf.process_simulation(
-            PATH_TO_RESULTS,
-        )
-
-        self.do_assert(simulation)
-        assert len(simulation.files) == 4
-
-    def test_process_file_using_file_content(self):
-        simulation = pf.process_simulation(
-            PATH_TO_RESULTS, detect_file_using_content=True
-        )
-
-        self.do_assert(simulation)
-        assert len(simulation.files) == 8
-
 
 class TestHandleDuplicateColumns:
     def test_handle_with_matching_duplicates(self):
@@ -152,21 +134,11 @@ class TestHandleDuplicateColumns:
 class TestBenchmarkProcessSim:
 
     def test_process_per_sim_prt(self, benchmark):
-        sim_files = utils.get_files([PATH_TO_RESULTS])
+        sim_files = util.get_files([PATH_TO_RESULTS])
 
         benchmark(lambda: ps.process_sim(sim_files, PATH_TO_RESULTS))
 
     def test_process_per_sim_csv(self, benchmark):
-        sim_files = utils.get_files([PATH_TO_RESULTS])
+        sim_files = util.get_files([PATH_TO_RESULTS])
 
         benchmark(lambda: ps.process_sim(sim_files, PATH_TO_RESULTS))
-
-    def test_process_per_file_using_file_content(self, benchmark):
-        benchmark(
-            pf.process_simulation,
-            PATH_TO_RESULTS,
-            detect_file_using_content=True,
-        )
-
-    def test_process_per_file_using_file_name(self, benchmark):
-        benchmark(pf.process_simulation, PATH_TO_RESULTS)

@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
-from typing import List
+import dataclasses as _dc
+import typing as _tp
 
 import pandas as _pd
 
 
-@dataclass
+@_dc.dataclass
 class Simulation:
     """Class representing a TRNSYS simulation with its associated data.
 
@@ -36,7 +36,7 @@ class Simulation:
     scalar: _pd.DataFrame
 
 
-@dataclass
+@_dc.dataclass
 class ProcessingResults:
     """Results from processing one or more simulations.
 
@@ -68,12 +68,14 @@ class ProcessingResults:
 
     processed_count: int = 0
     error_count: int = 0
-    failed_simulations: List[str] = field(default_factory=list)
-    failed_scenarios: dict[str, List[str]] = field(default_factory=dict)
+    failed_simulations: _tp.List[str] = _dc.field(default_factory=list)
+    failed_scenarios: dict[str, _tp.List[str]] = _dc.field(
+        default_factory=dict
+    )
 
 
-@dataclass
+@_dc.dataclass
 class SimulationsData:
-    simulations: dict[str, Simulation] = field(default_factory=dict)
-    scalar: _pd.DataFrame = field(default_factory=_pd.DataFrame)
-    path_to_simulations: str = field(default_factory=str)
+    simulations: dict[str, Simulation] = _dc.field(default_factory=dict)
+    scalar: _pd.DataFrame = _dc.field(default_factory=_pd.DataFrame)
+    path_to_simulations: str = _dc.field(default_factory=str)

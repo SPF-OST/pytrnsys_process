@@ -158,7 +158,7 @@ def main():
 
     # run the scenarios on a whole result using multiple processes
     simulations_data = api.process_whole_result_set_parallel(
-        _pl.Path(api.REPO_ROOT / "examples/ready_to_run/data/results"),
+        _pl.Path(api.REPO_ROOT / "examples/ready_to_run/data/results_backup"),
         processing_scenarios,
     )
 

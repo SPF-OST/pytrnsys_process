@@ -1,16 +1,17 @@
+import dataclasses as _dc
 import datetime as _dt
+import logging as _logging
 import pathlib as _pl
-from dataclasses import dataclass
 
 import pandas as _pd
 
-from pytrnsys_process.logger import main_logger as log
+from pytrnsys_process import log
 
 
 # TODO: Describe what to do when file name does not match any known patterns.  # pylint: disable=fixme
 
 
-@dataclass
+@_dc.dataclass
 class ReaderBase:
     # ===================================
     # pylint: disable=invalid-name
@@ -43,7 +44,7 @@ class ReaderBase:
 class PrtReader(ReaderBase):
 
     def read_hourly(
-        self, hourly_file: _pl.Path, starting_year: int = 1990
+            self, hourly_file: _pl.Path, starting_year: int = 1990, logger: _logging.Logger = log.default_console_logger
     ) -> _pd.DataFrame:
         """Read hourly TRNSYS output data from a file.
 
@@ -71,13 +72,14 @@ class PrtReader(ReaderBase):
             self._validate_hourly(df)
             return df
         except (ValueError, KeyError) as e:
-            log.error("Error reading hourly file %s: %s", hourly_file, e)
+            logger.error("Error reading hourly file %s: %s", hourly_file, e)
             raise
 
     def read_monthly(
         self,
         monthly_file: _pl.Path,
         starting_year: int = 1990,
+            logger: _logging.Logger = log.default_console_logger
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 
@@ -106,7 +108,7 @@ class PrtReader(ReaderBase):
             self._validate_monthly(df)
             return df
         except (ValueError, KeyError) as e:
-            log.error("Error reading monthly file %s: %s", monthly_file, e)
+            logger.error("Error reading monthly file %s: %s", monthly_file, e)
             raise
 
     def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
@@ -277,7 +279,7 @@ class PrtReader(ReaderBase):
             )
 
 
-@dataclass
+@_dc.dataclass
 class HeaderReader(ReaderBase):
     NUMBER_OF_ROWS_TO_SKIP = 1
     NUMBER_OF_ROWS = 0
@@ -292,7 +294,7 @@ class HeaderReader(ReaderBase):
         return df.columns.tolist()
 
 
-@dataclass
+@_dc.dataclass
 class CsvReader(ReaderBase):
     SKIPFOOTER: int = 0
     HEADER: int = 0

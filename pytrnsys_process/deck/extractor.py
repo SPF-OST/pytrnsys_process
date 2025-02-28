@@ -4,13 +4,13 @@ import math as _math
 
 import lark as _lark
 
+from pytrnsys_process import log
 from pytrnsys_process.deck import parser
 from pytrnsys_process.deck import visitor_helpers as vh
-from pytrnsys_process.logger import main_logger
 
 
 def parse_deck_for_constant_expressions(
-    deck_as_string: str, logger: _logging.Logger = main_logger
+        deck_as_string: str, logger: _logging.Logger = log.default_console_logger
 ) -> dict[str, float | int]:
     """Evaluate constant expressions in a TRNSYS deck file and return their values.
 

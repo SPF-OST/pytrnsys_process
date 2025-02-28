@@ -4,13 +4,13 @@ import os as _os
 import pathlib as _pl
 import pickle as _pickle
 import subprocess as _subprocess
-from typing import cast
+import typing as _tp
 
 import matplotlib.pyplot as _plt
 
-from pytrnsys_process import data_structures as ds
-from pytrnsys_process import logger as log
-from pytrnsys_process import settings as sett
+from pytrnsys_process import config as conf
+from pytrnsys_process import log
+from pytrnsys_process import process
 
 
 def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
@@ -22,10 +22,10 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 
 def get_files(
-    sim_folders: _abc.Sequence[_pl.Path],
-    results_folder_name: str = sett.settings.reader.folder_name_for_printer_files,
-    get_mfr_and_t: bool = sett.settings.reader.read_step_files,
-    read_deck_files: bool = sett.settings.reader.read_deck_files,
+        sim_folders: _abc.Sequence[_pl.Path],
+        results_folder_name: str = conf.settings.reader.folder_name_for_printer_files,
+        get_mfr_and_t: bool = conf.settings.reader.read_step_files,
+        read_deck_files: bool = conf.settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
 
@@ -109,7 +109,7 @@ def export_plots_in_configured_formats(
         >>>     #   results/simulation1/plots/monthly-bar-chart-A4_HALF.png
         >>>     #   etc.
     """
-    plot_settings = sett.settings.plot
+    plot_settings = conf.settings.plot
     plots_folder = _pl.Path(path_to_directory) / plots_folder_name
     plots_folder.mkdir(exist_ok=True)
 
@@ -127,9 +127,11 @@ def export_plots_in_configured_formats(
                 fig.savefig(file_no_suffix.with_suffix(fmt))
 
 
-def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
+def convert_svg_to_emf(file_no_suffix: _pl.Path
+                       ) -> None:
+    logger = log.default_console_logger
     try:
-        inkscape_path = sett.settings.plot.inkscape_path
+        inkscape_path = conf.settings.plot.inkscape_path
         if not _pl.Path(inkscape_path).exists():
             raise OSError(f"Inkscape executable not found at: {inkscape_path}")
         emf_filepath = file_no_suffix.with_suffix(".emf")
@@ -148,14 +150,14 @@ def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
         )
 
     except _subprocess.CalledProcessError as e:
-        log.main_logger.error(
+        logger.error(
             "Inkscape conversion failed: %s\nOutput: %s",
             e,
             e.output,
             exc_info=True,
         )
     except OSError as e:
-        log.main_logger.error(
+        logger.error(
             "System error running Inkscape: %s", e, exc_info=True
         )
 
@@ -182,9 +184,9 @@ def get_file_content_as_string(
 
 
 def save_to_pickle(
-    data: ds.Simulation | ds.SimulationsData,
-    path: _pl.Path,
-    logger: _logging.Logger = log.main_logger,
+        data: process.Simulation | process.SimulationsData,
+        path: _pl.Path,
+        logger: _logging.Logger = log.default_console_logger,
 ) -> None:
     """Save ResultsForComparison data to a pickle file.
 
@@ -214,8 +216,8 @@ def save_to_pickle(
 
 
 def load_simulations_data_from_pickle(
-    path: _pl.Path, logger: _logging.Logger = log.main_logger
-) -> ds.SimulationsData:
+        path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+) -> process.SimulationsData:
     """Load ResultsForComparison data from a pickle file.
 
     This function loads a previously saved ResultsForComparison object from a pickle file.
@@ -245,7 +247,7 @@ def load_simulations_data_from_pickle(
         # Check if it has the expected attributes of SimulationsData
         required_attrs = {"simulations", "scalar", "path_to_simulations"}
         if all(hasattr(simulations_data, attr) for attr in required_attrs):
-            return cast(ds.SimulationsData, simulations_data)
+            return _tp.cast(process.SimulationsData, simulations_data)
 
         raise ValueError(
             f"Loaded object is missing required SimulationsData attributes. Type: {type(simulations_data).__name__}"
@@ -266,8 +268,8 @@ def load_simulations_data_from_pickle(
 
 
 def load_simulation_from_pickle(
-    path: _pl.Path, logger: _logging.Logger = log.main_logger
-) -> ds.Simulation:
+        path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+) -> process.Simulation:
     try:
         with open(path, "rb") as f:
             simulation = _pickle.load(f)
@@ -275,7 +277,7 @@ def load_simulation_from_pickle(
         # Check if it has the expected attributes of a Simulation
         required_attrs = {"monthly", "hourly", "step", "scalar", "path"}
         if all(hasattr(simulation, attr) for attr in required_attrs):
-            return cast(ds.Simulation, simulation)
+            return _tp.cast(process.Simulation, simulation)
 
         raise ValueError(
             f"Loaded object is missing required Simulation attributes. Type: {type(simulation).__name__}"

@@ -1,7 +1,7 @@
 import pytest as _pt
 
-from pytrnsys_process import constants as const
-from pytrnsys_process import file_converter
+from pytrnsys_process import config as conf
+from pytrnsys_process import util
 from tests.pytrnsys_process import constants as test_const
 
 
@@ -18,7 +18,7 @@ class TestConverter:
         input_dir = test_const.DATA_FOLDER / "conversion/prt"
         output_dir = test_const.DATA_FOLDER / "conversion/csv"
 
-        file_converter.CsvConverter().convert_sim_results_to_csv(
+        util.CsvConverter().convert_sim_results_to_csv(
             input_dir, output_dir
         )
 
@@ -43,9 +43,9 @@ class TestConverter:
     @_pt.mark.parametrize(
         "file_type, expected_prefix",
         [
-            (const.FileType.MONTHLY, "mo_"),
-            (const.FileType.HOURLY, "hr_"),
-            (const.FileType.TIMESTEP, "step_"),
+            (conf.FileType.MONTHLY, "mo_"),
+            (conf.FileType.HOURLY, "hr_"),
+            (conf.FileType.TIMESTEP, "step_"),
         ],
     )
     def test_rename_file_with_prefix(
@@ -65,7 +65,7 @@ class TestConverter:
         test_file = tmp_path / "test.txt"
         test_file.write_text("test content")
 
-        file_converter.CsvConverter().rename_file_with_prefix(
+        util.CsvConverter().rename_file_with_prefix(
             test_file, file_type
         )
 
@@ -77,6 +77,6 @@ class TestConverter:
         nonexistent_file = tmp_path / "doesnotexist.txt"
 
         with _pt.raises(FileNotFoundError):
-            file_converter.CsvConverter().rename_file_with_prefix(
-                nonexistent_file, const.FileType.MONTHLY
+            util.CsvConverter().rename_file_with_prefix(
+                nonexistent_file, conf.FileType.MONTHLY
             )

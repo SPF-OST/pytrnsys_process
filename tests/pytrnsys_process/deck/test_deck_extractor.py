@@ -1,8 +1,8 @@
 import logging as _logging
 
+from pytrnsys_process import util
 from pytrnsys_process.deck import extractor
 from tests.pytrnsys_process import constants
-from util import utils
 
 
 def test_extract_constants_and_ignore_outputs():
@@ -222,7 +222,7 @@ def extract_equations_and_compare(deck_as_string, expected_dict):
 
 def test_benchmark_to_extract_ice_storage_deck(benchmark):
     def to_benchmark():
-        file_content = utils.get_file_content_as_string(
+        file_content = util.get_file_content_as_string(
             constants.DATA_FOLDER / "deck" / "large_icegrids_example.dck"
         )
 
@@ -233,7 +233,7 @@ def test_benchmark_to_extract_ice_storage_deck(benchmark):
 
 def test_benchmark_to_extract_solar_prop_ice_slurry_mfs_deck(benchmark):
     def to_benchmark():
-        file_content = utils.get_file_content_as_string(
+        file_content = util.get_file_content_as_string(
             constants.DATA_FOLDER / "deck" / "SolarPropIceSlurry_mfs.dck"
         )
 

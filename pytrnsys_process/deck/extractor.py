@@ -10,7 +10,7 @@ from pytrnsys_process.deck import visitor_helpers as vh
 
 
 def parse_deck_for_constant_expressions(
-        deck_as_string: str, logger: _logging.Logger = log.default_console_logger
+    deck_as_string: str, logger: _logging.Logger = log.default_console_logger
 ) -> dict[str, float | int]:
     """Evaluate constant expressions in a TRNSYS deck file and return their values.
 

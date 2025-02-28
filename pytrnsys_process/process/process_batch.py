@@ -143,10 +143,10 @@ def _handle_simulation_result(
 
 
 def _handle_simulation_error(
-        error: Exception,
-        sim_folder: _pl.Path,
-        results: ds.ProcessingResults,
-        main_logger: _logging.Logger,
+    error: Exception,
+    sim_folder: _pl.Path,
+    results: ds.ProcessingResults,
+    main_logger: _logging.Logger,
 ) -> None:
     """Handle an error that occurred during simulation processing.
 
@@ -428,12 +428,12 @@ def do_comparison(
 
 
 def _process_comparisons(
-        simulations_data: ds.SimulationsData,
-        comparison_scenario: Union[
-            _abc.Callable[[ds.SimulationsData], None],
-            _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
-        ],
-        main_logger: _logging.Logger,
+    simulations_data: ds.SimulationsData,
+    comparison_scenario: Union[
+        _abc.Callable[[ds.SimulationsData], None],
+        _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
+    ],
+    main_logger: _logging.Logger,
 ):
     scenario = (
         [comparison_scenario]
@@ -535,7 +535,7 @@ def _process_simulation(
 
 
 def _log_processing_results(
-        results: ds.ProcessingResults, main_logger: _logging.Logger
+    results: ds.ProcessingResults, main_logger: _logging.Logger
 ) -> None:
     main_logger.info("=" * 80)
     main_logger.info("BATCH PROCESSING SUMMARY")

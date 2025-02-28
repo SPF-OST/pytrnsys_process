@@ -26,7 +26,7 @@ def test_get_file_type_using_file_name():
     """Test file type detection based on file names"""
     for file_path, expected_type in FILE_NAME_TEST_CASES:
         assert (
-                process.get_file_type_using_file_name(file_path) == expected_type
+            process.get_file_type_using_file_name(file_path) == expected_type
         )
 
 
@@ -39,28 +39,28 @@ def test_get_file_type_using_file_name_invalid():
 def test_has_pattern():
     """Test pattern matching functionality"""
     assert (
-            process.has_pattern(
-                _pl.Path("results_mo_test.txt"), conf.FileType.MONTHLY
-            )
-            is True
+        process.has_pattern(
+            _pl.Path("results_mo_test.txt"), conf.FileType.MONTHLY
+        )
+        is True
     )
     assert (
-            process.has_pattern(
-                _pl.Path("results_hr_test.txt"), conf.FileType.MONTHLY
-            )
-            is False
+        process.has_pattern(
+            _pl.Path("results_hr_test.txt"), conf.FileType.MONTHLY
+        )
+        is False
     )
     assert (
-            process.has_pattern(
-                _pl.Path("results_hr_test.txt"), conf.FileType.HOURLY
-            )
-            is True
+        process.has_pattern(
+            _pl.Path("results_hr_test.txt"), conf.FileType.HOURLY
+        )
+        is True
     )
     assert (
-            process.has_pattern(
-                _pl.Path("results_step_test.txt"), conf.FileType.TIMESTEP
-            )
-            is True
+        process.has_pattern(
+            _pl.Path("results_step_test.txt"), conf.FileType.TIMESTEP
+        )
+        is True
     )
 
 
@@ -88,20 +88,20 @@ class TestFileContentDetection:
     def test_detect_monthly_file(self, monthly_file):
         """Test detection of monthly files based on content"""
         assert (
-                process.get_file_type_using_file_content(monthly_file)
-                == conf.FileType.MONTHLY
+            process.get_file_type_using_file_content(monthly_file)
+            == conf.FileType.MONTHLY
         )
 
     def test_detect_hourly_file(self, hourly_file):
         """Test detection of hourly files based on content"""
         assert (
-                process.get_file_type_using_file_content(hourly_file)
-                == conf.FileType.HOURLY
+            process.get_file_type_using_file_content(hourly_file)
+            == conf.FileType.HOURLY
         )
 
     def test_detect_timestep_file(self, timestep_file):
         """Test detection of timestep files based on content"""
         assert (
-                process.get_file_type_using_file_content(timestep_file)
-                == conf.FileType.TIMESTEP
+            process.get_file_type_using_file_content(timestep_file)
+            == conf.FileType.TIMESTEP
         )

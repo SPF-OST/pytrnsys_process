@@ -38,7 +38,7 @@ class ChartBase:
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
@@ -69,7 +69,7 @@ class StackedBarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -99,7 +99,7 @@ class BarChart(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         # TODO: deal with colors  # pylint: disable=fixme
@@ -139,7 +139,7 @@ class LinePlot(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -166,7 +166,7 @@ class Histogram(ChartBase):
         df: _pd.DataFrame,
         columns: list[str],
         use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
@@ -191,14 +191,14 @@ class ScatterPlot(ChartBase):
 
     # pylint: disable=too-many-arguments,too-many-locals
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            group_by_color: str | None = None,
-            group_by_marker: str | None = None,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        group_by_color: str | None = None,
+        group_by_marker: str | None = None,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         self._validate_inputs(columns)
         x_column, y_column = columns

@@ -22,10 +22,10 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 
 def get_files(
-        sim_folders: _abc.Sequence[_pl.Path],
-        results_folder_name: str = conf.settings.reader.folder_name_for_printer_files,
-        get_mfr_and_t: bool = conf.settings.reader.read_step_files,
-        read_deck_files: bool = conf.settings.reader.read_deck_files,
+    sim_folders: _abc.Sequence[_pl.Path],
+    results_folder_name: str = conf.settings.reader.folder_name_for_printer_files,
+    get_mfr_and_t: bool = conf.settings.reader.read_step_files,
+    read_deck_files: bool = conf.settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
 
@@ -181,9 +181,9 @@ def get_file_content_as_string(
 
 
 def save_to_pickle(
-        data: ds.Simulation | ds.SimulationsData,
-        path: _pl.Path,
-        logger: _logging.Logger = log.default_console_logger,
+    data: ds.Simulation | ds.SimulationsData,
+    path: _pl.Path,
+    logger: _logging.Logger = log.default_console_logger,
 ) -> None:
     """Save ResultsForComparison data to a pickle file.
 
@@ -213,7 +213,7 @@ def save_to_pickle(
 
 
 def load_simulations_data_from_pickle(
-        path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+    path: _pl.Path, logger: _logging.Logger = log.default_console_logger
 ) -> ds.SimulationsData:
     """Load ResultsForComparison data from a pickle file.
 
@@ -265,7 +265,7 @@ def load_simulations_data_from_pickle(
 
 
 def load_simulation_from_pickle(
-        path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+    path: _pl.Path, logger: _logging.Logger = log.default_console_logger
 ) -> ds.Simulation:
     try:
         with open(path, "rb") as f:

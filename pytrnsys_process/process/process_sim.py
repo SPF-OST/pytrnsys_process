@@ -88,7 +88,7 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
 
 
 def _determine_file_type(
-        sim_file: _pl.Path, logger: _logging.Logger
+    sim_file: _pl.Path, logger: _logging.Logger
 ) -> conf.FileType:
     """Determine the file type using name and content."""
     try:
@@ -149,9 +149,9 @@ def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
 
 
 def _process_file(
-        simulation_data_collector: _SimulationDataCollector,
-        file_path: _pl.Path,
-        file_type: conf.FileType,
+    simulation_data_collector: _SimulationDataCollector,
+    file_path: _pl.Path,
+    file_type: conf.FileType,
 ) -> bool:
     if file_type == conf.FileType.MONTHLY:
         simulation_data_collector.monthly.append(
@@ -162,15 +162,15 @@ def _process_file(
             _read_file(file_path, conf.FileType.HOURLY)
         )
     elif (
-            file_type == conf.FileType.TIMESTEP
-            and conf.settings.reader.read_step_files
+        file_type == conf.FileType.TIMESTEP
+        and conf.settings.reader.read_step_files
     ):
         simulation_data_collector.step.append(
             _read_file(file_path, conf.FileType.TIMESTEP)
         )
     elif (
-            file_type == conf.FileType.DECK
-            and conf.settings.reader.read_deck_files
+        file_type == conf.FileType.DECK
+        and conf.settings.reader.read_deck_files
     ):
         simulation_data_collector.parsed_deck = _get_deck_as_df(file_path)
     else:

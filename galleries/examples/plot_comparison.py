@@ -68,7 +68,7 @@ def main():
         # Process monthly data
         monthly_df = sim.monthly
         monthly_df["total_demand_GWh"] = (
-                monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
+            monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
         )
 
         # Calculate yearly total (excluding first 2 months)

@@ -5,6 +5,7 @@ Comparison plot
 This example demonstrates how to load simulations_data from a pickle and calculate values on the fly.
 The newly calculated values are then used to create a comparison plot.
 """
+
 import pathlib as _pl
 
 from pytrnsys_process import api
@@ -72,7 +73,9 @@ def main():
 
         # Calculate yearly total (excluding first 2 months)
         yearly_total = int(monthly_df["total_demand_GWh"].iloc[2::].sum())
-        simulations_data.scalar.loc[sim_name, "yearly_demand_GWh"] = yearly_total
+        simulations_data.scalar.loc[sim_name, "yearly_demand_GWh"] = (
+            yearly_total
+        )
 
     ################################################
     # Step 4: Create Comparison Plot

@@ -44,7 +44,10 @@ class ReaderBase:
 class PrtReader(ReaderBase):
 
     def read_hourly(
-            self, hourly_file: _pl.Path, starting_year: int = 1990, logger: _logging.Logger = log.default_console_logger
+            self,
+            hourly_file: _pl.Path,
+            starting_year: int = 1990,
+            logger: _logging.Logger = log.default_console_logger,
     ) -> _pd.DataFrame:
         """Read hourly TRNSYS output data from a file.
 
@@ -79,7 +82,7 @@ class PrtReader(ReaderBase):
         self,
         monthly_file: _pl.Path,
         starting_year: int = 1990,
-            logger: _logging.Logger = log.default_console_logger
+            logger: _logging.Logger = log.default_console_logger,
     ) -> _pd.DataFrame:
         """Read monthly TRNSYS output data from a file.
 

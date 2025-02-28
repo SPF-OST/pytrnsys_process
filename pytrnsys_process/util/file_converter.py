@@ -13,7 +13,9 @@ class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-            file_path: _pl.Path, prefix: conf.FileType, logger: _logging.Logger = log.default_console_logger
+            file_path: _pl.Path,
+            prefix: conf.FileType,
+            logger: _logging.Logger = log.default_console_logger,
     ) -> None:
         """Rename a file with a given prefix.
 
@@ -43,7 +45,10 @@ class CsvConverter:
         logger.info("Renamed %s to %s", file_path, new_path)
 
     def convert_sim_results_to_csv(
-            self, input_path: _pl.Path, output_dir: _pl.Path, logger: _logging.Logger = log.default_console_logger
+            self,
+            input_path: _pl.Path,
+            output_dir: _pl.Path,
+            logger: _logging.Logger = log.default_console_logger,
     ) -> None:
         """Convert TRNSYS simulation results to CSV format.
 
@@ -104,14 +109,17 @@ class CsvConverter:
 
     @staticmethod
     def using_file_content_read_appropriately(
-            file_path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+            file_path: _pl.Path,
+            logger: _logging.Logger = log.default_console_logger,
     ) -> tuple[str, _pd.DataFrame]:
         """Read the file according to the file contents."""
         prt_reader = read.PrtReader()
         file_type = ftd.get_file_type_using_file_content(file_path)
         if file_type == conf.FileType.MONTHLY:
             df_monthly = read.PrtReader().read_monthly(file_path)
-            monthly_file = f"{conf.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
+            monthly_file = (
+                f"{conf.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
+            )
             logger.info(
                 "Converted %s to monthly file: %s", file_path, monthly_file
             )

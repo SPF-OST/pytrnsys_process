@@ -52,6 +52,7 @@ def plot_hourly_line_plot(simulation: api.Simulation):
     ax.set_xlabel("Timeline")
     fig.show()
 
+
 # %%
 # Note
 # ____
@@ -73,9 +74,7 @@ def plot_hourly_line_plot(simulation: api.Simulation):
 
 
 if __name__ == "__main__":
-    path_to_sim = _pl.Path(
-        "../data/results/sim-1"
-    )
+    path_to_sim = _pl.Path("../data/results/sim-1")
     sim = api.process_single_simulation(
         path_to_sim, [plot_monthly_bar_chart, plot_hourly_line_plot]
     )

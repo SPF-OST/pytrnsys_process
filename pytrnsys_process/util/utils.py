@@ -127,8 +127,7 @@ def export_plots_in_configured_formats(
                 fig.savefig(file_no_suffix.with_suffix(fmt))
 
 
-def convert_svg_to_emf(file_no_suffix: _pl.Path
-                       ) -> None:
+def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     logger = log.default_console_logger
     try:
         inkscape_path = conf.settings.plot.inkscape_path
@@ -157,9 +156,7 @@ def convert_svg_to_emf(file_no_suffix: _pl.Path
             exc_info=True,
         )
     except OSError as e:
-        logger.error(
-            "System error running Inkscape: %s", e, exc_info=True
-        )
+        logger.error("System error running Inkscape: %s", e, exc_info=True)
 
 
 def get_file_content_as_string(

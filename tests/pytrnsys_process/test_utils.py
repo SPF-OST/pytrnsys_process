@@ -36,7 +36,9 @@ def test_save_plot_for_default_settings(tmp_path):
     fig = Mock(spec=plt.Figure)
 
     with (
-        patch("pytrnsys_process.util.utils.convert_svg_to_emf") as mock_convert,
+        patch(
+            "pytrnsys_process.util.utils.convert_svg_to_emf"
+        ) as mock_convert,
         patch("os.remove") as mock_remove,
     ):
         # Call save_plot
@@ -174,9 +176,7 @@ def test_get_file_content_as_string(tmp_path):
 def test_simulation_pickle(tmp_path):
     sim_pickle = tmp_path / "simulation.pickle"
     sim_folder = _pl.Path(RESULTS_FOLDER / "sim-1")
-    simulation = process.process_single_simulation(
-        sim_folder, lambda x: None
-    )
+    simulation = process.process_single_simulation(sim_folder, lambda x: None)
 
     util.save_to_pickle(simulation, sim_pickle)
     sim_from_pickle = util.load_simulation_from_pickle(sim_pickle)
@@ -195,7 +195,9 @@ def test_simulations_data_pickle(tmp_path):
     )
 
     util.save_to_pickle(simulations_data, simulation_data_pickle)
-    simulations_data_from_pickle = util.load_simulations_data_from_pickle(simulation_data_pickle)
+    simulations_data_from_pickle = util.load_simulations_data_from_pickle(
+        simulation_data_pickle
+    )
 
     assert simulations_data_from_pickle.simulations["sim-1"].hourly.shape == (
         3,

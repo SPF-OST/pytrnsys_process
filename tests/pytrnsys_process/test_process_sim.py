@@ -77,6 +77,7 @@ class TestProcessFile:
         for file in simulation.files:
             assert file.name in expected_file_names
 
+
 class TestHandleDuplicateColumns:
     def test_handle_with_matching_duplicates(self):
         """Test merging when same column appears in multiple DataFrames."""

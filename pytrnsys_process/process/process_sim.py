@@ -105,9 +105,7 @@ class _SimulationDataCollector:
     parsed_deck: _pd.DataFrame = field(default_factory=_pd.DataFrame)
 
 
-def _read_file(
-        file_path: _pl.Path, file_type: conf.FileType
-) -> _pd.DataFrame:
+def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
     """
     Factory method to read data from a file using the appropriate reader.
 
@@ -135,9 +133,13 @@ def _read_file(
     if extension in [".prt", ".hr"]:
         reader = read.PrtReader()
         if file_type == conf.FileType.MONTHLY:
-            return reader.read_monthly(file_path, logger=logger, starting_year=starting_year)
+            return reader.read_monthly(
+                file_path, logger=logger, starting_year=starting_year
+            )
         if file_type == conf.FileType.HOURLY:
-            return reader.read_hourly(file_path, logger=logger, starting_year=starting_year)
+            return reader.read_hourly(
+                file_path, logger=logger, starting_year=starting_year
+            )
         if file_type == conf.FileType.TIMESTEP:
             return reader.read_step(file_path, starting_year=starting_year)
     elif extension == ".csv":
@@ -195,7 +197,9 @@ def _merge_dataframes_into_simulation(
     timestep_df = _get_df_without_duplicates(simulation_data_collector.step)
     parsed_deck = simulation_data_collector.parsed_deck
 
-    return ds.Simulation(sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, parsed_deck)
+    return ds.Simulation(
+        sim_folder.as_posix(), monthly_df, hourly_df, timestep_df, parsed_deck
+    )
 
 
 def _get_df_without_duplicates(dfs: _abc.Sequence[_pd.DataFrame]):

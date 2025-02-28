@@ -4,7 +4,7 @@ import lark as _lark
 
 
 def _create_parser() -> _lark.Lark:
-    data = _pu.get_data('pytrnsys_process.deck', "ddck.lark")
+    data = _pu.get_data("pytrnsys_process.deck", "ddck.lark")
     assert data, "Could not find ddck Lark grammar file."
     grammar = data.decode()
     parser = _lark.Lark(grammar, parser="earley", propagate_positions=True)

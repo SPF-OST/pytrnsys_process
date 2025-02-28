@@ -25,7 +25,9 @@ FILE_NAME_TEST_CASES = [
 def test_get_file_type_using_file_name():
     """Test file type detection based on file names"""
     for file_path, expected_type in FILE_NAME_TEST_CASES:
-        assert process.get_file_type_using_file_name(file_path) == expected_type
+        assert (
+                process.get_file_type_using_file_name(file_path) == expected_type
+        )
 
 
 def test_get_file_type_using_file_name_invalid():
@@ -37,15 +39,21 @@ def test_get_file_type_using_file_name_invalid():
 def test_has_pattern():
     """Test pattern matching functionality"""
     assert (
-            process.has_pattern(_pl.Path("results_mo_test.txt"), conf.FileType.MONTHLY)
+            process.has_pattern(
+                _pl.Path("results_mo_test.txt"), conf.FileType.MONTHLY
+            )
             is True
     )
     assert (
-            process.has_pattern(_pl.Path("results_hr_test.txt"), conf.FileType.MONTHLY)
+            process.has_pattern(
+                _pl.Path("results_hr_test.txt"), conf.FileType.MONTHLY
+            )
             is False
     )
     assert (
-            process.has_pattern(_pl.Path("results_hr_test.txt"), conf.FileType.HOURLY)
+            process.has_pattern(
+                _pl.Path("results_hr_test.txt"), conf.FileType.HOURLY
+            )
             is True
     )
     assert (

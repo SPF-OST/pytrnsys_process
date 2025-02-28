@@ -99,14 +99,18 @@ class TestPytrnsysProcess:
         assert results.scalar.empty
 
     def test_do_comparison_with_existing_results_for_comparison(self):
-        results = process.process_whole_result_set(RESULTS_FOLDER, processing_step)
+        results = process.process_whole_result_set(
+            RESULTS_FOLDER, processing_step
+        )
         process.do_comparison(comparison_step, simulations_data=results)
 
     def test_do_comparison_by_passing_path_to_results_folder(self):
         process.do_comparison(comparison_step, results_folder=RESULTS_FOLDER)
 
     def test_do_comparison_with_existing_pickle(self):
-        process.do_comparison(comparison_step, results_folder=const.DATA_FOLDER / "pickle")
+        process.do_comparison(
+            comparison_step, results_folder=const.DATA_FOLDER / "pickle"
+        )
 
     def test_do_comparison_with_missing_args(self):
         with _pt.raises(ValueError) as exc_info:
@@ -120,7 +124,9 @@ class TestPytrnsysProcess:
 
 class TestBenchmarkPytrnsysProcess:
     def test_benchmark_process_whole_result_set(self, benchmark):
-        benchmark(process.process_whole_result_set, RESULTS_FOLDER, processing_step)
+        benchmark(
+            process.process_whole_result_set, RESULTS_FOLDER, processing_step
+        )
 
     def test_benchmark_process_whole_result_set_parallel(self, benchmark):
         benchmark(

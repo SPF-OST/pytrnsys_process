@@ -20,7 +20,7 @@ from pytrnsys_process import config as conf
 plot_settings = conf.settings.plot
 
 
-class ChartBase():
+class ChartBase:
     cmap: str | None = None
 
     def plot(
@@ -59,6 +59,7 @@ class ChartBase():
             return kwargs["colormap"]
 
         raise ValueError
+
 
 class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"

@@ -16,7 +16,9 @@ if _REPO_ROOT_DIR_PATH_STRING not in sys.path:
 
 project = "pytrnsys_process"
 copyright = f"{datetime.now().year}, SPF Institute of Solar Technology, OST University of Applied Sciences"
-author = "SPF Institute of Solar Technology, OST University of Applied Sciences"
+author = (
+    "SPF Institute of Solar Technology, OST University of Applied Sciences"
+)
 version = "0.1"  # The short X.Y version
 release = "0.1.0"  # The full version, including alpha/beta/rc tags
 
@@ -57,28 +59,28 @@ simulation = api.process_single_simulation(_pl.Path("../../galleries/data/result
 
 # Configure sphinx-gallery
 sphinx_gallery_conf = {
-    'examples_dirs': [
-        '../galleries/tutorials',  # path to tutorial scripts
-        '../galleries/examples',  # path to example scripts
+    "examples_dirs": [
+        "../galleries/tutorials",  # path to tutorial scripts
+        "../galleries/examples",  # path to example scripts
     ],
-    'gallery_dirs': [
-        'gen_tutorials',  # path where to save generated tutorials
-        'gen_examples',  # path where to save generated examples
+    "gallery_dirs": [
+        "gen_tutorials",  # path where to save generated tutorials
+        "gen_examples",  # path where to save generated examples
     ],
-    'filename_pattern': r'(?:plot_|tutorial_)',  # Include files starting with 'plot_' or 'tutorial'
-    'plot_gallery': 'True',  # Generate plots for examples
-    'thumbnail_size': (400, 400),  # Size of thumbnails
-    'remove_config_comments': True,
-    'min_reported_time': 0,
+    "filename_pattern": r"(?:plot_|tutorial_)",  # Include files starting with 'plot_' or 'tutorial'
+    "plot_gallery": "True",  # Generate plots for examples
+    "thumbnail_size": (400, 400),  # Size of thumbnails
+    "remove_config_comments": True,
+    "min_reported_time": 0,
 }
 
 # Configure autodoc
 autodoc_default_options = {
-    'members': True,
-    'member-order': 'bysource',
-    'special-members': '__init__',
-    'undoc-members': True,
-    'exclude-members': '__weakref__'
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
 }
 
 # Configure numpydoc
@@ -87,10 +89,10 @@ numpydoc_use_plots = True
 
 # Configure intersphinx
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3/', None),
-    'numpy': ('https://numpy.org/doc/stable/', None),
-    'pandas': ('https://pandas.pydata.org/docs/', None),
-    'matplotlib': ('https://matplotlib.org/stable/', None),
+    "python": ("https://docs.python.org/3/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
 }
 
 # Configure doctest
@@ -134,12 +136,11 @@ html_theme_options = {
     "logo": {
         "image_light": "_static/spf-logo.svg",
         "image_dark": "_static/spf-logo-dark.svg",
-    }
-
+    },
 }
 
-html_static_path = ['_static']
-html_css_files = ['custom.css']
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

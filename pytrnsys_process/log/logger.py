@@ -60,13 +60,15 @@ def get_main_logger(path: _pl.Path) -> _logging.Logger:
     console_handler.setLevel(_logging.INFO)
 
     # Regular log file without stacktrace
-    file_handler = _logging.FileHandler(path / "pytrnsys_process.log", mode="a")
+    file_handler = _logging.FileHandler(
+        path / "pytrnsys_process.log", mode="a"
+    )
     file_handler.setLevel(_logging.INFO)
 
     # Debug log file with stacktrace
-    debug_file_handler = _logging.FileHandler(path /
-                                              "pytrnsys_process_debug.log", mode="a"
-                                              )
+    debug_file_handler = _logging.FileHandler(
+        path / "pytrnsys_process_debug.log", mode="a"
+    )
     debug_file_handler.setLevel(_logging.DEBUG)
 
     # configure formatters

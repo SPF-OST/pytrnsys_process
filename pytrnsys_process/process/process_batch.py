@@ -93,13 +93,13 @@ def _process_batch(
                         future.result(), results, simulations_data
                     )
                 except Exception as e:  # pylint: disable=broad-except
-                    _handle_simulation_error(e, tasks[future], results, main_logger)
+                    _handle_simulation_error(
+                        e, tasks[future], results, main_logger
+                    )
     else:
         for sim_folder in sim_folders:
             try:
-                main_logger.info(
-                    "Processing simulation: %s", sim_folder.name
-                )
+                main_logger.info("Processing simulation: %s", sim_folder.name)
                 result = _process_simulation(sim_folder, processing_scenario)
                 _handle_simulation_result(result, results, simulations_data)
             except Exception as e:  # pylint: disable=broad-except
@@ -146,7 +146,7 @@ def _handle_simulation_error(
         error: Exception,
         sim_folder: _pl.Path,
         results: ds.ProcessingResults,
-        main_logger: _logging.Logger
+        main_logger: _logging.Logger,
 ) -> None:
     """Handle an error that occurred during simulation processing.
 
@@ -413,10 +413,16 @@ def do_comparison(
             )
         path_to_simulations_data = results_folder / "simulations_data.pickle"
         if path_to_simulations_data.exists():
-            simulations_data = util.load_simulations_data_from_pickle(path_to_simulations_data)
+            simulations_data = util.load_simulations_data_from_pickle(
+                path_to_simulations_data
+            )
         else:
-            simulations_data = process_whole_result_set_parallel(results_folder, [])
-    main_logger = log.get_main_logger(_pl.Path(simulations_data.path_to_simulations))
+            simulations_data = process_whole_result_set_parallel(
+                results_folder, []
+            )
+    main_logger = log.get_main_logger(
+        _pl.Path(simulations_data.path_to_simulations)
+    )
     _process_comparisons(simulations_data, comparison_scenario, main_logger)
     _plt.close("all")
 
@@ -427,7 +433,7 @@ def _process_comparisons(
             _abc.Callable[[ds.SimulationsData], None],
             _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
         ],
-        main_logger: _logging.Logger
+        main_logger: _logging.Logger,
 ):
     scenario = (
         [comparison_scenario]
@@ -528,7 +534,9 @@ def _process_simulation(
     return simulation, failed_scenarios
 
 
-def _log_processing_results(results: ds.ProcessingResults, main_logger: _logging.Logger) -> None:
+def _log_processing_results(
+        results: ds.ProcessingResults, main_logger: _logging.Logger
+) -> None:
     main_logger.info("=" * 80)
     main_logger.info("BATCH PROCESSING SUMMARY")
     main_logger.info("-" * 80)

@@ -18,9 +18,7 @@ class TestConverter:
         input_dir = test_const.DATA_FOLDER / "conversion/prt"
         output_dir = test_const.DATA_FOLDER / "conversion/csv"
 
-        util.CsvConverter().convert_sim_results_to_csv(
-            input_dir, output_dir
-        )
+        util.CsvConverter().convert_sim_results_to_csv(input_dir, output_dir)
 
         expected_files = [
             "hr_control.csv",
@@ -65,9 +63,7 @@ class TestConverter:
         test_file = tmp_path / "test.txt"
         test_file.write_text("test content")
 
-        util.CsvConverter().rename_file_with_prefix(
-            test_file, file_type
-        )
+        util.CsvConverter().rename_file_with_prefix(test_file, file_type)
 
         assert not test_file.exists()
         assert (tmp_path / f"{expected_prefix}test.txt").exists()

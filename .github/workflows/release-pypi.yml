@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: check-tag
+      - name: Check Tag
+        id: check-tag
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]$ ]]; then
-            echo "version tag found" >> $GITHUB_OUTPUT
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
           fi
       - name: Build
         if: steps.check-tag.outputs.match == 'true'

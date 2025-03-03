@@ -6,12 +6,6 @@ from pytrnsys_process.config import constants as const
 
 
 @dataclass
-class Settings:
-    plot: "Plot"
-    reader: "Reader"
-
-
-@dataclass
 class Plot:  # pylint: disable=too-many-instance-attributes
     file_formats: _abc.Sequence[str] = field(
         default_factory=lambda: [".png", ".pdf", ".emf"]
@@ -59,8 +53,16 @@ class Reader:
     starting_year = 2024
 
 
+@dataclass
+class Settings:
+    plot: Plot
+
+    reader: Reader
+
 class Defaults(Enum):
+    "Default settings for different use cases"
+
     DEFAULT = Settings(plot=Plot(), reader=Reader())
 
 
-settings = Defaults.DEFAULT.value
+global_settings = Defaults.DEFAULT.value

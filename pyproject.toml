@@ -2,7 +2,8 @@
 name = "pytrnsys_process"
 version = "0.0.1"
 authors = [
-  { name="Damian Birchler", email="damian.birchler@ost.ch" },
+    { name = "Damian Birchler", email = "damian.birchler@ost.ch" },
+    { name = "Sebastian Swoboda", email = "sebastian@swoboda.ch" }
 ]
 description = "Post processing for pytrnsys"
 readme = "README.md"

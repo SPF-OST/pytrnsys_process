@@ -127,7 +127,7 @@ def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
     ValueError
         If file extension is not supported
     """
-    starting_year = conf.settings.reader.starting_year
+    starting_year = conf.global_settings.reader.starting_year
     extension = file_path.suffix.lower()
     logger = log.get_simulation_logger(file_path.parent)
     if extension in [".prt", ".hr"]:
@@ -163,14 +163,14 @@ def _process_file(
         )
     elif (
         file_type == conf.FileType.TIMESTEP
-        and conf.settings.reader.read_step_files
+        and conf.global_settings.reader.read_step_files
     ):
         simulation_data_collector.step.append(
             _read_file(file_path, conf.FileType.TIMESTEP)
         )
     elif (
         file_type == conf.FileType.DECK
-        and conf.settings.reader.read_deck_files
+        and conf.global_settings.reader.read_deck_files
     ):
         simulation_data_collector.parsed_deck = _get_deck_as_df(file_path)
     else:

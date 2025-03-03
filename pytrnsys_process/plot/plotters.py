@@ -17,7 +17,8 @@ from pytrnsys_process import config as conf
 
 
 # TODO find a better place for this to live in # pylint : disable=fixme
-plot_settings = conf.settings.plot
+plot_settings = conf.global_settings.plot
+"Settings shared by all plots"
 
 
 class ChartBase:

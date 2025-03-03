@@ -18,7 +18,7 @@ import pathlib as _pl
 import sys as _sys
 
 
-class TracebackInfoFilter(_logging.Filter):
+class _TracebackInfoFilter(_logging.Filter):
     """Clear or restore the exception on log records
     Copied from, seems to be only solution that works
     https://stackoverflow.com/questions/54605699/python-logging-disable-stack-trace
@@ -40,13 +40,13 @@ class TracebackInfoFilter(_logging.Filter):
         return True
 
 
-console_format = _logging.Formatter("%(levelname)s - %(message)s")
+_console_format = _logging.Formatter("%(levelname)s - %(message)s")
 
 # Default console logger, used as default logger in functions
 default_console_logger = _logging.getLogger("default_pytrnsys_process")
-default_console_handler = _logging.StreamHandler(_sys.stdout)
-default_console_handler.setLevel(_logging.INFO)
-default_console_logger.addHandler(default_console_handler)
+_default_console_handler = _logging.StreamHandler(_sys.stdout)
+_default_console_handler.setLevel(_logging.INFO)
+default_console_logger.addHandler(_default_console_handler)
 
 
 def get_main_logger(path: _pl.Path) -> _logging.Logger:
@@ -77,13 +77,13 @@ def get_main_logger(path: _pl.Path) -> _logging.Logger:
     )
 
     # set formatters
-    console_handler.setFormatter(console_format)
+    console_handler.setFormatter(_console_format)
     file_handler.setFormatter(file_format)
     debug_file_handler.setFormatter(file_format)
 
     # add filters
-    console_handler.addFilter(TracebackInfoFilter())
-    file_handler.addFilter(TracebackInfoFilter())
+    console_handler.addFilter(_TracebackInfoFilter())
+    file_handler.addFilter(_TracebackInfoFilter())
 
     # Add this handler first because the other handlers will modify the log record
     main_logger.addHandler(debug_file_handler)

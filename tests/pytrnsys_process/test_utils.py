@@ -88,7 +88,7 @@ def test_convert_svg_to_emf(tmp_path):
         # Verify subprocess.run was called correctly
         mock_run.assert_called_once_with(
             [
-                conf.settings.plot.inkscape_path,
+                conf.global_settings.plot.inkscape_path,
                 "--export-filename=" + str(tmp_path / "test.emf"),
                 "--export-type=emf",
                 str(svg_path),

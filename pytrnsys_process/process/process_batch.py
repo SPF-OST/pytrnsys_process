@@ -485,7 +485,7 @@ def _process_simulation(
     sim_logger.info("Starting simulation processing")
     sim_pickle_file = sim_folder / conf.FileNames.SIMULATION_PICKLE_FILE.value
     simulation: ds.Simulation
-    if sim_pickle_file.exists() and not conf.settings.reader.force_reread_prt:
+    if sim_pickle_file.exists() and not conf.global_settings.reader.force_reread_prt:
         sim_logger.info("Loading simulation from pickle file")
         simulation = util.load_simulation_from_pickle(
             sim_pickle_file, sim_logger

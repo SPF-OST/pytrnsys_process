@@ -7,7 +7,7 @@ TRNSYS simulation output data.
 
 __version__ = "0.0.2"
 
-from pytrnsys_process.config import REPO_ROOT, Defaults, settings
+from pytrnsys_process.config import REPO_ROOT, Defaults, global_settings
 from pytrnsys_process.plot import (
     bar_chart,
     energy_balance,
@@ -42,7 +42,7 @@ __all__ = [
     "process_whole_result_set",
     "do_comparison",
     "export_plots_in_configured_formats",
-    "settings",
+    "global_settings",
     "Defaults",
     "REPO_ROOT",
     "Simulation",

@@ -5,10 +5,10 @@ from pytrnsys_process.config.constants import (
     FileNames,
     REPO_ROOT,
 )
-from pytrnsys_process.config.settings import settings, Defaults
+from pytrnsys_process.config.settings import global_settings, Defaults
 
 __all__ = [
-    "settings",
+    "global_settings",
     "Defaults",
     "PlotSizes",
     "FilePattern",

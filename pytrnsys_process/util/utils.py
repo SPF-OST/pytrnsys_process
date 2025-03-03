@@ -23,9 +23,9 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 def get_files(
     sim_folders: _abc.Sequence[_pl.Path],
-    results_folder_name: str = conf.settings.reader.folder_name_for_printer_files,
-    get_mfr_and_t: bool = conf.settings.reader.read_step_files,
-    read_deck_files: bool = conf.settings.reader.read_deck_files,
+        results_folder_name: str = conf.global_settings.reader.folder_name_for_printer_files,
+        get_mfr_and_t: bool = conf.global_settings.reader.read_step_files,
+        read_deck_files: bool = conf.global_settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
 
@@ -109,7 +109,7 @@ def export_plots_in_configured_formats(
         >>>     #   results/simulation1/plots/monthly-bar-chart-A4_HALF.png
         >>>     #   etc.
     """
-    plot_settings = conf.settings.plot
+    plot_settings = conf.global_settings.plot
     plots_folder = _pl.Path(path_to_directory) / plots_folder_name
     plots_folder.mkdir(exist_ok=True)
 
@@ -130,7 +130,7 @@ def export_plots_in_configured_formats(
 def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     logger = log.default_console_logger
     try:
-        inkscape_path = conf.settings.plot.inkscape_path
+        inkscape_path = conf.global_settings.plot.inkscape_path
         if not _pl.Path(inkscape_path).exists():
             raise OSError(f"Inkscape executable not found at: {inkscape_path}")
         emf_filepath = file_no_suffix.with_suffix(".emf")

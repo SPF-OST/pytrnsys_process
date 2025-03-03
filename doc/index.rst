@@ -14,7 +14,7 @@ Welcome to pytrnsys_process's documentation!
    Tutorials <gen_tutorials/index>
    how_tos/index
    Examples <gen_examples/index>
-   API documentation <_apidoc/modules>
+   api/index
 
 Indices and tables
 ==================

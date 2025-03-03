@@ -3,28 +3,8 @@ name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 on: push
 
 jobs:
-  tag_check:
-    name: tryout
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check Tag
-        id: check-tag
-        run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "match=true" >> $GITHUB_OUTPUT
-          fi
-      - name: print
-        if: steps.check-tag.outputs.match == 'true'
-        run: |
-          echo "Tag is a match"
-
-
   build:
     name: Build distribution 📦
-    needs:
-    - tag_check
     runs-on: ubuntu-latest
 
     steps:
@@ -52,6 +32,7 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
+    if: startsWith(github.ref, 'refs/tags/v')
     needs:
     - build
     runs-on: ubuntu-latest
@@ -62,12 +43,24 @@ jobs:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
+    - name: Check Tag
+      id: check-tag
+      run: |
+        if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "match=true" >> $GITHUB_OUTPUT
+        fi
+    - name: print
+      if: steps.check-tag.outputs.match == 'true'
+      run: |
+        echo "Tag is a match"
     - name: Download all the dists
+      if: steps.check-tag.outputs.match == 'true'
       uses: actions/download-artifact@v4
       with:
         name: python-package-distributions
         path: dist/
     - name: Publish distribution 📦 to PyPI
+      if: steps.check-tag.outputs.match == 'true'
       uses: pypa/gh-action-pypi-publish@release/v1
 
   publish-to-testpypi:

@@ -9,11 +9,11 @@ Settings
    :toctree: _as_gen
    :nosignatures:
 
-    config.settings.Plot
-    config.settings.Reader
-    config.settings.Settings
-    config.settings.Defaults
-    config.settings.global_settings
+    pytrnsys_process.config.settings.Plot
+    pytrnsys_process.config.settings.Reader
+    pytrnsys_process.config.settings.Settings
+    pytrnsys_process.config.settings.Defaults
+    pytrnsys_process.config.settings.global_settings
 
 Constants
 =========
@@ -22,11 +22,11 @@ Constants
     :toctree: _as_gen
     :nosignatures:
 
-    config.constants.PlotSizes
-    config.constants.FilePattern
-    config.constants.FileType
-    config.constants.FileNames
-    config.constants.REPO_ROOT
+    pytrnsys_process.config.constants.PlotSizes
+    pytrnsys_process.config.constants.FilePattern
+    pytrnsys_process.config.constants.FileType
+    pytrnsys_process.config.constants.FileNames
+    pytrnsys_process.config.constants.REPO_ROOT
 
 
 

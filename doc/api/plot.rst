@@ -9,13 +9,13 @@ Plotters
    :toctree: _as_gen
    :nosignatures:
 
-    plot.plotters.StackedBarChart
-    plot.plotters.BarChart
-    plot.plotters.LinePlot
-    plot.plotters.Histogram
-    plot.plotters.ScatterPlot
-    plot.plotters.ChartBase
-    plot.plotters.plot_settings
+    pytrnsys_process.plot.plotters.StackedBarChart
+    pytrnsys_process.plot.plotters.BarChart
+    pytrnsys_process.plot.plotters.LinePlot
+    pytrnsys_process.plot.plotters.Histogram
+    pytrnsys_process.plot.plotters.ScatterPlot
+    pytrnsys_process.plot.plotters.ChartBase
+    pytrnsys_process.plot.plotters.plot_settings
 
 Plot Wrappers
 =============
@@ -24,10 +24,10 @@ Plot Wrappers
    :toctree: _as_gen
    :nosignatures:
 
-    plot.plot_wrappers.line_plot
-    plot.plot_wrappers.bar_chart
-    plot.plot_wrappers.stacked_bar_chart
-    plot.plot_wrappers.histogram
-    plot.plot_wrappers.energy_balance
-    plot.plot_wrappers.scatter_plot
+    pytrnsys_process.plot.plot_wrappers.line_plot
+    pytrnsys_process.plot.plot_wrappers.bar_chart
+    pytrnsys_process.plot.plot_wrappers.stacked_bar_chart
+    pytrnsys_process.plot.plot_wrappers.histogram
+    pytrnsys_process.plot.plot_wrappers.energy_balance
+    pytrnsys_process.plot.plot_wrappers.scatter_plot
 

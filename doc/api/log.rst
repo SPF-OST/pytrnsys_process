@@ -9,7 +9,7 @@ Logger
    :toctree: _as_gen
    :nosignatures:
 
-    log.logger.get_main_logger
-    log.logger.get_simulation_logger
-    log.logger.initialize_logs
-    log.logger.default_console_logger
+    pytrnsys_process.log.logger.get_main_logger
+    pytrnsys_process.log.logger.get_simulation_logger
+    pytrnsys_process.log.logger.initialize_logs
+    pytrnsys_process.log.logger.default_console_logger

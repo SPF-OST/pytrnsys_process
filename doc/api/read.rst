@@ -9,7 +9,7 @@ Readers
    :toctree: _as_gen
    :nosignatures:
 
-    read.readers.PrtReader
-    read.readers.HeaderReader
-    read.readers.CsvReader
-    read.readers.ReaderBase
+    pytrnsys_process.read.readers.PrtReader
+    pytrnsys_process.read.readers.HeaderReader
+    pytrnsys_process.read.readers.CsvReader
+    pytrnsys_process.read.readers.ReaderBase

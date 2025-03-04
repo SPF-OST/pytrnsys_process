@@ -9,10 +9,10 @@ Process Batch
    :toctree: _as_gen
    :nosignatures:
 
-    process.process_batch.process_single_simulation
-    process.process_batch.process_whole_result_set
-    process.process_batch.process_whole_result_set_parallel
-    process.process_batch.do_comparison
+    pytrnsys_process.process.process_batch.process_single_simulation
+    pytrnsys_process.process.process_batch.process_whole_result_set
+    pytrnsys_process.process.process_batch.process_whole_result_set_parallel
+    pytrnsys_process.process.process_batch.do_comparison
 
 Process Sim
 ===========
@@ -21,8 +21,8 @@ Process Sim
    :toctree: _as_gen
    :nosignatures:
 
-    process.process_sim.process_sim
-    process.process_sim.handle_duplicate_columns
+    pytrnsys_process.process.process_sim.process_sim
+    pytrnsys_process.process.process_sim.handle_duplicate_columns
 
 Data Structures
 ===============
@@ -31,9 +31,9 @@ Data Structures
    :toctree: _as_gen
    :nosignatures:
 
-    process.data_structures.Simulation
-    process.data_structures.ProcessingResults
-    process.data_structures.SimulationsData
+    pytrnsys_process.process.data_structures.Simulation
+    pytrnsys_process.process.data_structures.ProcessingResults
+    pytrnsys_process.process.data_structures.SimulationsData
 
 File Type Detector
 ==================
@@ -42,9 +42,9 @@ File Type Detector
    :toctree: _as_gen
    :nosignatures:
 
-    process.file_type_detector.get_file_type_using_file_content
-    process.file_type_detector.get_file_type_using_file_name
-    process.file_type_detector.has_pattern
+    pytrnsys_process.process.file_type_detector.get_file_type_using_file_content
+    pytrnsys_process.process.file_type_detector.get_file_type_using_file_name
+    pytrnsys_process.process.file_type_detector.has_pattern
 
 
 

@@ -12,7 +12,7 @@ class TestProcessSim:
 
     def test_process_sim_prt(self, monkeypatch):
         monkeypatch.setattr(
-            "pytrnsys_process.config.settings.reader.read_step_files", True
+            "pytrnsys_process.config.global_settings.reader.read_step_files", True
         )
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
@@ -32,7 +32,7 @@ class TestProcessSim:
             get_mfr_and_t=False,
         )
         monkeypatch.setattr(
-            "pytrnsys_process.config.settings.reader.read_step_files", True
+            "pytrnsys_process.config.global_settings.reader.read_step_files", True
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         self.do_assert(simulation)
@@ -40,7 +40,7 @@ class TestProcessSim:
     def test_process_sim_ignore_step(self, monkeypatch):
         sim_files = util.get_files([PATH_TO_RESULTS])
         monkeypatch.setattr(
-            "pytrnsys_process.config.settings.reader.read_step_files", False
+            "pytrnsys_process.config.global_settings.reader.read_step_files", False
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.step.shape == (0, 0)
@@ -48,7 +48,7 @@ class TestProcessSim:
     def test_process_sim_ignore_deck(self, monkeypatch):
         sim_files = util.get_files([PATH_TO_RESULTS])
         monkeypatch.setattr(
-            "pytrnsys_process.config.settings.reader.read_deck_files", False
+            "pytrnsys_process.config.global_settings.reader.read_deck_files", False
         )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)

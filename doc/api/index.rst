@@ -12,4 +12,7 @@ _______
     deck.rst
     log.rst
     plot.rst
+    process.rst
+    read.rst
+    util.rst
 

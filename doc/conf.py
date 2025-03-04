@@ -137,7 +137,7 @@ html_theme_options = {
         "image_light": "_static/spf-logo.svg",
         "image_dark": "_static/spf-logo-dark.svg",
     },
-    "show_nav_level": 2,
+    "show_nav_level": 1,
 }
 
 html_static_path = ["_static"]

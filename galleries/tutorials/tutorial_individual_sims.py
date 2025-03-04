@@ -12,6 +12,24 @@ For a more in-depth view, please refer to the :ref:`how_tos` and the API docs :p
 # %%
 # Introduction to processing individual simulations
 # =================================================
+# First, you will need to download the
+# `example data. <https://raw.githubusercontent.com/SPF-OST/pytrnsys_process/main/example_data/example_data.zip>`_
+#
+# Extract the data into a project folder you will use for this tutorial.
+# You should end up with a folder structure looking like this.
+#
+# | root
+# | ├─ example_data
+# | ├─ tutorials
+# |     ├─ tutorial_individual_sims.py
+#
+# For the rest of this tutorial, you should work in the last file: "tutorial_individual_sims.py"
+
+
+
+# %%
+# Required Imports
+# ================
 # First, let's add the required imports to the top of the script.
 
 import pathlib as _pl
@@ -74,7 +92,7 @@ def plot_hourly_line_plot(simulation: api.Simulation):
 
 if __name__ == "__main__":
     path_to_sim = _pl.Path(
-        "../data/results/sim-1"
+        "../example_data/small/sim-1"
     )
     sim = api.process_single_simulation(
         path_to_sim, [plot_monthly_bar_chart, plot_hourly_line_plot]

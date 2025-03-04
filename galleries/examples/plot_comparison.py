@@ -6,6 +6,7 @@ This example demonstrates how to load simulations_data from a pickle and calcula
 The newly calculated values are then used to create a comparison plot.
 """
 import pathlib as _pl
+import matplotlib.pyplot as _plt
 
 from pytrnsys_process import api
 
@@ -18,7 +19,7 @@ def main():
     ###############################################
 
     simulations_data = api.load_simulations_data_from_pickle(
-        _pl.Path("../data/simulations_data.pkl")
+        _pl.Path("../example_data/small/simulations_data.pkl")
     )
 
     for sim_name, sim in simulations_data.simulations.items():
@@ -91,6 +92,7 @@ def main():
         group_by_color="yearly_demand_GWh",
         group_by_marker="ratioDHWtoSH_allSinks",
     )
+    _plt.show()
 
 
 if __name__ == "__main__":

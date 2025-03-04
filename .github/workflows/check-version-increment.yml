@@ -1,9 +1,7 @@
 name: check version increment
 on:
-  push:
-    branches: '*'
-    # pull_request:
-    # branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
   check-tag:
     runs-on: ubuntu-latest

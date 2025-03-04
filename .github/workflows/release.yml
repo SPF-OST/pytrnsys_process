@@ -1,20 +1,13 @@
 name: release
 on:
   push:
-    branches: '*'
-#    branches: [ "main" ]
+    branches: [ "main" ]
   workflow_dispatch:
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Get version from pyproject.toml
-        run: echo "VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" >> $GITHUB_ENV
   tests-and-checks:
     uses: ./.github/workflows/tests-and-checks-linux.yml
   release-pypi:
-#    needs: tests-and-checks
+    needs: tests-and-checks
     uses: ./.github/workflows/release-pypi.yml
 
 

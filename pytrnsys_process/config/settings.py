@@ -59,6 +59,7 @@ class Settings:
 
     reader: Reader
 
+
 class Defaults(Enum):
     "Default settings for different use cases"
 

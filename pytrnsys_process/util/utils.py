@@ -23,9 +23,9 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 def get_files(
     sim_folders: _abc.Sequence[_pl.Path],
-        results_folder_name: str = conf.global_settings.reader.folder_name_for_printer_files,
-        get_mfr_and_t: bool = conf.global_settings.reader.read_step_files,
-        read_deck_files: bool = conf.global_settings.reader.read_deck_files,
+    results_folder_name: str = conf.global_settings.reader.folder_name_for_printer_files,
+    get_mfr_and_t: bool = conf.global_settings.reader.read_step_files,
+    read_deck_files: bool = conf.global_settings.reader.read_deck_files,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
 

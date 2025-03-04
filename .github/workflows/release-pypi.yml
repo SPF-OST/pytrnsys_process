@@ -11,7 +11,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git tag -a "v${{VERSION}}" -m "Release v${{VERSION}}"
+          git tag -a "v${{env.VERSION}}" -m "Release v${{env.VERSION}}"
   build:
     name: Build distribution 📦
     needs:

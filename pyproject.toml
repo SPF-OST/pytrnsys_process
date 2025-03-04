@@ -1,6 +1,6 @@
 [project]
 name = "pytrnsys_process"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },
     { name="Alex Hobé", email="alex.hobe@ost.ch" },
@@ -28,7 +28,6 @@ requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["pytrnsys_process"]  # list of folders that contain the packages (["."] by default)
 include = ["pytrnsys_process*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.pytest.ini_options]

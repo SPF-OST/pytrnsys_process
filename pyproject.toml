@@ -1,8 +1,10 @@
 [project]
 name = "pytrnsys_process"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
-  { name="Damian Birchler", email="damian.birchler@ost.ch" },
+    { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },
+    { name="Alex Hobé", email="alex.hobe@ost.ch" },
+    { name="Damian Birchler", email="damian.birchler@ost.ch" },
 ]
 description = "Post processing for pytrnsys"
 readme = "README.md"
@@ -12,7 +14,10 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["pandas", "pyarrow"]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements/release-3rd-party.txt"]}
 
 [project.urls]
 Homepage = "https://github.com/SPF-OST/pytrnsys_process"
@@ -22,8 +27,9 @@ Issues = "https://github.com/SPF-OST/pytrnsys_process/issues"
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["pytrnsys_process"]
+[tool.setuptools.packages.find]
+where = ["pytrnsys_process"]  # list of folders that contain the packages (["."] by default)
+include = ["pytrnsys_process*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.pytest.ini_options]
 filterwarnings = [

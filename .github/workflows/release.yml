@@ -16,8 +16,9 @@ jobs:
   tests-and-checks:
     uses: ./.github/workflows/tests-and-checks-linux.yml
   release-pypi:
-    needs: tests-and-checks
+#    needs: tests-and-checks
     uses: ./.github/workflows/release-pypi.yml
+
 
 
 

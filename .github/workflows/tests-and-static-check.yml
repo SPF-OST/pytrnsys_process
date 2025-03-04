@@ -8,12 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
   tests-and-checks-linux:
     uses: ./.github/workflows/tests-and-checks-linux.yml
   tests-and-checks-windows:

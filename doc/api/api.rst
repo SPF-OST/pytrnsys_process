@@ -9,12 +9,12 @@ Plotting
    :toctree: _as_gen
    :nosignatures:
 
-    api.line_plot
-    api.bar_chart
-    api.stacked_bar_chart
-    api.histogram
-    api.energy_balance
-    api.scatter_plot
+    pytrnsys_process.api.line_plot
+    pytrnsys_process.api.bar_chart
+    pytrnsys_process.api.stacked_bar_chart
+    pytrnsys_process.api.histogram
+    pytrnsys_process.api.energy_balance
+    pytrnsys_process.api.scatter_plot
 
 Processing
 ==========
@@ -23,10 +23,10 @@ Processing
     :toctree: _as_gen
     :nosignatures:
 
-    api.process_single_simulation
-    api.process_whole_result_set
-    api.process_whole_result_set_parallel
-    api.do_comparison
+    pytrnsys_process.api.process_single_simulation
+    pytrnsys_process.api.process_whole_result_set
+    pytrnsys_process.api.process_whole_result_set_parallel
+    pytrnsys_process.api.do_comparison
 
 Data Classes
 ============
@@ -35,8 +35,8 @@ Data Classes
     :toctree: _as_gen
     :nosignatures:
 
-    api.Simulation
-    api.SimulationsData
+    pytrnsys_process.api.Simulation
+    pytrnsys_process.api.SimulationsData
 
 Utils
 =====
@@ -45,9 +45,9 @@ Utils
     :toctree: _as_gen
     :nosignatures:
 
-    api.export_plots_in_configured_formats
-    api.load_simulations_data_from_pickle
-    api.load_simulation_from_pickle
+    pytrnsys_process.api.export_plots_in_configured_formats
+    pytrnsys_process.api.load_simulations_data_from_pickle
+    pytrnsys_process.api.load_simulation_from_pickle
 
 Settings
 ========
@@ -56,8 +56,8 @@ Settings
     :toctree: _as_gen
     :nosignatures:
 
-    api.global_settings
-    api.Defaults
-    api.REPO_ROOT
+    pytrnsys_process.api.global_settings
+    pytrnsys_process.api.Defaults
+    pytrnsys_process.api.REPO_ROOT
 
 

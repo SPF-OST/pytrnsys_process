@@ -1,0 +1,22 @@
+name: release.yml
+on:
+  push:
+    branches: '*'
+#    branches: [ "main" ]
+  workflow_dispatch:
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Get version from pyproject.toml
+        run: echo "VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" >> $GITHUB_ENV
+  tests-and-checks:
+    uses: ./.github/workflows/tests-and-checks-linux.yml
+  release-pypi:
+    uses: ./.github/workflows/release-pypi.yml
+
+
+

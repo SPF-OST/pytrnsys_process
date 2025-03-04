@@ -1,0 +1,21 @@
+name: Static checks and unit tests
+
+on:
+  push:
+    branches: '*'
+    # pull_request:
+    # branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+  tests-and-checks-linux:
+    uses: ./.github/workflows/tests-and-checks-linux.yml
+  tests-and-checks-windows:
+    uses: ./.github/workflows/tests-and-checks-windows.yml
+

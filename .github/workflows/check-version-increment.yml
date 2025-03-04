@@ -17,8 +17,8 @@ jobs:
         run: echo "VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" >> $GITHUB_ENV
       - name: Check for Tag
         run: |
-          if git show-ref --tags --verify --quiet "refs/tags/v${VERSION}"; then
-            echo "Tag v${VERSION} exists"
+          if ! git show-ref --tags --verify --quiet "refs/tags/v${VERSION}"; then
+            echo "Tag v${VERSION} already exists"
           else
             echo "Tag v${VERSION} does not exist"
           fi

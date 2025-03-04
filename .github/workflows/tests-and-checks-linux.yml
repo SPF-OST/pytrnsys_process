@@ -11,6 +11,9 @@ jobs:
     env:
       PY_COLORS: "1"
     steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
       - name: Update APT cache
         run: sudo apt-get update
       - name: Install graphviz for class and package diagrams

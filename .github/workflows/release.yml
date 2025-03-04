@@ -1,4 +1,4 @@
-name: release
+name: Release to PyPi
 on:
   push:
     branches: [ "main" ]

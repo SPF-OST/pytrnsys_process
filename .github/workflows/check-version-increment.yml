@@ -1,4 +1,4 @@
-name: check version increment
+name: Check if version was incremented in pyproject.toml
 on:
   pull_request:
     branches: [ main ]
@@ -16,8 +16,8 @@ jobs:
       - name: Check for Tag
         run: |
           if git show-ref --tags --verify --quiet "refs/tags/v${VERSION}"; then
-            echo "Tag v${VERSION} already exists"
+            echo "Tag v${VERSION} already exists, increment the version in pyproject.toml"
             exit 1
           else
-            echo "Tag v${VERSION} does not exist"
+            echo "Great!! tag v${VERSION} does not exist"
           fi

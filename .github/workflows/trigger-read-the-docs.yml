@@ -1,6 +1,5 @@
 name: Trigger read the docs
-on:
-  workflow_call:
+on: [push]
 
 jobs:
   test-linux:
@@ -10,6 +9,6 @@ jobs:
       - name: Trigger Read The Docs build
         uses: dfm/rtds-action@v1
         with:
-          webhook_url: ${{ secrets.READ_THE_DOCS_URL }}
-          webhook_token: ${{ secrets.READ_THE_DOCS_TOKEN }}
+          webhook_url: 'random string'
+          webhook_token: 'random_string'
           commit_ref: ${{ github.ref }}

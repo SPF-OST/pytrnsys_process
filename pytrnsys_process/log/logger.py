@@ -127,7 +127,7 @@ def get_simulation_logger(simulation_path: _pl.Path) -> _logging.Logger:
     if sim_logger.handlers:
         return sim_logger
 
-    log_file = simulation_path / f"{simulation_path.name}.log"
+    log_file = simulation_path / "processing.log"
     sim_file_handler = _logging.FileHandler(log_file, mode="w")
     sim_file_handler.setLevel(_logging.INFO)
 

@@ -11,17 +11,16 @@ from collections import abc as _abc
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
-from pandas.util import _decorators as _dec  # type: ignore
 
-from pytrnsys_process import constants as const
-from pytrnsys_process.plotting import plotters as pltrs
+from pytrnsys_process import config as conf
+from pytrnsys_process.plot import plotters as pltrs
 
 
 def line_plot(
     df: _pd.DataFrame,
     columns: list[str],
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
@@ -67,7 +66,7 @@ def bar_chart(
     df: _pd.DataFrame,
     columns: list[str],
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
@@ -114,7 +113,7 @@ def stacked_bar_chart(
     df: _pd.DataFrame,
     columns: list[str],
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
@@ -160,7 +159,7 @@ def histogram(
     df: _pd.DataFrame,
     columns: list[str],
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     bins: int = 50,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
@@ -212,7 +211,7 @@ def energy_balance(
     q_out_columns: list[str],
     q_imb_column: _tp.Optional[str] = None,
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
@@ -302,7 +301,7 @@ def scatter_plot(
     group_by_color: str | None = None,
     group_by_marker: str | None = None,
     use_legend: bool = True,
-    size: tuple[float, float] = const.PlotSizes.A4.value,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """

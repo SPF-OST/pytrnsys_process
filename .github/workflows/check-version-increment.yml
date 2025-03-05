@@ -1,0 +1,23 @@
+name: Check if version was incremented in pyproject.toml
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get version from pyproject.toml
+        run: echo "VERSION=$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')" >> $GITHUB_ENV
+      - name: Check for Tag
+        run: |
+          if git show-ref --tags --verify --quiet "refs/tags/v${VERSION}"; then
+            echo "Tag v${VERSION} already exists, increment the version in pyproject.toml"
+            exit 1
+          else
+            echo "Great!! tag v${VERSION} does not exist"
+          fi

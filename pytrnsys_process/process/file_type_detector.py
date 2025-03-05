@@ -3,14 +3,14 @@ import logging as _logging
 import pathlib as _pl
 import re as _re
 
-from pytrnsys_process import constants as const
-from pytrnsys_process import logger as log
-from pytrnsys_process import readers
+from pytrnsys_process import config as conf
+from pytrnsys_process import log
+from pytrnsys_process import read
 
 
 def get_file_type_using_file_content(
-    file_path: _pl.Path, logger: _logging.Logger = log.main_logger
-) -> const.FileType:
+    file_path: _pl.Path, logger: _logging.Logger = log.default_console_logger
+) -> conf.FileType:
     """
     Determine the file type by analyzing its content.
 
@@ -28,24 +28,24 @@ def get_file_type_using_file_content(
     ______
         ValueError: If the file type cannot be determined from the content
     """
-    reader = readers.PrtReader()
+    reader = read.PrtReader()
 
     try:
         # First try reading as regular file to check if it's monthly or hourly
         monthly_or_hourly_df = reader.read(file_path)
         if monthly_or_hourly_df.columns[0] == "Month":
             logger.info("Detected %s as monthly file", file_path)
-            return const.FileType.MONTHLY
+            return conf.FileType.MONTHLY
         if monthly_or_hourly_df.columns[0] == "Period":
             logger.info("Detected %s as hourly file", file_path)
-            return const.FileType.HOURLY
+            return conf.FileType.HOURLY
         # Try reading as step file
         step_df = reader.read_step(file_path)
         if not step_df.empty:
             time_interval = step_df.index[1] - step_df.index[0]
             if time_interval < _dt.timedelta(hours=1):
                 logger.info("Detected %s as step file", file_path)
-                return const.FileType.TIMESTEP
+                return conf.FileType.TIMESTEP
     except Exception as e:
         logger.error("Error reading file %s: %s", file_path, str(e))
         raise ValueError(f"Failed to read file {file_path}: {str(e)}") from e
@@ -57,8 +57,8 @@ def get_file_type_using_file_content(
 
 
 def get_file_type_using_file_name(
-    file: _pl.Path, logger: _logging.Logger = log.main_logger
-) -> const.FileType:
+    file: _pl.Path, logger: _logging.Logger = log.default_console_logger
+) -> conf.FileType:
     """
     Determine the file type by checking the filename against known patterns.
 
@@ -81,12 +81,12 @@ def get_file_type_using_file_name(
     file_suffix = file.suffix.lower()
 
     # Check for DECK files first (suffix-based)
-    if file_suffix == const.FileType.DECK.value:
-        return const.FileType.DECK
+    if file_suffix == conf.FileType.DECK.value:
+        return conf.FileType.DECK
 
-    for file_type in const.FileType:
+    for file_type in conf.FileType:
         # Skip DECK type as it's already handled
-        if file_type == const.FileType.DECK:
+        if file_type == conf.FileType.DECK:
             continue
         if any(
             _re.search(pattern, file_name)
@@ -98,7 +98,7 @@ def get_file_type_using_file_name(
     raise ValueError(f"No matching file type found for filename: {file_name}")
 
 
-def has_pattern(file: _pl.Path, file_type: const.FileType) -> bool:
+def has_pattern(file: _pl.Path, file_type: conf.FileType) -> bool:
     """
     Check if a filename contains any of the patterns associated with a specific FileType.
 

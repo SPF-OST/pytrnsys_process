@@ -2,13 +2,7 @@ from collections import abc as _abc
 from dataclasses import dataclass, field
 from enum import Enum
 
-from pytrnsys_process import constants as const
-
-
-@dataclass
-class Settings:
-    plot: "Plot"
-    reader: "Reader"
+from pytrnsys_process.config import constants as const
 
 
 @dataclass
@@ -59,8 +53,17 @@ class Reader:
     starting_year = 2024
 
 
+@dataclass
+class Settings:
+    plot: Plot
+
+    reader: Reader
+
+
 class Defaults(Enum):
+    "Default settings for different use cases"
+
     DEFAULT = Settings(plot=Plot(), reader=Reader())
 
 
-settings = Defaults.DEFAULT.value
+global_settings = Defaults.DEFAULT.value

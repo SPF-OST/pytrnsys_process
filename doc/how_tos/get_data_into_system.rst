@@ -15,7 +15,7 @@ This is done as follows:
 
 .. code-block:: python
 
-    api.settings.reader.force_reread_prt = True
+    api.global_settings.reader.force_reread_prt = True
 
 Do not forget to turn this off again for faster data loading.
 

@@ -6,9 +6,9 @@ from unittest.mock import Mock, call, patch
 import matplotlib.pyplot as plt
 import pytest
 
-from pytrnsys_process import process_batch as pb
-from pytrnsys_process import utils
-from pytrnsys_process.settings import settings
+from pytrnsys_process import config as conf
+from pytrnsys_process import process
+from pytrnsys_process import util
 from tests.pytrnsys_process import constants as const
 
 RESULTS_FOLDER = _pl.Path(const.DATA_FOLDER / "results")
@@ -36,11 +36,13 @@ def test_save_plot_for_default_settings(tmp_path):
     fig = Mock(spec=plt.Figure)
 
     with (
-        patch("pytrnsys_process.utils.convert_svg_to_emf") as mock_convert,
+        patch(
+            "pytrnsys_process.util.utils.convert_svg_to_emf"
+        ) as mock_convert,
         patch("os.remove") as mock_remove,
     ):
         # Call save_plot
-        utils.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
+        util.export_plots_in_configured_formats(fig, tmp_path, "test_plot")
 
         # Verify plots directory was created
         plots_dir = tmp_path / "plots"
@@ -81,12 +83,12 @@ def test_convert_svg_to_emf(tmp_path):
         file_no_suffix = tmp_path / "test"
 
         # Call convert_svg_to_emf
-        utils.convert_svg_to_emf(file_no_suffix)
+        util.convert_svg_to_emf(file_no_suffix)
 
         # Verify subprocess.run was called correctly
         mock_run.assert_called_once_with(
             [
-                settings.plot.inkscape_path,
+                conf.global_settings.plot.inkscape_path,
                 "--export-filename=" + str(tmp_path / "test.emf"),
                 "--export-type=emf",
                 str(svg_path),
@@ -103,10 +105,10 @@ def test_convert_svg_to_emf(tmp_path):
 def test_convert_svg_to_emf_inkscape_not_found(tmp_path):
     with (
         patch("pathlib.Path.exists", return_value=False),
-        patch("pytrnsys_process.utils.log.main_logger") as mock_logger,
+        patch("pytrnsys_process.log.default_console_logger") as mock_logger,
     ):
         svg_path = tmp_path / "test.svg"
-        utils.convert_svg_to_emf(svg_path)
+        util.convert_svg_to_emf(svg_path)
 
         # Verify error was logged
         mock_logger.error.assert_called_once()
@@ -123,10 +125,10 @@ def test_convert_svg_to_emf_subprocess_error(tmp_path):
             "subprocess.run",
             side_effect=subprocess.CalledProcessError(1, [], output="error"),
         ),
-        patch("pytrnsys_process.utils.log.main_logger") as mock_logger,
+        patch("pytrnsys_process.log.default_console_logger") as mock_logger,
     ):
         svg_path = tmp_path / "test.svg"
-        utils.convert_svg_to_emf(svg_path)
+        util.convert_svg_to_emf(svg_path)
 
         # Verify error was logged
         mock_logger.error.assert_called_once()
@@ -152,7 +154,7 @@ def test_get_files_works_as_expected(tmp_path):
     test_file2.touch()
 
     # Run the function
-    files = utils.get_files([sim_folder])
+    files = util.get_files([sim_folder])
 
     # Verify results
     assert len(files) == 1
@@ -167,17 +169,17 @@ def test_get_file_content_as_string(tmp_path):
     expected_content = "Hello\nWorld!"
     test_file.write_text(expected_content, encoding="UTF-8")
 
-    result = utils.get_file_content_as_string(test_file)
+    result = util.get_file_content_as_string(test_file)
     assert result == expected_content
 
 
 def test_simulation_pickle(tmp_path):
     sim_pickle = tmp_path / "simulation.pickle"
     sim_folder = _pl.Path(RESULTS_FOLDER / "sim-1")
-    simulation = pb.process_single_simulation(sim_folder, lambda x: None)
+    simulation = process.process_single_simulation(sim_folder, lambda x: None)
 
-    utils.save_to_pickle(simulation, sim_pickle)
-    sim_from_pickle = utils.load_simulation_from_pickle(sim_pickle)
+    util.save_to_pickle(simulation, sim_pickle)
+    sim_from_pickle = util.load_simulation_from_pickle(sim_pickle)
 
     assert sim_from_pickle.monthly.shape == (14, 11)
     assert sim_from_pickle.hourly.shape == (3, 18)
@@ -188,10 +190,12 @@ def test_simulation_pickle(tmp_path):
 def test_simulations_data_pickle(tmp_path):
     simulation_data_pickle = tmp_path / "simulations_data.pickle"
     sim_folder = _pl.Path(RESULTS_FOLDER)
-    simulations_data = pb.process_whole_result_set(sim_folder, lambda x: None)
+    simulations_data = process.process_whole_result_set(
+        sim_folder, lambda x: None
+    )
 
-    utils.save_to_pickle(simulations_data, simulation_data_pickle)
-    simulations_data_from_pickle = utils.load_simulations_data_from_pickle(
+    util.save_to_pickle(simulations_data, simulation_data_pickle)
+    simulations_data_from_pickle = util.load_simulations_data_from_pickle(
         simulation_data_pickle
     )
 
@@ -229,7 +233,7 @@ def test_load_simulation_from_invalid_pickle(tmp_path):
         f.write(b"not a pickle file")
 
     with pytest.raises(pickle.UnpicklingError):
-        utils.load_simulation_from_pickle(invalid_pickle)
+        util.load_simulation_from_pickle(invalid_pickle)
 
 
 def test_load_simulation_from_missing_file(tmp_path):
@@ -237,7 +241,7 @@ def test_load_simulation_from_missing_file(tmp_path):
     missing_file = tmp_path / "does_not_exist.pickle"
 
     with pytest.raises(OSError):
-        utils.load_simulation_from_pickle(missing_file)
+        util.load_simulation_from_pickle(missing_file)
 
 
 def test_load_simulation_with_missing_attributes(tmp_path):
@@ -248,7 +252,7 @@ def test_load_simulation_with_missing_attributes(tmp_path):
         pickle.dump(IncompleteSim(), f)
 
     with pytest.raises(ValueError) as exc_info:
-        utils.load_simulation_from_pickle(incomplete_sim_pickle)
+        util.load_simulation_from_pickle(incomplete_sim_pickle)
     assert "missing required Simulation attributes" in str(exc_info.value)
 
 
@@ -259,7 +263,7 @@ def test_load_simulations_data_from_invalid_pickle(tmp_path):
         f.write(b"not a pickle file")
 
     with pytest.raises(pickle.UnpicklingError):
-        utils.load_simulations_data_from_pickle(invalid_pickle)
+        util.load_simulations_data_from_pickle(invalid_pickle)
 
 
 def test_load_simulations_data_from_missing_file(tmp_path):
@@ -267,7 +271,7 @@ def test_load_simulations_data_from_missing_file(tmp_path):
     missing_file = tmp_path / "does_not_exist.pickle"
 
     with pytest.raises(OSError):
-        utils.load_simulations_data_from_pickle(missing_file)
+        util.load_simulations_data_from_pickle(missing_file)
 
 
 def test_load_simulations_data_with_missing_attributes(tmp_path):
@@ -278,5 +282,5 @@ def test_load_simulations_data_with_missing_attributes(tmp_path):
         pickle.dump(IncompleteSimData(), f)
 
     with pytest.raises(ValueError) as exc_info:
-        utils.load_simulations_data_from_pickle(incomplete_data_pickle)
+        util.load_simulations_data_from_pickle(incomplete_data_pickle)
     assert "missing required SimulationsData attributes" in str(exc_info.value)

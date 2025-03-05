@@ -54,7 +54,7 @@ def processing_for_histogram(simulation: api.Simulation):
 
 
 def calc_total_yearly_demand_per_sim(
-        simulations_data: api.SimulationsData,
+    simulations_data: api.SimulationsData,
 ) -> api.SimulationsData:
     # Columns to sum
     demand_columns = [
@@ -86,7 +86,7 @@ def calc_total_yearly_demand_per_sim(
         monthly_df = sim.monthly
         # Calculate total monthly demand in GWh (sum columns and convert from kWh)
         monthly_df["total_demand_GWh"] = (
-                monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
+            monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
         )
 
         # Sum Jan-December values (skip first 2 months - typically Nov/Dec)
@@ -101,7 +101,7 @@ def calc_total_yearly_demand_per_sim(
 
 
 def calc_v_ice_ratio_max_per_sim(
-        simulations_data: api.SimulationsData,
+    simulations_data: api.SimulationsData,
 ) -> api.SimulationsData:
     # Iterate through each simulation's hourly data
     for sim_name, sim in simulations_data.simulations.items():
@@ -115,7 +115,7 @@ def calc_v_ice_ratio_max_per_sim(
 
 
 def comparison_of_scalar_data(
-        simulations_data: api.SimulationsData,
+    simulations_data: api.SimulationsData,
 ):
     # Calculate and add two new metrics to the results:
     # 1. Total yearly energy demand in GWh

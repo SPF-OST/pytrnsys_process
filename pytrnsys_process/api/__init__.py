@@ -7,30 +7,28 @@ TRNSYS simulation output data.
 
 __version__ = "0.0.2"
 
-from pytrnsys_process.constants import REPO_ROOT
-from pytrnsys_process.data_structures import Simulation, SimulationsData
-from pytrnsys_process.plotting.plot_wrappers import (
+from pytrnsys_process.config import REPO_ROOT, Defaults, global_settings
+from pytrnsys_process.plot import (
     bar_chart,
-    line_plot,
-    stacked_bar_chart,
-    histogram,
     energy_balance,
+    histogram,
+    line_plot,
     scatter_plot,
+    stacked_bar_chart,
 )
-from pytrnsys_process.process_batch import (
+from pytrnsys_process.process import (
+    Simulation,
+    SimulationsData,
+    do_comparison,
     process_single_simulation,
     process_whole_result_set,
     process_whole_result_set_parallel,
-    do_comparison,
 )
-
-# ============================================================
-# this lives here, because it needs to be available everywhere
-from pytrnsys_process.settings import settings, Defaults
-from pytrnsys_process.utils import export_plots_in_configured_formats
-from pytrnsys_process.utils import load_simulations_data_from_pickle
-
-# ============================================================
+from pytrnsys_process.util import (
+    export_plots_in_configured_formats,
+    load_simulation_from_pickle,
+    load_simulations_data_from_pickle,
+)
 
 __all__ = [
     "line_plot",
@@ -44,10 +42,11 @@ __all__ = [
     "process_whole_result_set",
     "do_comparison",
     "export_plots_in_configured_formats",
-    "settings",
+    "global_settings",
     "Defaults",
     "REPO_ROOT",
     "Simulation",
     "SimulationsData",
     "load_simulations_data_from_pickle",
+    "load_simulation_from_pickle",
 ]

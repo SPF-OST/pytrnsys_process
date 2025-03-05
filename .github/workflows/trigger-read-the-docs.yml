@@ -1,0 +1,15 @@
+name: Trigger read the docs
+on:
+  workflow_call:
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Read The Docs build
+        uses: dfm/rtds-action@v1
+        with:
+          webhook_url: ${{ secrets.READ_THE_DOCS_URL }}
+          webhook_token: ${{ secrets.READ_THE_DOCS_TOKEN }}
+          commit_ref: ${{ github.ref }}

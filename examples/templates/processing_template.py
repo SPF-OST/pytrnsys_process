@@ -1,6 +1,6 @@
 import pathlib as _pl
 
-import data_structures
+from process import data_structures
 from pytrnsys_process import api
 
 

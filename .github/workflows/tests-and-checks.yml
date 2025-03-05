@@ -1,0 +1,14 @@
+name: Run tests and checks
+
+on:
+  push:
+    branches: '*'
+
+  workflow_dispatch:
+
+jobs:
+  tests-and-checks-linux:
+    uses: ./.github/workflows/tests-and-checks-linux.yml
+  tests-and-checks-windows:
+    uses: ./.github/workflows/tests-and-checks-windows.yml
+

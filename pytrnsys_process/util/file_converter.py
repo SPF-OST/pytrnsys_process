@@ -1,19 +1,21 @@
+import logging as _logging
 import pathlib as _pl
 import re as _re
 
 import pandas as _pd
 
-from pytrnsys_process import constants as const
-from pytrnsys_process import file_type_detector as ftd
-from pytrnsys_process import readers
-from pytrnsys_process.logger import main_logger
+from pytrnsys_process import config as conf
+from pytrnsys_process import log, read
+from pytrnsys_process.process import file_type_detector as ftd
 
 
 class CsvConverter:
 
     @staticmethod
     def rename_file_with_prefix(
-        file_path: _pl.Path, prefix: const.FileType
+        file_path: _pl.Path,
+        prefix: conf.FileType,
+        logger: _logging.Logger = log.default_console_logger,
     ) -> None:
         """Rename a file with a given prefix.
 
@@ -40,10 +42,13 @@ class CsvConverter:
         new_path = file_path.parent / new_name
         file_path.rename(new_path)
 
-        main_logger.info("Renamed %s to %s", file_path, new_path)
+        logger.info("Renamed %s to %s", file_path, new_path)
 
     def convert_sim_results_to_csv(
-        self, input_path: _pl.Path, output_dir: _pl.Path
+        self,
+        input_path: _pl.Path,
+        output_dir: _pl.Path,
+        logger: _logging.Logger = log.default_console_logger,
     ) -> None:
         """Convert TRNSYS simulation results to CSV format.
 
@@ -69,29 +74,29 @@ class CsvConverter:
             if input_file.is_dir():
                 continue
 
-            if ftd.has_pattern(input_file, const.FileType.MONTHLY):
-                df = readers.PrtReader().read_monthly(input_file)
+            if ftd.has_pattern(input_file, conf.FileType.MONTHLY):
+                df = read.PrtReader().read_monthly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    const.FileType.MONTHLY.value.patterns,
-                    const.FileType.MONTHLY.value.prefix,
+                    conf.FileType.MONTHLY.value.patterns,
+                    conf.FileType.MONTHLY.value.prefix,
                 )
-            elif ftd.has_pattern(input_file, const.FileType.HOURLY):
-                df = readers.PrtReader().read_hourly(input_file)
+            elif ftd.has_pattern(input_file, conf.FileType.HOURLY):
+                df = read.PrtReader().read_hourly(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    const.FileType.HOURLY.value.patterns,
-                    const.FileType.HOURLY.value.prefix,
+                    conf.FileType.HOURLY.value.patterns,
+                    conf.FileType.HOURLY.value.prefix,
                 )
-            elif ftd.has_pattern(input_file, const.FileType.TIMESTEP):
-                df = readers.PrtReader().read_step(input_file)
+            elif ftd.has_pattern(input_file, conf.FileType.TIMESTEP):
+                df = read.PrtReader().read_step(input_file)
                 output_stem = self._refactor_filename(
                     input_file.stem,
-                    const.FileType.TIMESTEP.value.patterns,
-                    const.FileType.TIMESTEP.value.prefix,
+                    conf.FileType.TIMESTEP.value.patterns,
+                    conf.FileType.TIMESTEP.value.prefix,
                 )
             else:
-                main_logger.warning(
+                logger.warning(
                     "Unknown file type: %s, will try to detect via timestamps",
                     input_file.name,
                 )
@@ -105,30 +110,33 @@ class CsvConverter:
     @staticmethod
     def using_file_content_read_appropriately(
         file_path: _pl.Path,
+        logger: _logging.Logger = log.default_console_logger,
     ) -> tuple[str, _pd.DataFrame]:
         """Read the file according to the file contents."""
-        prt_reader = readers.PrtReader()
+        prt_reader = read.PrtReader()
         file_type = ftd.get_file_type_using_file_content(file_path)
-        if file_type == const.FileType.MONTHLY:
-            df_monthly = readers.PrtReader().read_monthly(file_path)
-            monthly_file = f"{const.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
-            main_logger.info(
+        if file_type == conf.FileType.MONTHLY:
+            df_monthly = read.PrtReader().read_monthly(file_path)
+            monthly_file = (
+                f"{conf.FileType.MONTHLY.value.prefix}{file_path.stem}".lower()
+            )
+            logger.info(
                 "Converted %s to monthly file: %s", file_path, monthly_file
             )
             return monthly_file, df_monthly
-        if file_type == const.FileType.HOURLY:
+        if file_type == conf.FileType.HOURLY:
             df_hourly = prt_reader.read_hourly(file_path)
             hourly_file = (
-                f"{const.FileType.HOURLY.value.prefix}{file_path.stem}".lower()
+                f"{conf.FileType.HOURLY.value.prefix}{file_path.stem}".lower()
             )
-            main_logger.info(
+            logger.info(
                 "Converted %s to hourly file: %s", file_path, hourly_file
             )
             return hourly_file, df_hourly
-        if file_type == const.FileType.TIMESTEP:
+        if file_type == conf.FileType.TIMESTEP:
             df_step = prt_reader.read_step(file_path)
-            timestamp_file = f"{const.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
-            main_logger.info(
+            timestamp_file = f"{conf.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
+            logger.info(
                 "Converted %s to timestamp file: %s", file_path, timestamp_file
             )
             return timestamp_file, df_step

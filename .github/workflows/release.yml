@@ -9,6 +9,9 @@ jobs:
   release-pypi:
     needs: tests-and-checks
     uses: ./.github/workflows/release-pypi.yml
+  trigger-read-the-docs:
+    needs: release-pypi
+    uses: ./.github/workflows/trigger-read-the-docs.yml
 
 
 

@@ -1,11 +1,11 @@
-name: Release to PyPi
+name: Release to PyPi and read the docs
 on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
 jobs:
   tests-and-checks:
-    uses: ./.github/workflows/tests-and-checks-linux.yml
+    uses: ./.github/workflows/tests-and-checks-windows.yml
   release-pypi:
     needs: tests-and-checks
     uses: ./.github/workflows/release-pypi.yml

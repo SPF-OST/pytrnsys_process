@@ -2,7 +2,8 @@ name: Run tests and checks
 
 on:
   push:
-    branches: '*'
+    branches-ignore:
+      - main
 
   workflow_dispatch:
 

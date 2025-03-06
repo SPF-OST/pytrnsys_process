@@ -17,7 +17,7 @@ classifiers = [
 dynamic = ["dependencies"]
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["requirements/release-3rd-party.txt"]}
+dependencies = {file = ["requirements/release-3rd-party.in"]}
 
 [project.urls]
 Homepage = "https://github.com/SPF-OST/pytrnsys_process"

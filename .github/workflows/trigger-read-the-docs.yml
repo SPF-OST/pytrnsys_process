@@ -1,5 +1,6 @@
 name: Trigger read the docs
-on: [push]
+on:
+  workflow_call:
 
 jobs:
   test-linux:

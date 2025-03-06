@@ -11,10 +11,6 @@ jobs:
       PY_COLORS: "1"
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
-      - name: Ensure lsf files are available
-        run: git lfs pull
       - name: Remove old venv
         run: |
           if (Test-Path -LiteralPath venv) {

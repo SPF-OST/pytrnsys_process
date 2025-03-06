@@ -1,9 +1,14 @@
 name: Trigger read the docs
 on:
   workflow_call:
+    secrets:
+      READ_THE_DOCS_URL:
+        required: true
+      READ_THE_DOCS_TOKEN:
+        required: true
 
 jobs:
-  test-linux:
+  trigger-read-the-docs:
     runs-on: ubuntu-latest
     environment: readthedocs
     steps:

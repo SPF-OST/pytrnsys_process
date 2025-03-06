@@ -70,6 +70,9 @@ jobs:
   trigger-read-the-docs:
     needs: tag
     uses: ./.github/workflows/trigger-read-the-docs.yml
+    secrets:
+      READ_THE_DOCS_URL: ${{ secrets.READ_THE_DOCS_URL }}
+      READ_THE_DOCS_TOKEN: ${{ secrets.READ_THE_DOCS_TOKEN }}
 
 
 

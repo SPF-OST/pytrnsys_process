@@ -7,6 +7,8 @@ jobs:
   tests-and-checks:
     uses: ./.github/workflows/tests-and-checks-windows.yml
   tag:
+    needs:
+      - tests-and-checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

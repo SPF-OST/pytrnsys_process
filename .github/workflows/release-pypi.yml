@@ -7,6 +7,8 @@ jobs:
   tests-and-checks:
     uses: ./.github/workflows/tests-and-checks-windows.yml
   tag:
+    needs:
+      - tests-and-checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +72,9 @@ jobs:
   trigger-read-the-docs:
     needs: tag
     uses: ./.github/workflows/trigger-read-the-docs.yml
+    secrets:
+      READ_THE_DOCS_URL: ${{ secrets.READ_THE_DOCS_URL }}
+      READ_THE_DOCS_TOKEN: ${{ secrets.READ_THE_DOCS_TOKEN }}
 
 
 

@@ -80,9 +80,16 @@ class TestFileContentDetection:
         return file_path
 
     @pytest.fixture
-    def timestep_file(self):
+    def hydraulic_file(self):
         file_path = (
             test_const.DATA_FOLDER / "results/sim-1/temp/HPCtrlPrinter.Prt"
+        )
+        return file_path
+
+    @pytest.fixture
+    def timestep_file(self):
+        file_path = (
+            test_const.DATA_FOLDER / "results/sim-1/temp/ModePrinter_step.prt"
         )
         return file_path
 
@@ -98,6 +105,13 @@ class TestFileContentDetection:
         assert (
             process.get_file_type_using_file_content(hourly_file)
             == conf.FileType.HOURLY
+        )
+
+    def test_detect_hydraulic_file(self, hydraulic_file):
+        """Test detection of timestep files based on content"""
+        assert (
+            process.get_file_type_using_file_content(hydraulic_file)
+            == conf.FileType.HYDRAULIC
         )
 
     def test_detect_timestep_file(self, timestep_file):

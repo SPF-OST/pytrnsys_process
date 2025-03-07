@@ -134,6 +134,13 @@ class CsvConverter:
             )
             return hourly_file, df_hourly
         if file_type == conf.FileType.TIMESTEP:
+            df_step = prt_reader.read_step(file_path, skipfooter=23, header=1)
+            timestamp_file = f"{conf.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
+            logger.info(
+                "Converted %s to timestamp file: %s", file_path, timestamp_file
+            )
+            return timestamp_file, df_step
+        if file_type == conf.FileType.HYDRAULIC:
             df_step = prt_reader.read_step(file_path)
             timestamp_file = f"{conf.FileType.TIMESTEP.value.prefix}{file_path.stem}".lower()
             logger.info(

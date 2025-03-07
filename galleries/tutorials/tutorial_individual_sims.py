@@ -5,7 +5,7 @@ Processing Individual Simulations
 =================================
 
 This is an introduction to the processing API.
-For a more in-depth view, please refer to the :ref:`how_tos` and the API docs :py:mod:`pytrnsys_process.api`
+For a more in-depth view, please refer to the :ref:`how_tos` and the API docs :ref:`api-reference-api`
 
 """
 

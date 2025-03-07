@@ -129,7 +129,7 @@ def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
     """
     starting_year = conf.global_settings.reader.starting_year
     extension = file_path.suffix.lower()
-    logger = log.get_simulation_logger(file_path.parent)
+    logger = log.get_simulation_logger(file_path.parents[1])
     if extension in [".prt", ".hr"]:
         reader = read.PrtReader()
         if file_type == conf.FileType.MONTHLY:

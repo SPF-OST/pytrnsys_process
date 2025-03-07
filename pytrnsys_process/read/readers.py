@@ -114,9 +114,9 @@ class PrtReader(ReaderBase):
             logger.error("Error reading monthly file %s: %s", monthly_file, e)
             raise
 
-    def read_step(self, step_file: _pl.Path, starting_year: int = 1990):
+    def read_step(self, step_file: _pl.Path, starting_year: int = 1990, skipfooter=0, header=0):
         df = self._process_dataframe(
-            self.read(step_file, skipfooter=0, header=0), starting_year, "TIME"
+            self.read(step_file, skipfooter=skipfooter, header=header), starting_year, "TIME"
         )
         return df
 
@@ -155,11 +155,15 @@ class PrtReader(ReaderBase):
                 f"Invalid time_column_name: {time_column_name}. Must be 'Period', 'TIME' or 'Month'"
             )
 
-        # Remove time columns
-        if df.columns[1].lower() == "time":
-            df.columns.values[1] = df.columns[1].lower()
-            df = df.drop(columns=["time"])
-        df = df.drop(columns=[time_column_name])
+        # Remove time columns, as the index already provides this.
+        if 'Period' in df.columns:
+            df = df.drop(columns=['Period'])
+
+        if 'TIME' in df.columns:
+            df = df.drop(columns=['TIME'])
+
+        if 'Month' in df.columns:
+            df = df.drop(columns=['Month'])
 
         return df.set_index("Timestamp")
 

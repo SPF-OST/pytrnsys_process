@@ -18,7 +18,8 @@ FILE_NAME_TEST_CASES = [
     (_pl.Path("step_results.txt"), conf.FileType.TIMESTEP),
     (_pl.Path("step_modeprinter.csv"), conf.FileType.TIMESTEP),
     (_pl.Path("this_is_a_deck_file.dck"), conf.FileType.DECK),
-    (_pl.Path("pytrnsys_demo_Mfr.prt"), conf.FileType.TIMESTEP),
+    (_pl.Path("pytrnsys_demo_Mfr.prt"), conf.FileType.HYDRAULIC),
+    (_pl.Path("pytrnsys_demo_T.prt"), conf.FileType.HYDRAULIC),
 ]
 
 

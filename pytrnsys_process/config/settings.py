@@ -66,4 +66,4 @@ class Defaults(Enum):
     DEFAULT = Settings(plot=Plot(), reader=Reader())
 
 
-global_settings = Defaults.DEFAULT.value
+global_settings: Settings = Defaults.DEFAULT.value

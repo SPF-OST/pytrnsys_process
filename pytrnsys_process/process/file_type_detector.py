@@ -39,13 +39,23 @@ def get_file_type_using_file_content(
         if monthly_or_hourly_df.columns[0] == "Period":
             logger.info("Detected %s as hourly file", file_path)
             return conf.FileType.HOURLY
-        # Try reading as step file
-        step_df = reader.read_step(file_path)
-        if not step_df.empty:
-            time_interval = step_df.index[1] - step_df.index[0]
-            if time_interval < _dt.timedelta(hours=1):
-                logger.info("Detected %s as step file", file_path)
-                return conf.FileType.TIMESTEP
+        try:
+            # Try reading as hydraulic file
+            step_df = reader.read(file_path, skipfooter=0, header=0)
+            if step_df.columns[0] in ["Period", 'TIME']:
+                step_df = reader.read_step(file_path)
+                time_interval = step_df.index[1] - step_df.index[0]
+                if time_interval < _dt.timedelta(hours=1):
+                    logger.info("Detected %s as step file", file_path)
+                    return conf.FileType.HYDRAULIC
+        except:
+            step_df = reader.read(file_path, skipfooter=23, header=1)
+            if step_df.columns[0] in ["Period", 'TIME']:
+                step_df = reader.read_step(file_path, skipfooter=23, header=1)
+                time_interval = step_df.index[1] - step_df.index[0]
+                if time_interval < _dt.timedelta(hours=1):
+                    logger.info("Detected %s as step file", file_path)
+                    return conf.FileType.TIMESTEP
     except Exception as e:
         logger.error("Error reading file %s: %s", file_path, str(e))
         raise ValueError(f"Failed to read file {file_path}: {str(e)}") from e

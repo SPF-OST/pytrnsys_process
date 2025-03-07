@@ -33,6 +33,14 @@ def process_sim(
                 str(e),
                 exc_info=True,
             )
+        except KeyError as e:
+            sim_logger.error(
+                "Error reading file %s it will not be available for processing: %s",
+                sim_file,
+                str(e),
+                exc_info=True,
+            )
+
 
     return _merge_dataframes_into_simulation(
         simulation_data_collector, sim_folder

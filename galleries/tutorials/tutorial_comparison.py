@@ -9,8 +9,6 @@ For a more in-depth view, please refer to the :ref:`how_tos` and the API docs :r
 
 """
 
-
-
 # %%
 # Required Imports
 # ================
@@ -46,6 +44,7 @@ from pytrnsys_process import api
 # The results will be stored in the scalar dataframe that all simulations share.
 # At the end we will return the modified :class:`pytrnsys_process.api.SimulationsData` object.
 # Reason for this is mentioned in the next step.
+
 
 def do_calc(simulations_data: api.SimulationsData):
 
@@ -83,7 +82,7 @@ def do_calc(simulations_data: api.SimulationsData):
         # Process monthly data
         monthly_df = sim.monthly
         monthly_df["total_demand_GWh"] = (
-                monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
+            monthly_df[demand_columns].sum(axis=1) * kwh_to_gwh
         )
 
         # Calculate yearly total (excluding first 2 months)
@@ -93,12 +92,14 @@ def do_calc(simulations_data: api.SimulationsData):
         )
     return simulations_data
 
+
 # %%
 # Chain multiple comparison steps
 # ===============================
 # By chaining comparison steps together, we ensure that if a dependent step fails, the entire process fails.
 # In this step, we call the previously defined step to validate our data before generating plots.
 # This way, if an error occurs during the calculation, we avoid plotting incorrect data.
+
 
 def plot_comparison(simulations_data: api.SimulationsData):
     simulations_data = do_calc(simulations_data)
@@ -113,6 +114,7 @@ def plot_comparison(simulations_data: api.SimulationsData):
 
     fig.show()
 
+
 # %%
 # Running comparison steps
 # ===============================
@@ -120,13 +122,12 @@ def plot_comparison(simulations_data: api.SimulationsData):
 # In this tutorial we will provide the path to our result folder.
 # For other ways checkout see :meth:`pytrnsys_process.api.do_comparison`
 if __name__ == "__main__":
-    path_to_sim = _pl.Path(
-        "../example_data/ice/"
-    )
+    path_to_sim = _pl.Path("../example_data/ice/")
     api.do_comparison([plot_comparison], results_folder=path_to_sim)
 
     # sphinx_gallery_start_ignore
-    simulations_data = api.load_simulations_data_from_pickle(path_to_sim / "simulations_data.pickle")
+    simulations_data = api.load_simulations_data_from_pickle(
+        path_to_sim / "simulations_data.pickle"
+    )
     plot_comparison(simulations_data)
     # sphinx_gallery_end_ignore
-

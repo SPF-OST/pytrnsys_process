@@ -141,9 +141,9 @@ def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
                 file_path, logger=logger, starting_year=starting_year
             )
         if file_type == conf.FileType.TIMESTEP:
-            return reader.read_step(file_path, starting_year=starting_year)
-        if file_type == conf.FileType.HYDRAULIC:
             return reader.read_step(file_path, starting_year=starting_year, skipfooter=23, header=1)
+        if file_type == conf.FileType.HYDRAULIC:
+            return reader.read_step(file_path, starting_year=starting_year)
     elif extension == ".csv":
         return read.CsvReader().read_csv(file_path)
 

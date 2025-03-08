@@ -33,6 +33,13 @@ def process_sim(
                 str(e),
                 exc_info=True,
             )
+        except KeyError as e:
+            sim_logger.error(
+                "Error reading file %s it will not be available for processing: %s",
+                sim_file,
+                str(e),
+                exc_info=True,
+            )
 
     return _merge_dataframes_into_simulation(
         simulation_data_collector, sim_folder
@@ -141,6 +148,10 @@ def _read_file(file_path: _pl.Path, file_type: conf.FileType) -> _pd.DataFrame:
                 file_path, logger=logger, starting_year=starting_year
             )
         if file_type == conf.FileType.TIMESTEP:
+            return reader.read_step(
+                file_path, starting_year=starting_year, skipfooter=23, header=1
+            )
+        if file_type == conf.FileType.HYDRAULIC:
             return reader.read_step(file_path, starting_year=starting_year)
     elif extension == ".csv":
         return read.CsvReader().read_csv(file_path)
@@ -167,6 +178,13 @@ def _process_file(
     ):
         simulation_data_collector.step.append(
             _read_file(file_path, conf.FileType.TIMESTEP)
+        )
+    elif (
+        file_type == conf.FileType.HYDRAULIC
+        and conf.global_settings.reader.read_step_files
+    ):
+        simulation_data_collector.step.append(
+            _read_file(file_path, conf.FileType.HYDRAULIC)
         )
     elif (
         file_type == conf.FileType.DECK

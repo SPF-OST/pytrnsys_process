@@ -1,6 +1,6 @@
 [project]
 name = "pytrnsys_process"
-version = "0.0.15"
+version = "0.0.16"
 authors = [
     { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },
     { name="Alex Hobé", email="alex.hobe@ost.ch" },
@@ -22,6 +22,7 @@ dependencies = {file = ["requirements/release-3rd-party.in"]}
 [project.urls]
 Homepage = "https://github.com/SPF-OST/pytrnsys_process"
 Issues = "https://github.com/SPF-OST/pytrnsys_process/issues"
+Documentation = "https://pytrnsys-process.readthedocs.io"
 
 [build-system]
 requires = ["setuptools >= 61.0"]

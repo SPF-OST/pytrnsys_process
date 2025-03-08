@@ -191,10 +191,10 @@ def process_single_simulation(
 
     Example
     _______
-            >>> from process import data_structures            >>> import pathlib as _pl
+            >>> import pathlib as _pl
             >>> from pytrnsys_process import api
             ...
-            >>> def processing_step_1(sim: data_structures.Simulation):
+            >>> def processing_step_1(sim: api.Simulation):
             ...     # Process simulation data
             ...     pass
             >>> results = api.process_single_simulation(

@@ -20,7 +20,11 @@ class FileType(Enum):
     MONTHLY = FilePattern(patterns=["_mo_", "_mo$", "^mo_"], prefix="mo_")
     HOURLY = FilePattern(patterns=["_hr_", "_hr$", "^hr_"], prefix="hr_")
     TIMESTEP = FilePattern(
-        patterns=["_step_", "_step$", "^step_", "_mfr_", "_mfr$", "_t$"],
+        patterns=["_step_", "_step$", "^step_"],
+        prefix="step_",
+    )
+    HYDRAULIC = FilePattern(
+        patterns=["_mfr_", "_mfr$", "_t$"],
         prefix="step_",
     )
     DECK = ".dck"

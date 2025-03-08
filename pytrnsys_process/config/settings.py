@@ -31,6 +31,7 @@ class Plot:  # pylint: disable=too-many-instance-attributes
 
 
     """
+
     file_formats: _abc.Sequence[str] = field(
         default_factory=lambda: [".png", ".pdf", ".emf"]
     )
@@ -86,6 +87,7 @@ class Reader:
         starting_year: int
             The reader will use this to set the year in which the data starts in the datetime index.
     """
+
     folder_name_for_printer_files: str = "temp"
     read_step_files: bool = False
     read_deck_files: bool = True
@@ -107,6 +109,7 @@ class Settings:
             class holding global settings for readers
 
     """
+
     plot: Plot
 
     reader: Reader

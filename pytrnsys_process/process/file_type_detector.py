@@ -42,17 +42,17 @@ def get_file_type_using_file_content(
         try:
             # Try reading as hydraulic file
             step_df = reader.read(file_path, skipfooter=0, header=0)
-            if step_df.columns[0] in ["Period", 'TIME']:
+            if step_df.columns[0] in ["Period", "TIME"]:
                 step_df = reader.read_step(file_path)
                 time_interval = step_df.index[1] - step_df.index[0]
                 if time_interval < _dt.timedelta(hours=1):
                     logger.info("Detected %s as step file", file_path)
                     return conf.FileType.HYDRAULIC
-            raise ValueError('Used to try the step file')
+            raise ValueError("Used to try the step file")
         except:  # pylint: disable=bare-except
             # try reading as a step file
             step_df = reader.read(file_path, skipfooter=23, header=1)
-            if step_df.columns[0] in ["Period", 'TIME']:
+            if step_df.columns[0] in ["Period", "TIME"]:
                 step_df = reader.read_step(file_path, skipfooter=23, header=1)
                 time_interval = step_df.index[1] - step_df.index[0]
                 if time_interval < _dt.timedelta(hours=1):

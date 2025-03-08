@@ -56,8 +56,12 @@ class TestReader:
         _pd.testing.assert_frame_equal(actual_df, expected_df)
 
     def test_read_step_other(self):
-        step_file_path = self.STEP_DIR_PATH / "sink_storage_temperatures_step.prt"
-        actual_df = read.PrtReader().read_step(step_file_path, skipfooter=23, header=1)
+        step_file_path = (
+            self.STEP_DIR_PATH / "sink_storage_temperatures_step.prt"
+        )
+        actual_df = read.PrtReader().read_step(
+            step_file_path, skipfooter=23, header=1
+        )
 
         expected_file_path = self.STEP_DIR_PATH / "expected_other.csv"
         expected_df = read.CsvReader().read_csv(expected_file_path)

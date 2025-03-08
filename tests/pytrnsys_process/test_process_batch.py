@@ -4,6 +4,7 @@ from unittest import mock as _mock
 import pytest as _pt
 
 from pytrnsys_process import process
+
 # from pytrnsys_process.process import process_batch as pb
 from tests.pytrnsys_process import constants as const
 

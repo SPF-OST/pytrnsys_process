@@ -2,8 +2,9 @@ name: Run tests and checks
 
 on:
   push:
-    branches-ignore:
-      - main
+    branches:
+      - '*'
+      - '!master'
 
   workflow_dispatch:
 

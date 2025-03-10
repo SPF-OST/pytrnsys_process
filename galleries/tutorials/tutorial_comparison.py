@@ -120,7 +120,7 @@ def plot_comparison(simulations_data: api.SimulationsData):
 # ===============================
 # There are different ways of providing data to the do_comparison function.
 # In this tutorial we will provide the path to our result folder.
-# For other ways checkout see :meth:`pytrnsys_process.api.do_comparison`
+# For other ways see :meth:`pytrnsys_process.api.do_comparison`
 if __name__ == "__main__":
     path_to_sim = _pl.Path("../example_data/ice/")
     api.do_comparison([plot_comparison], results_folder=path_to_sim)

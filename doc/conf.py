@@ -52,8 +52,8 @@ plot_html_show_formats = False
 plot_pre_code = """from pytrnsys_process import api
 import pathlib as _pl
 import pandas as pd
-comparison_data = pd.read_json(_pl.Path("../../galleries/data/comparison_data.json"))
-simulation = api.process_single_simulation(_pl.Path("../../galleries/data/results/sim-1"), [])
+comparison_data = pd.read_json(_pl.Path("../../galleries/example_data/small/comparison_data.json"))
+simulation = api.process_single_simulation(_pl.Path("../../galleries/example_data/small/sim-1"), [])
 """
 
 

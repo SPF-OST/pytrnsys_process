@@ -41,23 +41,22 @@ def get_file_type_using_file_content(
             return conf.FileType.HOURLY
         try:
             # Try reading as hydraulic file
-            step_df = reader.read(file_path, skipfooter=0, header=0)
-            if step_df.columns[0] in ["Period", "TIME"]:
-                step_df = reader.read_step(file_path)
-                time_interval = step_df.index[1] - step_df.index[0]
-                if time_interval < _dt.timedelta(hours=1):
-                    logger.info("Detected %s as step file", file_path)
-                    return conf.FileType.HYDRAULIC
-            raise ValueError("Used to try the step file")
-        except:  # pylint: disable=bare-except
+            return _try_read_as_step(
+                file_path,
+                logger,
+                conf.FileType.HYDRAULIC,
+                skipfooter=0,
+                header=0,
+            )
+        except Exception:  # pylint: disable=broad-exception-caught
             # try reading as a step file
-            step_df = reader.read(file_path, skipfooter=23, header=1)
-            if step_df.columns[0] in ["Period", "TIME"]:
-                step_df = reader.read_step(file_path, skipfooter=23, header=1)
-                time_interval = step_df.index[1] - step_df.index[0]
-                if time_interval < _dt.timedelta(hours=1):
-                    logger.info("Detected %s as step file", file_path)
-                    return conf.FileType.TIMESTEP
+            return _try_read_as_step(
+                file_path,
+                logger,
+                conf.FileType.TIMESTEP,
+                skipfooter=23,
+                header=1,
+            )
     except Exception as e:
         logger.error("Error reading file %s: %s", file_path, str(e))
         raise ValueError(f"Failed to read file {file_path}: {str(e)}") from e
@@ -66,6 +65,24 @@ def get_file_type_using_file_content(
     raise ValueError(
         f"Could not determine file type from content of {file_path}"
     )
+
+
+def _try_read_as_step(
+    file_path, logger, expected_file_type, skipfooter, header
+):
+    reader = read.PrtReader()
+    step_df = reader.read(file_path, skipfooter=skipfooter, header=header)
+    if step_df.columns[0] in ["Period", "TIME"]:
+        step_df = reader.read_step(
+            file_path, skipfooter=skipfooter, header=header
+        )
+        time_interval = step_df.index[1] - step_df.index[0]
+        if time_interval < _dt.timedelta(hours=1):
+            logger.info(
+                "Detected %s as a %s", file_path, expected_file_type.name
+            )
+            return expected_file_type
+    raise ValueError(f"Unable to read as {expected_file_type.name}")
 
 
 def get_file_type_using_file_name(

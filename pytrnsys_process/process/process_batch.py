@@ -411,7 +411,9 @@ def do_comparison(
             raise ValueError(
                 "Either simulations_data or results_folder must be provided to perform comparison"
             )
-        path_to_simulations_data = results_folder / "simulations_data.pickle"
+        path_to_simulations_data = (
+            results_folder / conf.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value
+        )
         if path_to_simulations_data.exists():
             simulations_data = util.load_simulations_data_from_pickle(
                 path_to_simulations_data

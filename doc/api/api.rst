@@ -1,3 +1,5 @@
+.. _api-reference-api:
+
 ************************
 ``pytrnsys_process.api``
 ************************

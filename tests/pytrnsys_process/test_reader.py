@@ -1,4 +1,5 @@
 import pathlib as _pl
+import pandas as _pd
 
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import read
@@ -45,15 +46,26 @@ class TestReader:
         assert timestamps[-1].year == 1991
         assert timestamps[-1].month == 12
 
-    def test_read_step(self):
+    def test_read_step_hydraulic(self):
         step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.prt"
         actual_df = read.PrtReader().read_step(step_file_path)
 
         expected_file_path = self.STEP_DIR_PATH / "expected.csv"
         expected_df = read.CsvReader().read_csv(expected_file_path)
 
-        diff_df = actual_df.compare(expected_df)
-        assert diff_df.empty
+        _pd.testing.assert_frame_equal(actual_df, expected_df)
+
+    def test_read_step_other(self):
+        step_file_path = (
+            self.STEP_DIR_PATH / "sink_storage_temperatures_step.prt"
+        )
+        actual_df = read.PrtReader().read_step(
+            step_file_path, skipfooter=23, header=1
+        )
+
+        expected_file_path = self.STEP_DIR_PATH / "expected_other.csv"
+        expected_df = read.CsvReader().read_csv(expected_file_path)
+        _pd.testing.assert_frame_equal(actual_df, expected_df)
 
 
 class TestBenchmarkReader:

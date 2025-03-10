@@ -20,8 +20,10 @@ def parse_deck_for_constant_expressions(
 
     Parameters
     __________
-        deck_as_string: A string containing the contents of a TRNSYS deck file.
-        logger: provide your own logger. to for example log per simulation
+        deck_as_string: str
+            A string containing the contents of a TRNSYS deck file.
+        logger: Logger
+            provide your own logger. to for example log per simulation
 
     Returns
     _______

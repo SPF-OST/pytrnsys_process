@@ -177,7 +177,7 @@ def process_single_simulation(
 
     Parameters
     __________
-        sim_folder:
+        sim_folder pathlib.Path:
             Path to the simulation folder to process
 
         processing_scenarios:

@@ -4,11 +4,14 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 jobs:
-  tests-and-checks:
+  tests-and-checks-windows:
     uses: ./.github/workflows/tests-and-checks-windows.yml
+  test-and-checks-linux:
+    uses: ./.github/workflows/tests-and-checks-linux.yml
   tag:
     needs:
-      - tests-and-checks
+      - tests-and-checks-windows
+      - test-and-checks-linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

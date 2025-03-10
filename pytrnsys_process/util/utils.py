@@ -215,16 +215,16 @@ def save_to_pickle(
 def load_simulations_data_from_pickle(
     path: _pl.Path, logger: _logging.Logger = log.default_console_logger
 ) -> ds.SimulationsData:
-    """Load ResultsForComparison data from a pickle file.
+    """Load SimulationsData from a pickle file.
 
-    This function loads a previously saved ResultsForComparison object from a pickle file.
+    This function loads a previously saved SimulationsData object from a pickle file.
 
     Parameters
     __________
-        path:
-            Path to the pickle file to load
+        path: pathlib.Path
+            To the pickle file to load
 
-        logger:
+        logger: logging.Logger, optional
             Logger object that will log any messages, warnings, and/or errors
 
     Returns
@@ -267,6 +267,27 @@ def load_simulations_data_from_pickle(
 def load_simulation_from_pickle(
     path: _pl.Path, logger: _logging.Logger = log.default_console_logger
 ) -> ds.Simulation:
+    """Load a Simulation object from a pickle file.
+
+    This function loads a previously saved Simulation object from a pickle file.
+
+    Parameters
+    __________
+        path: pathlib.Path
+            To the pickle file to load
+
+        logger: logging.Logger, optional
+            Logger object that will log any messages, warnings, and/or errors
+
+    Returns
+    _______
+        Simulation: :class:`pytrnsys_processing.data_structures.Simulation`
+            Reconstructed Simulation object
+
+    Raises
+    _______
+        OSError: If there's an error reading the file
+        pickle.UnpicklingError: If the file is corrupted or invalid"""
     try:
         with open(path, "rb") as f:
             simulation = _pickle.load(f)

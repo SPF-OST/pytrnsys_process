@@ -168,26 +168,25 @@ def _handle_simulation_error(
 
 def process_single_simulation(
     sim_folder: _pl.Path,
-    processing_scenarios: Union[
+    processing_scenario: Union[
         _abc.Callable[[ds.Simulation], None],
         Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
 ) -> ds.Simulation:
-    """Process a single simulation folder using the provided processing scenario(s).
+    """Process a single simulation folder using the provided processing step/scenario.
 
     Parameters
     __________
-        sim_folder pathlib.Path:
+        sim_folder: pathlib.Path
             Path to the simulation folder to process
 
-        processing_scenarios:
-            Single callable or sequence of callables that implement
-            the processing logic for a simulation. Each callable should take a Simulation
-            object as its only parameter.
+        processing_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
+            They should containd the processing logic for a simulation.
+            Each callable should take a Simulation object as its only parameter and modify it in place.
 
     Returns
     _______
-            Simulation object containing the processed data
+        Simulation: :class:`pytrnsys_process.api.Simulation`
 
     Example
     _______
@@ -207,7 +206,7 @@ def process_single_simulation(
     main_logger.info("Starting processing of simulation %s", sim_folder)
     sim_folders = [sim_folder]
     simulations_data = _process_batch(
-        sim_folders, processing_scenarios, sim_folder.parent
+        sim_folders, processing_scenario, sim_folder.parent
     )
     try:
         return simulations_data.simulations[sim_folder.name]
@@ -227,18 +226,26 @@ def process_whole_result_set(
     """Process all simulation folders in a results directory sequentially.
 
     Processes each simulation folder found in the results directory one at a time,
-    applying the provided processing scenario(s) to each simulation.
+    applying the provided processing step/scenario to each simulation.
+
+    Using the default settings your structure should look like this:
+
+    | results_folder
+    |     ├─ sim-1
+    |     ├─ sim-2
+    |     ├─ sim-3
+    |         ├─ temp
+    |             ├─ your-printer-files.prt
 
     Parameters
     __________
-        results_folder:
+        results_folder pathlib.Path:
             Path to the directory containing simulation folders.
-            Each subfolder should contain valid simulation data files.
+            Each subfolder should contain a temp folder containing valid simulation data files.
 
-        processing_scenario:
-            Single callable or sequence of callables that implement
-            the processing logic for each simulation. Each callable should take a
-            Simulation object as its only parameter and modify it in place.
+        processing_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
+            They should containd the processing logic for a simulation.
+            Each callable should take a Simulation object as its only parameter and modify it in place.
 
     Returns
     _______
@@ -301,20 +308,30 @@ def process_whole_result_set_parallel(
 ) -> ds.SimulationsData:
     """Process all simulation folders in a results directory in parallel.
 
-    Uses a ProcessPoolExecutor to process multiple simulations concurrently.
+    Uses a ProcessPoolExecutor to process multiple simulations concurrently,
+    applying the provided processing step/scenario to each simulation.
+
+    Using the default settings your structure should look like this:
+
+    | results_folder
+    |     ├─ sim-1
+    |     ├─ sim-2
+    |     ├─ sim-3
+    |         ├─ temp
+    |             ├─ your-printer-files.prt
 
     Parameters
     __________
-        results_folder:
+        results_folder pathlib.Path:
             Path to the directory containing simulation folders.
-            Each subfolder should contain valid simulation data files.
-        processing_scenario:
-            Single callable or sequence of callables that implement
-            the processing logic for each simulation. Each callable should take a
-            Simulation object as its only parameter.
-        max_workers:
-            Maximum number of worker processes to use. If None, defaults to
-            the number of processors on the machine.
+            Each subfolder should contain a temp folder containing valid simulation data files.
+
+        processing_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
+            They should containd the processing logic for a simulation.
+            Each callable should take a Simulation object as its only parameter and modify it in place.
+        max_workers int, default None:
+            Maximum number of worker processes to use.
+            If None, defaults to the number of processors on the machine.
 
     Returns
     _______
@@ -385,15 +402,16 @@ def do_comparison(
 
     Parameters
     __________
-        comparison_scenario:
-            Single callable or sequence of callables that implement
-            the comparison logic. Each callable should take a SimulationsData
-            object as its only parameter.
-        simulations_data:
-            Optional SimulationsData object containing the processed
-            simulation data to be compared.
-        results_folder:
-            Optional Path to the directory containing simulation results.
+        comparison_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
+            They should containd the comparison logic.
+            Each callable should take a SimulationsData object as its only parameter and modify it in place.
+
+        simulations_data: SimulationsData, optional
+            SimulationsData object containing the processed
+            simulations data to be compared.
+
+        results_folder: pathlib.Path, optional
+            Path to the directory containing simulation results.
             Used if simulations_data is not provided.
 
     Example
@@ -414,7 +432,10 @@ def do_comparison(
         path_to_simulations_data = (
             results_folder / conf.FileNames.SIMULATIONS_DATA_PICKLE_FILE.value
         )
-        if path_to_simulations_data.exists():
+        if (
+            path_to_simulations_data.exists()
+            and not conf.global_settings.reader.force_reread_prt
+        ):
             simulations_data = util.load_simulations_data_from_pickle(
                 path_to_simulations_data
             )

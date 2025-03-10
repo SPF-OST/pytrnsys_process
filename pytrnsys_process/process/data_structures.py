@@ -76,6 +76,24 @@ class ProcessingResults:
 
 @_dc.dataclass
 class SimulationsData:
+    """Class representing a result set
+
+    Used to do comparisons plots across different simulations
+
+    Attributes
+    __________
+    simulations: dict of {str, Simulation}
+        Can be accessed using the simulations names as keys.
+        Example: ``simulations['sim_001']``
+
+    scalar: pandas.DataFrame
+        Contains all deck constant deck values from all simulations.
+        This is also the place to store your calculations for plotting.
+
+    path_to_simulations: str
+        The path to your results folder
+    """
+
     simulations: dict[str, Simulation] = _dc.field(default_factory=dict)
     scalar: _pd.DataFrame = _dc.field(default_factory=_pd.DataFrame)
     path_to_simulations: str = _dc.field(default_factory=str)

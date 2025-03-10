@@ -36,3 +36,6 @@ class FileNames(Enum):
 
 
 REPO_ROOT: _pl.Path = _pl.Path(pp.__file__).parents[1]
+"""
+Path to the repository root
+"""

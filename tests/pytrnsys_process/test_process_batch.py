@@ -27,14 +27,20 @@ def processing_step_failing(simulation: process.Simulation):
     raise ValueError("Intentional failure for testing")
 
 
-def comparison_step(simulations_data: process.SimulationsData):
+def comparison_step(simulations_data: process.SimulationsData): # pylint: disable=unused-argument
+    return
+
+
+def assert_comparison(simulations_data: process.SimulationsData):
     assert len(simulations_data.simulations) == 2
+
     assert all(
         not sim.monthly.empty for sim in simulations_data.simulations.values()
     )
-    assert all(
-        not sim.hourly.empty for sim in simulations_data.simulations.values()
-    )
+
+    assert not simulations_data.simulations["sim-1"].hourly.empty
+    assert simulations_data.simulations["sim-2"].hourly.empty
+
     assert simulations_data.scalar.shape == (2, 10)
 
 
@@ -103,15 +109,24 @@ class TestPytrnsysProcess:
         results = process.process_whole_result_set(
             RESULTS_FOLDER, processing_step
         )
-        process.do_comparison(comparison_step, simulations_data=results)
+        simulations_data = process.do_comparison(
+            comparison_step, simulations_data=results
+        )
+        assert_comparison(simulations_data)
 
-    def test_do_comparison_by_passing_path_to_results_folder(self):
-        process.do_comparison(comparison_step, results_folder=RESULTS_FOLDER)
+    def test_do_comparison_by_passing_path_to_results_folder(
+        self
+    ):
+        simulations_data = process.do_comparison(
+            comparison_step, results_folder=RESULTS_FOLDER
+        )
+        assert_comparison(simulations_data)
 
     def test_do_comparison_with_existing_pickle(self):
-        process.do_comparison(
+        simulations_data = process.do_comparison(
             comparison_step, results_folder=const.DATA_FOLDER / "pickle"
         )
+        assert_comparison(simulations_data)
 
     def test_do_comparison_with_missing_args(self):
         with _pt.raises(ValueError) as exc_info:

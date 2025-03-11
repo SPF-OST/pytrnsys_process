@@ -83,7 +83,10 @@ def _process_batch(
                 )
                 tasks[
                     executor.submit(
-                        _process_simulation, sim_folder, processing_scenario
+                        _process_simulation,
+                        sim_folder,
+                        processing_scenario,
+                        conf.global_settings.reader.force_reread_prt,
                     )
                 ] = sim_folder
 
@@ -397,7 +400,7 @@ def do_comparison(
     ],
     simulations_data: Optional[ds.SimulationsData] = None,
     results_folder: Optional[_pl.Path] = None,
-) -> None:
+) -> ds.SimulationsData:
     """Execute comparison scenarios on processed simulation results.
 
     Parameters
@@ -413,6 +416,10 @@ def do_comparison(
         results_folder: pathlib.Path, optional
             Path to the directory containing simulation results.
             Used if simulations_data is not provided.
+
+    Returns
+    _______
+        SimulationsData: :class:`pytrnsys_process.api.SimulationsData`
 
     Example
     __________
@@ -448,6 +455,8 @@ def do_comparison(
     )
     _process_comparisons(simulations_data, comparison_scenario, main_logger)
     _plt.close("all")
+
+    return simulations_data
 
 
 def _process_comparisons(
@@ -503,15 +512,13 @@ def _process_simulation(
         _abc.Callable[[ds.Simulation], None],
         Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
+    force_reread_prt: bool = conf.global_settings.reader.force_reread_prt,
 ) -> tuple[ds.Simulation, List[str]]:
     sim_logger = log.get_simulation_logger(sim_folder)
     sim_logger.info("Starting simulation processing")
     sim_pickle_file = sim_folder / conf.FileNames.SIMULATION_PICKLE_FILE.value
     simulation: ds.Simulation
-    if (
-        sim_pickle_file.exists()
-        and not conf.global_settings.reader.force_reread_prt
-    ):
+    if sim_pickle_file.exists() and not force_reread_prt:
         sim_logger.info("Loading simulation from pickle file")
         simulation = util.load_simulation_from_pickle(
             sim_pickle_file, sim_logger

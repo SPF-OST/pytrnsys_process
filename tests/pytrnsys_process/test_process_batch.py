@@ -27,7 +27,9 @@ def processing_step_failing(simulation: process.Simulation):
     raise ValueError("Intentional failure for testing")
 
 
-def comparison_step(simulations_data: process.SimulationsData): # pylint: disable=unused-argument
+def comparison_step(
+    simulations_data: process.SimulationsData,
+):  # pylint: disable=unused-argument
     return
 
 
@@ -114,9 +116,7 @@ class TestPytrnsysProcess:
         )
         assert_comparison(simulations_data)
 
-    def test_do_comparison_by_passing_path_to_results_folder(
-        self
-    ):
+    def test_do_comparison_by_passing_path_to_results_folder(self):
         simulations_data = process.do_comparison(
             comparison_step, results_folder=RESULTS_FOLDER
         )

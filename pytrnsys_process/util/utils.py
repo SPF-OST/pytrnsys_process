@@ -23,9 +23,9 @@ def get_sim_folders(path_to_results: _pl.Path) -> _abc.Sequence[_pl.Path]:
 
 def get_files(
     sim_folders: _abc.Sequence[_pl.Path],
-    results_folder_name: str = conf.global_settings.reader.folder_name_for_printer_files,
-    get_mfr_and_t: bool = conf.global_settings.reader.read_step_files,
-    read_deck_files: bool = conf.global_settings.reader.read_deck_files,
+    results_folder_name: _tp.Optional[str] = None,
+    get_mfr_and_t: _tp.Optional[bool] = None,
+    read_deck_files: _tp.Optional[bool] = None,
 ) -> _abc.Sequence[_pl.Path]:
     """Get simulation files from folders based on configuration.
 
@@ -47,6 +47,13 @@ def get_files(
     _______
         Sequence of paths to simulation files
     """
+    if not results_folder_name:
+        results_folder_name = conf.global_settings.reader.folder_name_for_printer_files
+    if not get_mfr_and_t:
+        get_mfr_and_t = conf.global_settings.reader.read_step_files
+    if not read_deck_files:
+        read_deck_files = conf.global_settings.reader.read_deck_files
+
     sim_files: list[_pl.Path] = []
     for sim_folder in sim_folders:
         if get_mfr_and_t:
@@ -158,27 +165,33 @@ def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     except OSError as e:
         logger.error("System error running Inkscape: %s", e, exc_info=True)
 
-
 def get_file_content_as_string(
-    file_path: _pl.Path, encoding: str = "UTF-8"
+    file_path: _pl.Path, encoding: _tp.Optional[str] = None
 ) -> str:
     """Read and return the entire content of a file as a string.
 
     Parameters
     __________
-        file_path:
+        file_path pathlib.Path:
             Path to the file to read
-        encoding:
-            File encoding to use. Defaults to "UTF-8".
+        encoding str, optional:
+            File encoding to use.
+            defaults to UTF-8 if that fails it tries to use windows-1252
 
     Returns
     _______
         file_content: str
             Content of the file as a string
     """
-    with open(file_path, "r", encoding=encoding) as file:
-        return file.read()
-
+    def read(encoding_to_try):
+        with open(file_path, "r", encoding=encoding_to_try) as file:
+            return file.read()
+    if not encoding:
+        try:
+            return read("UTF-8")
+        except UnicodeDecodeError:
+            return read("windows-1252")
+    return read(encoding)
 
 def save_to_pickle(
     data: ds.Simulation | ds.SimulationsData,

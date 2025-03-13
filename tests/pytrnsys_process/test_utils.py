@@ -172,6 +172,7 @@ def test_get_file_content_as_string_windows_1252(tmp_path):
     result = util.get_file_content_as_string(test_file)
     assert result == expected_content
 
+
 def test_get_file_content_as_string_utf_8(tmp_path):
     test_file = tmp_path / "test.txt"
     expected_content = "Hello\nWorld! °"
@@ -180,6 +181,7 @@ def test_get_file_content_as_string_utf_8(tmp_path):
     result = util.get_file_content_as_string(test_file)
     assert result == expected_content
 
+
 def test_get_file_content_as_string_force_utf_8(tmp_path):
     test_file = tmp_path / "test.txt"
     expected_content = "Hello\nWorld! °"
@@ -187,6 +189,7 @@ def test_get_file_content_as_string_force_utf_8(tmp_path):
 
     with _pt.raises(UnicodeDecodeError):
         util.get_file_content_as_string(test_file, encoding="UTF-8")
+
 
 def test_simulation_pickle(tmp_path):
     sim_pickle = tmp_path / "simulation.pickle"

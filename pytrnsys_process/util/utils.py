@@ -48,7 +48,9 @@ def get_files(
         Sequence of paths to simulation files
     """
     if not results_folder_name:
-        results_folder_name = conf.global_settings.reader.folder_name_for_printer_files
+        results_folder_name = (
+            conf.global_settings.reader.folder_name_for_printer_files
+        )
     if not get_mfr_and_t:
         get_mfr_and_t = conf.global_settings.reader.read_step_files
     if not read_deck_files:
@@ -165,6 +167,7 @@ def convert_svg_to_emf(file_no_suffix: _pl.Path) -> None:
     except OSError as e:
         logger.error("System error running Inkscape: %s", e, exc_info=True)
 
+
 def get_file_content_as_string(
     file_path: _pl.Path, encoding: _tp.Optional[str] = None
 ) -> str:
@@ -183,15 +186,18 @@ def get_file_content_as_string(
         file_content: str
             Content of the file as a string
     """
+
     def read(encoding_to_try):
         with open(file_path, "r", encoding=encoding_to_try) as file:
             return file.read()
+
     if not encoding:
         try:
             return read("UTF-8")
         except UnicodeDecodeError:
             return read("windows-1252")
     return read(encoding)
+
 
 def save_to_pickle(
     data: ds.Simulation | ds.SimulationsData,

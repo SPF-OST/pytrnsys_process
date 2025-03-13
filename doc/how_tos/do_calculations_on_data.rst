@@ -23,8 +23,7 @@ Below is an example that demonstrates how to:
         kwh_to_gwh = 1e-6
         
         # Calculate sum of columns and convert units
-        simulation.hourly["column_sum"] = (
-            simulation.hourly[["column_1", "column_2"]].sum(axis=1) * kwh_to_gwh
+        simulation.hourly["column_sum"] = (simulation.hourly["column_1"] + simulation.hourly["column_2"]) * kwh_to_gwh
         )
 
 For Comparison Step

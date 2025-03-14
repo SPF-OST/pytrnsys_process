@@ -66,30 +66,31 @@ def test_has_pattern():
 
 
 class TestFileContentDetection:
+    PATH_TO_FILES = test_const.DATA_FOLDER / "file-detector"
+
     @pytest.fixture
     def monthly_file(self):
         file_path = (
-            test_const.DATA_FOLDER
-            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+                self.PATH_TO_FILES / "ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return file_path
 
     @pytest.fixture
     def hourly_file(self):
-        file_path = test_const.DATA_FOLDER / "results/sim-1/temp/control.prt"
+        file_path =  self.PATH_TO_FILES / "control.prt"
         return file_path
 
     @pytest.fixture
     def hydraulic_file(self):
         file_path = (
-            test_const.DATA_FOLDER / "results/sim-1/temp/HPCtrlPrinter.Prt"
+                self.PATH_TO_FILES / "HPCtrlPrinter.Prt"
         )
         return file_path
 
     @pytest.fixture
     def timestep_file(self):
         file_path = (
-            test_const.DATA_FOLDER / "results/sim-1/temp/ModePrinter_step.prt"
+            self.PATH_TO_FILES / "ModePrinter_step.prt"
         )
         return file_path
 

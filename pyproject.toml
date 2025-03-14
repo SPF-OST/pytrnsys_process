@@ -7,7 +7,7 @@ authors = [
     { name="Damian Birchler", email="damian.birchler@ost.ch" },
 ]
 description = "Post processing for pytrnsys"
-readme = "README.md"
+readme = "pypi-readme.md"
 requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",

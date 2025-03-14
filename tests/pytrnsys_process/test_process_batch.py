@@ -52,7 +52,7 @@ def assert_comparison(simulations_data: process.SimulationsData):
     assert simulations_data.scalar.shape == (2, 10)
 
 
-class TestPytrnsysProcessing:
+class TestProcessingFunctions:
 
     def assert_for_whole_result_set(self, simulations_data):
         assert simulations_data.simulations["sim-1"].hourly.shape == (3, 18)
@@ -175,8 +175,6 @@ class TestPytrnsysProcessing:
     #     assert len(results.simulations) == 0
     #     assert results.scalar.empty
 
-
-class TestDoComparison:
     def test_do_comparison_with_existing_results_for_comparison(self):
         results = process.process_whole_result_set(
             RESULTS_FOLDER, processing_step

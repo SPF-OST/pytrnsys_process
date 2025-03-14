@@ -9,8 +9,10 @@ from pytrnsys_process import process, config
 # from pytrnsys_process.process import process_batch as pb
 from tests.pytrnsys_process import constants as const
 
-RESULTS_FOLDER = const.DATA_FOLDER  / "processing-functions/results"
-INVALID_RESULTS_FOLDER = const.DATA_FOLDER / "processing-functions/invalid-results"
+RESULTS_FOLDER = const.DATA_FOLDER / "processing-functions/results"
+INVALID_RESULTS_FOLDER = (
+    const.DATA_FOLDER / "processing-functions/invalid-results"
+)
 PICKLE_FOLDER = const.DATA_FOLDER / "processing-functions/pickle"
 
 

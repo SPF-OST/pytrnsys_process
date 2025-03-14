@@ -17,8 +17,7 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-            const.DATA_FOLDER
-            / "plotters/data/ENERGY_BALANCE_MO_60_TESS.Prt"
+            const.DATA_FOLDER / "plotters/data/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return read.PrtReader().read_monthly(result_data)
 
@@ -54,7 +53,9 @@ class TestPlotters:
         expected_file = (
             const.DATA_FOLDER / "plotters/stacked-bar-chart/expected.png"
         )
-        actual_file = const.DATA_FOLDER / "plotters/stacked-bar-chart/actual.png"
+        actual_file = (
+            const.DATA_FOLDER / "plotters/stacked-bar-chart/actual.png"
+        )
         columns = [
             "QSnk60PauxCondSwitch_kW",
             "QSnk60dQ",
@@ -112,7 +113,9 @@ class TestPlotters:
 
     def test_create_line_plot_for_hourly_cmap(self, hourly_data):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plotters/line-plot/expected_cmap.png"
+        expected_fig = (
+            const.DATA_FOLDER / "plotters/line-plot/expected_cmap.png"
+        )
         actual_fig = const.DATA_FOLDER / "plotters/line-plot/actual_cmap.png"
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
@@ -141,7 +144,9 @@ class TestPlotters:
 
     def test_create_bar_chart_for_monthly_with_cmap(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plotters/bar-chart/expected_cmap.png"
+        expected_file = (
+            const.DATA_FOLDER / "plotters/bar-chart/expected_cmap.png"
+        )
         actual_file = const.DATA_FOLDER / "plotters/bar-chart/actual_cmap.png"
         columns = [
             "QSnk60P",
@@ -185,7 +190,9 @@ class TestPlotters:
 
     def test_scatter_plot_for_monthly(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plotters/scatter-plot/expected.png"
+        expected_file = (
+            const.DATA_FOLDER / "plotters/scatter-plot/expected.png"
+        )
         actual_file = const.DATA_FOLDER / "plotters/scatter-plot/actual.png"
 
         # Execute
@@ -201,7 +208,9 @@ class TestPlotters:
 
     def test_scatter_plot_for_monthly_color(self, monthly_data):
         # Setup
-        actual_file = const.DATA_FOLDER / "plotters/scatter-plot/actual_color.png"
+        actual_file = (
+            const.DATA_FOLDER / "plotters/scatter-plot/actual_color.png"
+        )
         expected_file = (
             const.DATA_FOLDER / "plotters/scatter-plot/expected_color.png"
         )
@@ -247,7 +256,8 @@ class TestPlotters:
             / "plotters/energy-balance/actual-imb-calculated.png"
         )
         expected = (
-            const.DATA_FOLDER / "plotters/energy-balance/expected_calculated.png"
+            const.DATA_FOLDER
+            / "plotters/energy-balance/expected_calculated.png"
         )
 
         # Execute
@@ -268,7 +278,9 @@ class TestPlotters:
             const.DATA_FOLDER
             / "plotters/energy-balance/actual-imb-calculated_cmap.png"
         )
-        expected = const.DATA_FOLDER / "plotters/energy-balance/expected_cmap.png"
+        expected = (
+            const.DATA_FOLDER / "plotters/energy-balance/expected_cmap.png"
+        )
 
         # Execute
         fig, _ = plot.energy_balance(
@@ -309,7 +321,8 @@ class TestPlotters:
             const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_cmap.png"
         )
         expected = (
-            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_cmap.png"
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/expected_cmap.png"
         )
 
         # Execute

@@ -71,10 +71,13 @@ class TestBenchmarkReader:
 
     def test_read_monthly_csv(self, benchmark):
         reader = read.CsvReader()
-        benchmark(reader.read, test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.csv")
+        benchmark(
+            reader.read, test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.csv"
+        )
 
     def test_read_monthly_prt(self, benchmark):
         reader = read.PrtReader()
         benchmark(
-            reader.read_monthly, test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.Prt"
+            reader.read_monthly,
+            test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.Prt",
         )

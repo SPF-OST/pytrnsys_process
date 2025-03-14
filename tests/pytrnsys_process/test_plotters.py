@@ -17,22 +17,21 @@ class TestPlotters:
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
-            const.DATA_FOLDER
-            / "results/sim-1/temp/ENERGY_BALANCE_MO_60_TESS.Prt"
+            const.DATA_FOLDER / "plotters/data/ENERGY_BALANCE_MO_60_TESS.Prt"
         )
         return read.PrtReader().read_monthly(result_data)
 
     @pytest.fixture
     def hourly_data(self):
         """Load hourly test data."""
-        result_data = const.DATA_FOLDER / "hourly/Src_Hr.Prt"
+        result_data = const.DATA_FOLDER / "plotters/data/Src_Hr.Prt"
         return read.PrtReader().read_hourly(result_data)
 
     @pytest.fixture
     def comparison_data(self):
         path_to_json = (
             const.DATA_FOLDER
-            / "plots/scatter-compare-plot/comparison_data.json"
+            / "plotters/scatter-compare-plot/comparison_data.json"
         )
         return _pd.read_json(path_to_json)
 
@@ -52,9 +51,11 @@ class TestPlotters:
     def test_create_stacked_bar_chart_for_monthly(self, monthly_data):
         # Setup
         expected_file = (
-            const.DATA_FOLDER / "plots/stacked-bar-chart/expected.png"
+            const.DATA_FOLDER / "plotters/stacked-bar-chart/expected.png"
         )
-        actual_file = const.DATA_FOLDER / "plots/stacked-bar-chart/actual.png"
+        actual_file = (
+            const.DATA_FOLDER / "plotters/stacked-bar-chart/actual.png"
+        )
         columns = [
             "QSnk60PauxCondSwitch_kW",
             "QSnk60dQ",
@@ -74,10 +75,10 @@ class TestPlotters:
     def test_create_stacked_bar_chart_for_monthly_cmap(self, monthly_data):
         # Setup
         expected_file = (
-            const.DATA_FOLDER / "plots/stacked-bar-chart/expected_cmap.png"
+            const.DATA_FOLDER / "plotters/stacked-bar-chart/expected_cmap.png"
         )
         actual_file = (
-            const.DATA_FOLDER / "plots/stacked-bar-chart/actual_cmap.png"
+            const.DATA_FOLDER / "plotters/stacked-bar-chart/actual_cmap.png"
         )
         columns = [
             "QSnk60PauxCondSwitch_kW",
@@ -99,8 +100,8 @@ class TestPlotters:
 
     def test_create_line_plot_for_hourly(self, hourly_data):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plots/line-plot/expected.png"
-        actual_fig = const.DATA_FOLDER / "plots/line-plot/actual.png"
+        expected_fig = const.DATA_FOLDER / "plotters/line-plot/expected.png"
+        actual_fig = const.DATA_FOLDER / "plotters/line-plot/actual.png"
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         # Execute
@@ -112,8 +113,10 @@ class TestPlotters:
 
     def test_create_line_plot_for_hourly_cmap(self, hourly_data):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plots/line-plot/expected_cmap.png"
-        actual_fig = const.DATA_FOLDER / "plots/line-plot/actual_cmap.png"
+        expected_fig = (
+            const.DATA_FOLDER / "plotters/line-plot/expected_cmap.png"
+        )
+        actual_fig = const.DATA_FOLDER / "plotters/line-plot/actual_cmap.png"
         columns = ["QSrc1TIn", "QSrc1TOut"]
 
         # Execute
@@ -125,8 +128,8 @@ class TestPlotters:
 
     def test_create_bar_chart_for_monthly(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/bar-chart/expected.png"
-        actual_file = const.DATA_FOLDER / "plots/bar-chart/actual.png"
+        expected_file = const.DATA_FOLDER / "plotters/bar-chart/expected.png"
+        actual_file = const.DATA_FOLDER / "plotters/bar-chart/actual.png"
         columns = [
             "QSnk60P",
             "QSnk60PauxCondSwitch_kW",
@@ -141,8 +144,10 @@ class TestPlotters:
 
     def test_create_bar_chart_for_monthly_with_cmap(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/bar-chart/expected_cmap.png"
-        actual_file = const.DATA_FOLDER / "plots/bar-chart/actual_cmap.png"
+        expected_file = (
+            const.DATA_FOLDER / "plotters/bar-chart/expected_cmap.png"
+        )
+        actual_file = const.DATA_FOLDER / "plotters/bar-chart/actual_cmap.png"
         columns = [
             "QSnk60P",
             "QSnk60PauxCondSwitch_kW",
@@ -157,8 +162,8 @@ class TestPlotters:
 
     def test_create_histogram_for_hourly(self, hourly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/histogram/expected.png"
-        actual_file = const.DATA_FOLDER / "plots/histogram/actual.png"
+        expected_file = const.DATA_FOLDER / "plotters/histogram/expected.png"
+        actual_file = const.DATA_FOLDER / "plotters/histogram/actual.png"
         columns = ["QSrc1TIn"]
 
         # Execute
@@ -171,9 +176,9 @@ class TestPlotters:
     def test_create_histogram_for_hourly_color(self, hourly_data):
         # Setup
         expected_file = (
-            const.DATA_FOLDER / "plots/histogram/expected_color.png"
+            const.DATA_FOLDER / "plotters/histogram/expected_color.png"
         )
-        actual_file = const.DATA_FOLDER / "plots/histogram/actual_color.png"
+        actual_file = const.DATA_FOLDER / "plotters/histogram/actual_color.png"
         columns = ["QSrc1TIn"]
 
         # Execute
@@ -185,8 +190,10 @@ class TestPlotters:
 
     def test_scatter_plot_for_monthly(self, monthly_data):
         # Setup
-        expected_file = const.DATA_FOLDER / "plots/scatter-plot/expected.png"
-        actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual.png"
+        expected_file = (
+            const.DATA_FOLDER / "plotters/scatter-plot/expected.png"
+        )
+        actual_file = const.DATA_FOLDER / "plotters/scatter-plot/actual.png"
 
         # Execute
         fig, _ = plot.scatter_plot(
@@ -201,9 +208,11 @@ class TestPlotters:
 
     def test_scatter_plot_for_monthly_color(self, monthly_data):
         # Setup
-        actual_file = const.DATA_FOLDER / "plots/scatter-plot/actual_color.png"
+        actual_file = (
+            const.DATA_FOLDER / "plotters/scatter-plot/actual_color.png"
+        )
         expected_file = (
-            const.DATA_FOLDER / "plots/scatter-plot/expected_color.png"
+            const.DATA_FOLDER / "plotters/scatter-plot/expected_color.png"
         )
 
         # Execute
@@ -221,10 +230,10 @@ class TestPlotters:
     def test_energy_balance_imb_given(self, monthly_data):
         # Setup
         actual_imb_given = (
-            const.DATA_FOLDER / "plots/energy-balance/actual-imb-given.png"
+            const.DATA_FOLDER / "plotters/energy-balance/actual-imb-given.png"
         )
         expected = (
-            const.DATA_FOLDER / "plots/energy-balance/expected_given.png"
+            const.DATA_FOLDER / "plotters/energy-balance/expected_given.png"
         )
 
         # Execute
@@ -244,10 +253,11 @@ class TestPlotters:
         # Setup
         actual_imb_calculated = (
             const.DATA_FOLDER
-            / "plots/energy-balance/actual-imb-calculated.png"
+            / "plotters/energy-balance/actual-imb-calculated.png"
         )
         expected = (
-            const.DATA_FOLDER / "plots/energy-balance/expected_calculated.png"
+            const.DATA_FOLDER
+            / "plotters/energy-balance/expected_calculated.png"
         )
 
         # Execute
@@ -266,9 +276,11 @@ class TestPlotters:
         # Setup
         actual_imb_calculated = (
             const.DATA_FOLDER
-            / "plots/energy-balance/actual-imb-calculated_cmap.png"
+            / "plotters/energy-balance/actual-imb-calculated_cmap.png"
         )
-        expected = const.DATA_FOLDER / "plots/energy-balance/expected_cmap.png"
+        expected = (
+            const.DATA_FOLDER / "plotters/energy-balance/expected_cmap.png"
+        )
 
         # Execute
         fig, _ = plot.energy_balance(
@@ -285,9 +297,9 @@ class TestPlotters:
 
     def test_scatter_compare_plot(self, comparison_data):
         # Setup
-        actual = const.DATA_FOLDER / "plots/scatter-compare-plot/actual.png"
+        actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual.png"
         expected = (
-            const.DATA_FOLDER / "plots/scatter-compare-plot/expected.png"
+            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected.png"
         )
 
         # Execute
@@ -306,10 +318,11 @@ class TestPlotters:
     def test_scatter_compare_plot_cmap(self, comparison_data):
         # Setup
         actual = (
-            const.DATA_FOLDER / "plots/scatter-compare-plot/actual_cmap.png"
+            const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_cmap.png"
         )
         expected = (
-            const.DATA_FOLDER / "plots/scatter-compare-plot/expected_cmap.png"
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/expected_cmap.png"
         )
 
         # Execute

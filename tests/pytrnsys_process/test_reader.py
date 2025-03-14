@@ -1,15 +1,14 @@
-import pathlib as _pl
 import pandas as _pd
 
-import tests.pytrnsys_process.constants as const
+import tests.pytrnsys_process.constants as test_const
 from pytrnsys_process import read
 
 
 class TestReader:
 
-    HOURLY_DIR_PATH = _pl.Path(__file__).parent / "data/hourly"
-    MONTHLY_DIR_PATH = _pl.Path(__file__).parent / "data/monthly"
-    STEP_DIR_PATH = _pl.Path(__file__).parent / "data/step"
+    HOURLY_DIR_PATH = test_const.DATA_FOLDER / "reader/hourly"
+    MONTHLY_DIR_PATH = test_const.DATA_FOLDER / "reader/monthly"
+    STEP_DIR_PATH = test_const.DATA_FOLDER / "reader/step"
 
     def test_read_hourly(self):
 
@@ -72,10 +71,13 @@ class TestBenchmarkReader:
 
     def test_read_monthly_csv(self, benchmark):
         reader = read.CsvReader()
-        benchmark(reader.read, const.DATA_FOLDER / "benchmark/PCM_MO.csv")
+        benchmark(
+            reader.read, test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.csv"
+        )
 
     def test_read_monthly_prt(self, benchmark):
         reader = read.PrtReader()
         benchmark(
-            reader.read_monthly, const.DATA_FOLDER / "benchmark/PCM_MO.Prt"
+            reader.read_monthly,
+            test_const.DATA_FOLDER / "reader/benchmark/PCM_MO.Prt",
         )

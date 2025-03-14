@@ -1,0 +1,19 @@
+**********************************************************************
+** head.ddck from C:\actions-runner-simulations\_work\icegrid\icegrid\simulation\ddck\generic
+**********************************************************************
+*******************************
+**BEGIN Head.ddck
+*******************************
+CONSTANTS 3
+mfrSolverAbsTol = + 1e-6 - 5
+mfrSolverRelTol = 1e-9
+mfrTolSwitchThreshold = 1
+VERSION 17
+CONSTANTS 7
+START=7300.0
+STOP=17520.0
+dtSim=1/60*2
+dtSim_SI = dtSim*3600
+dt_s = dtSim_SI
+DTHOur = 1
+recallStart = START + dtSim

@@ -11,7 +11,7 @@ from pytrnsys_process import process
 from pytrnsys_process import util
 from tests.pytrnsys_process import constants as const
 
-RESULTS_FOLDER = _pl.Path(const.DATA_FOLDER / "results")
+RESULTS_FOLDER = _pl.Path(const.DATA_FOLDER / "utils/results")
 
 
 # Test classes for pickle tests

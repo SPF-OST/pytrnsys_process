@@ -15,8 +15,8 @@ class TestConverter:
         1. All expected output files are created
         2. The converted CSV file has the correct dimensions
         """
-        input_dir = test_const.DATA_FOLDER / "conversion/prt"
-        output_dir = test_const.DATA_FOLDER / "conversion/csv"
+        input_dir = test_const.DATA_FOLDER / "converter/prt"
+        output_dir = test_const.DATA_FOLDER / "converter/csv"
 
         util.CsvConverter().convert_sim_results_to_csv(input_dir, output_dir)
 

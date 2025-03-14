@@ -5,7 +5,7 @@ import tests.pytrnsys_process.constants as const
 from pytrnsys_process import util
 from pytrnsys_process.process import process_sim as ps
 
-PATH_TO_RESULTS = const.DATA_FOLDER / "results/sim-1"
+PATH_TO_RESULTS = const.DATA_FOLDER / "process-sim/sim-1"
 
 
 class TestProcessSim:

@@ -1,9 +1,9 @@
 import logging as _logging
 import pathlib as _pl
 import time as _time
+import typing as _tp
 from collections import abc as _abc
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import List, Optional, Sequence, Union
+from concurrent import futures as _futures
 
 import matplotlib.pyplot as _plt
 import pandas as _pd
@@ -21,9 +21,9 @@ class UnableToProcessSimulationError(Exception):
 # pylint: disable=too-many-locals
 def _process_batch(
     sim_folders: list[_pl.Path],
-    processing_scenario: Union[
+    processing_scenario: _tp.Union[
         _abc.Callable[[ds.Simulation], None],
-        Sequence[_abc.Callable[[ds.Simulation], None]],
+        _tp.Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
     results_folder: _pl.Path,
     parallel: bool = False,
@@ -74,7 +74,7 @@ def _process_batch(
     main_logger = log.get_main_logger(results_folder)
 
     if parallel:
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        with _futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
             tasks = {}
             for sim_folder in sim_folders:
                 main_logger.info(
@@ -90,7 +90,7 @@ def _process_batch(
                     )
                 ] = sim_folder
 
-            for future in as_completed(tasks):
+            for future in _futures.as_completed(tasks):
                 try:
                     _handle_simulation_result(
                         future.result(), results, simulations_data
@@ -123,7 +123,7 @@ def _process_batch(
 
 
 def _handle_simulation_result(
-    result: tuple[ds.Simulation, List[str]],
+    result: tuple[ds.Simulation, list[str]],
     results: ds.ProcessingResults,
     simulations_data: ds.SimulationsData,
 ) -> None:
@@ -171,9 +171,9 @@ def _handle_simulation_error(
 
 def process_single_simulation(
     sim_folder: _pl.Path,
-    processing_scenario: Union[
+    processing_scenario: _tp.Union[
         _abc.Callable[[ds.Simulation], None],
-        Sequence[_abc.Callable[[ds.Simulation], None]],
+        _tp.Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
 ) -> ds.Simulation:
     """Process a single simulation folder using the provided processing step/scenario.
@@ -221,9 +221,9 @@ def process_single_simulation(
 
 def process_whole_result_set(
     results_folder: _pl.Path,
-    processing_scenario: Union[
+    processing_scenario: _tp.Union[
         _abc.Callable[[ds.Simulation], None],
-        Sequence[_abc.Callable[[ds.Simulation], None]],
+        _tp.Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
 ) -> ds.SimulationsData:
     """Process all simulation folders in a results directory sequentially.
@@ -303,9 +303,9 @@ def process_whole_result_set(
 
 def process_whole_result_set_parallel(
     results_folder: _pl.Path,
-    processing_scenario: Union[
+    processing_scenario: _tp.Union[
         _abc.Callable[[ds.Simulation], None],
-        Sequence[_abc.Callable[[ds.Simulation], None]],
+        _tp.Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
     max_workers: int | None = None,
 ) -> ds.SimulationsData:
@@ -394,12 +394,12 @@ def process_whole_result_set_parallel(
 
 
 def do_comparison(
-    comparison_scenario: Union[
+    comparison_scenario: _tp.Union[
         _abc.Callable[[ds.SimulationsData], None],
         _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
     ],
-    simulations_data: Optional[ds.SimulationsData] = None,
-    results_folder: Optional[_pl.Path] = None,
+    simulations_data: _tp.Optional[ds.SimulationsData] = None,
+    results_folder: _tp.Optional[_pl.Path] = None,
 ) -> ds.SimulationsData:
     """Execute comparison scenarios on processed simulation results.
 
@@ -461,7 +461,7 @@ def do_comparison(
 
 def _process_comparisons(
     simulations_data: ds.SimulationsData,
-    comparison_scenario: Union[
+    comparison_scenario: _tp.Union[
         _abc.Callable[[ds.SimulationsData], None],
         _abc.Sequence[_abc.Callable[[ds.SimulationsData], None]],
     ],
@@ -508,12 +508,14 @@ def _validate_folder(folder: _pl.Path) -> None:
 
 def _process_simulation(
     sim_folder: _pl.Path,
-    processing_scenarios: Union[
+    processing_scenarios: _tp.Union[
         _abc.Callable[[ds.Simulation], None],
-        Sequence[_abc.Callable[[ds.Simulation], None]],
+        _tp.Sequence[_abc.Callable[[ds.Simulation], None]],
     ],
-    force_reread_prt: bool = conf.global_settings.reader.force_reread_prt,
-) -> tuple[ds.Simulation, List[str]]:
+    force_reread_prt: _tp.Optional[bool] = None,
+) -> tuple[ds.Simulation, list[str]]:
+    if not force_reread_prt:
+        force_reread_prt = conf.global_settings.reader.force_reread_prt
     sim_logger = log.get_simulation_logger(sim_folder)
     sim_logger.info("Starting simulation processing")
     sim_pickle_file = sim_folder / conf.FileNames.SIMULATION_PICKLE_FILE.value
@@ -527,7 +529,8 @@ def _process_simulation(
         sim_logger.info("Processing simulation from raw files")
         sim_files = util.get_files([sim_folder])
         simulation = ps.process_sim(sim_files, sim_folder)
-        util.save_to_pickle(simulation, sim_pickle_file, sim_logger)
+        if sim_files:
+            util.save_to_pickle(simulation, sim_pickle_file, sim_logger)
 
     failed_scenarios = []
 

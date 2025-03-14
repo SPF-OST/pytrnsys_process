@@ -1,25 +1,31 @@
+import logging as _logging
 import pathlib as _pl
 from unittest import mock as _mock
 
 import pytest as _pt
 
-from pytrnsys_process import process
+from pytrnsys_process import process, config
 
 # from pytrnsys_process.process import process_batch as pb
 from tests.pytrnsys_process import constants as const
 
-RESULTS_FOLDER = _pl.Path(const.DATA_FOLDER / "results")
-INVALID_RESULTS_FOLDER = _pl.Path(const.DATA_FOLDER / "invalid-results")
+RESULTS_FOLDER = const.DATA_FOLDER / "results"
+INVALID_RESULTS_FOLDER = const.DATA_FOLDER / "invalid-results"
+PICKLE_FOLDER = const.DATA_FOLDER / "pickle"
 
 
 @_pt.fixture(autouse=True)
-def mock_save_to_pickle(monkeypatch):
-    mock = _mock.Mock()
-    monkeypatch.setattr("pytrnsys_process.util.save_to_pickle", mock)
+def setup():
+    pickle_files = RESULTS_FOLDER.rglob("*.pickle")
+    for file_path in pickle_files:
+        file_path.unlink()
+    config.global_settings.reader.force_reread_prt = False
 
 
-def processing_step(simulation: process.Simulation):
-    assert not simulation.monthly.empty
+def processing_step(
+    simulation: process.Simulation,
+):  # pylint: disable=unused-argument
+    pass
 
 
 def processing_step_failing(simulation: process.Simulation):
@@ -46,41 +52,103 @@ def assert_comparison(simulations_data: process.SimulationsData):
     assert simulations_data.scalar.shape == (2, 10)
 
 
-class TestPytrnsysProcess:
+class TestProcessingFunctions:
 
-    def test_process_single_simulation(self):
+    def assert_for_whole_result_set(self, simulations_data):
+        assert simulations_data.simulations["sim-1"].hourly.shape == (3, 18)
+        assert simulations_data.simulations["sim-1"].monthly.shape == (14, 11)
+        assert simulations_data.simulations["sim-1"].step.shape == (0, 0)
+        assert simulations_data.simulations["sim-2"].hourly.shape == (0, 0)
+        assert simulations_data.simulations["sim-2"].monthly.shape == (14, 11)
+        assert simulations_data.simulations["sim-2"].step.shape == (0, 0)
+        assert simulations_data.scalar.shape == (2, 10)
+
+    def test_process_single_simulation(self, caplog):
         sim_folder = _pl.Path(RESULTS_FOLDER / "sim-1")
-        results = process.process_single_simulation(
-            sim_folder, [processing_step, processing_step_failing]
-        )
-        assert results.monthly.shape == (14, 11)
-        assert results.hourly.shape == (3, 18)
-        assert results.scalar.shape == (1, 10)
-        assert results.step.shape == (0, 0)
 
-    def test_process_whole_result_set(self):
-        results = process.process_whole_result_set(
+        def run_with_caplog():
+            caplog.clear()
+            with caplog.at_level(_logging.INFO):
+                return process.process_single_simulation(
+                    sim_folder, [processing_step, processing_step_failing]
+                )
+
+        # first pass reading from raw files
+        run_with_caplog()
+        assert "Processing simulation from raw files" in caplog.text
+
+        # second pass reading from pickle
+        run_with_caplog()
+        assert "Loading simulation from pickle file" in caplog.text
+
+        # third pass with force reread
+        config.global_settings.reader.force_reread_prt = True
+        sim = run_with_caplog()
+        assert "Processing simulation from raw files" in caplog.text
+
+        assert sim.monthly.shape == (14, 11)
+        assert sim.hourly.shape == (3, 18)
+        assert sim.scalar.shape == (1, 10)
+        assert sim.step.shape == (0, 0)
+        assert sim.scalar["mfrSolverAbsTol"][0] == -4.999999
+
+    def test_process_whole_result_set(self, caplog):
+
+        def run_with_caplog():
+            caplog.clear()
+            with caplog.at_level(_logging.INFO):
+                return process.process_whole_result_set(
+                    RESULTS_FOLDER, [processing_step, processing_step_failing]
+                )
+
+        # first pass reading from raw files
+        run_with_caplog()
+        assert caplog.text.count("Processing simulation from raw files") == 2
+
+        # second pass reading from pickle
+        run_with_caplog()
+        assert caplog.text.count("Loading simulation from pickle file") == 2
+
+        # third pass with force reread
+        config.global_settings.reader.force_reread_prt = True
+        simulations_data = run_with_caplog()
+        assert caplog.text.count("Processing simulation from raw files") == 2
+
+        self.assert_for_whole_result_set(simulations_data)
+
+    def test_process_whole_result_set_parallel(self, monkeypatch):
+        # Caplog and monkeypatch don't support multiprocessing in spawn mode :/
+        # This is a cheap workaround
+
+        # first pass reading from raw files
+        simulations_data = process.process_whole_result_set_parallel(
             RESULTS_FOLDER, [processing_step, processing_step_failing]
         )
-        assert results.simulations["sim-1"].hourly.shape == (3, 18)
-        assert results.simulations["sim-1"].monthly.shape == (14, 11)
-        assert results.simulations["sim-1"].step.shape == (0, 0)
-        assert results.simulations["sim-2"].hourly.shape == (0, 0)
-        assert results.simulations["sim-2"].monthly.shape == (14, 11)
-        assert results.simulations["sim-2"].step.shape == (0, 0)
-        assert results.scalar.shape == (2, 10)
+        self.assert_for_whole_result_set(simulations_data)
 
-    def test_process_whole_result_set_parallel(self):
-        results = process.process_whole_result_set_parallel(
-            RESULTS_FOLDER, [processing_step, processing_step_failing]
+        # mock because we do not want to generate a simulations_data pickle in  the pickle results
+        mock = _mock.Mock()
+        monkeypatch.setattr("pytrnsys_process.util.save_to_pickle", mock)
+
+        # second pass using pickle only folder, to make sure read from pickle works
+        simulations_data = process.process_whole_result_set_parallel(
+            PICKLE_FOLDER, [processing_step, processing_step_failing]
         )
-        assert results.simulations["sim-1"].hourly.shape == (3, 18)
-        assert results.simulations["sim-1"].monthly.shape == (14, 11)
-        assert results.simulations["sim-1"].step.shape == (0, 0)
-        assert results.simulations["sim-2"].hourly.shape == (0, 0)
-        assert results.simulations["sim-2"].monthly.shape == (14, 11)
-        assert results.simulations["sim-2"].step.shape == (0, 0)
-        assert results.scalar.shape == (2, 10)
+        self.assert_for_whole_result_set(simulations_data)
+
+        # Third pass with force reread and pickle only results.
+        # should return empty SimulationsData object, since raw files don't exist in this directory.
+        config.global_settings.reader.force_reread_prt = True
+        simulations_data = process.process_whole_result_set_parallel(
+            PICKLE_FOLDER, [processing_step, processing_step_failing]
+        )
+        assert simulations_data.simulations["sim-1"].hourly.empty
+        assert simulations_data.simulations["sim-1"].monthly.empty
+        assert simulations_data.simulations["sim-1"].step.empty
+        assert simulations_data.simulations["sim-2"].hourly.empty
+        assert simulations_data.simulations["sim-2"].monthly.empty
+        assert simulations_data.simulations["sim-2"].step.empty
+        assert simulations_data.scalar.empty
 
     # def test_process_single_simulation_with_invalid_data(self):
     #     sim_folder = _pl.Path(INVALID_RESULTS_FOLDER / "sim-1")
@@ -124,7 +192,7 @@ class TestPytrnsysProcess:
 
     def test_do_comparison_with_existing_pickle(self):
         simulations_data = process.do_comparison(
-            comparison_step, results_folder=const.DATA_FOLDER / "pickle"
+            comparison_step, results_folder=PICKLE_FOLDER
         )
         assert_comparison(simulations_data)
 

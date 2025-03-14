@@ -4,7 +4,7 @@ import subprocess
 from unittest.mock import Mock, call, patch
 
 import matplotlib.pyplot as plt
-import pytest
+import pytest as _pt
 
 from pytrnsys_process import config as conf
 from pytrnsys_process import process
@@ -164,13 +164,31 @@ def test_get_files_works_as_expected(tmp_path):
     assert set(files) == {test_file1}
 
 
-def test_get_file_content_as_string(tmp_path):
+def test_get_file_content_as_string_windows_1252(tmp_path):
     test_file = tmp_path / "test.txt"
-    expected_content = "Hello\nWorld!"
+    expected_content = "Hello\nWorld! °"
+    test_file.write_text(expected_content, encoding="windows-1252")
+
+    result = util.get_file_content_as_string(test_file)
+    assert result == expected_content
+
+
+def test_get_file_content_as_string_utf_8(tmp_path):
+    test_file = tmp_path / "test.txt"
+    expected_content = "Hello\nWorld! °"
     test_file.write_text(expected_content, encoding="UTF-8")
 
     result = util.get_file_content_as_string(test_file)
     assert result == expected_content
+
+
+def test_get_file_content_as_string_force_utf_8(tmp_path):
+    test_file = tmp_path / "test.txt"
+    expected_content = "Hello\nWorld! °"
+    test_file.write_text(expected_content, encoding="windows-1252")
+
+    with _pt.raises(UnicodeDecodeError):
+        util.get_file_content_as_string(test_file, encoding="UTF-8")
 
 
 def test_simulation_pickle(tmp_path):
@@ -232,7 +250,7 @@ def test_load_simulation_from_invalid_pickle(tmp_path):
     with open(invalid_pickle, "wb") as f:
         f.write(b"not a pickle file")
 
-    with pytest.raises(pickle.UnpicklingError):
+    with _pt.raises(pickle.UnpicklingError):
         util.load_simulation_from_pickle(invalid_pickle)
 
 
@@ -240,7 +258,7 @@ def test_load_simulation_from_missing_file(tmp_path):
     """Test loading a simulation from a non-existent file."""
     missing_file = tmp_path / "does_not_exist.pickle"
 
-    with pytest.raises(OSError):
+    with _pt.raises(OSError):
         util.load_simulation_from_pickle(missing_file)
 
 
@@ -251,7 +269,7 @@ def test_load_simulation_with_missing_attributes(tmp_path):
     with open(incomplete_sim_pickle, "wb") as f:
         pickle.dump(IncompleteSim(), f)
 
-    with pytest.raises(ValueError) as exc_info:
+    with _pt.raises(ValueError) as exc_info:
         util.load_simulation_from_pickle(incomplete_sim_pickle)
     assert "missing required Simulation attributes" in str(exc_info.value)
 
@@ -262,7 +280,7 @@ def test_load_simulations_data_from_invalid_pickle(tmp_path):
     with open(invalid_pickle, "wb") as f:
         f.write(b"not a pickle file")
 
-    with pytest.raises(pickle.UnpicklingError):
+    with _pt.raises(pickle.UnpicklingError):
         util.load_simulations_data_from_pickle(invalid_pickle)
 
 
@@ -270,7 +288,7 @@ def test_load_simulations_data_from_missing_file(tmp_path):
     """Test loading simulations data from a non-existent file."""
     missing_file = tmp_path / "does_not_exist.pickle"
 
-    with pytest.raises(OSError):
+    with _pt.raises(OSError):
         util.load_simulations_data_from_pickle(missing_file)
 
 
@@ -281,6 +299,6 @@ def test_load_simulations_data_with_missing_attributes(tmp_path):
     with open(incomplete_data_pickle, "wb") as f:
         pickle.dump(IncompleteSimData(), f)
 
-    with pytest.raises(ValueError) as exc_info:
+    with _pt.raises(ValueError) as exc_info:
         util.load_simulations_data_from_pickle(incomplete_data_pickle)
     assert "missing required SimulationsData attributes" in str(exc_info.value)

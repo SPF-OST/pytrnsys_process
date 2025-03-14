@@ -50,7 +50,7 @@ default_console_logger.addHandler(_default_console_handler)
 
 
 def get_main_logger(path: _pl.Path) -> _logging.Logger:
-    main_logger = _logging.getLogger("pytrnsys_process")
+    main_logger = _logging.getLogger("main_logger")
 
     # Check if handlers already exist to avoid duplicates
     if main_logger.handlers:
@@ -117,11 +117,8 @@ def get_simulation_logger(simulation_path: _pl.Path) -> _logging.Logger:
         Logger instance configured to write to a log file in the simulation directory
     """
     sim_logger = _logging.getLogger(
-        f"pytrnsys_process.simulation.{simulation_path.name}"
+        f"simulation_logger.{simulation_path.name}"
     )
-
-    # Prevent propagation to parent logger to avoid duplicate logs
-    sim_logger.propagate = False
 
     # Check if handlers already exist to avoid duplicates
     if sim_logger.handlers:
@@ -138,4 +135,7 @@ def get_simulation_logger(simulation_path: _pl.Path) -> _logging.Logger:
     sim_file_handler.setFormatter(sim_format)
 
     sim_logger.addHandler(sim_file_handler)
+
+    sim_logger.setLevel(_logging.INFO)
+
     return sim_logger

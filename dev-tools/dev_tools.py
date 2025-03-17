@@ -242,12 +242,11 @@ def _maybe_run_pytest(arguments, test_results_dir_path):
     ):
         _run_unit_tests_with_pytest(arguments, test_results_dir_path)
 
+
 def _maybe_run_doctest(arguments):
-    if (
-            arguments.shallRunAll
-            or arguments.doctestArguments is not None
-    ):
+    if arguments.shallRunAll or arguments.doctestArguments is not None:
         _run_doctests_with_pytest()
+
 
 def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
     marker_expressions = _get_marker_expressions(

@@ -199,10 +199,24 @@ def process_single_simulation(
             >>> def processing_step_1(sim: api.Simulation):
             ...     # Process simulation data
             ...     pass
-            >>> results = api.process_single_simulation(
-            ...     _pl.Path("path/to/simulation"),
+            ...
+            >>> api.global_settings.reader.read_step_files = True
+            ...
+            >>> api.global_settings.reader.force_reread_prt = True
+            ...
+            >>> simulation = api.process_single_simulation(  # doctest: +ELLIPSIS
+            ...     _pl.Path("tests/pytrnsys_process/data/doctest/results/sim-1"),
             ...     processing_step_1
             ... )
+            INFO ...
+            >>> simulation.step.shape
+            (5, 142)
+            >>> simulation.hourly.shape
+            (3, 18)
+            >>> simulation.monthly.shape
+            (14, 11)
+            >>> simulation.scalar.shape
+            (1, 10)
     """
     main_logger = log.get_main_logger(sim_folder)
     log.initialize_logs(sim_folder)
@@ -267,16 +281,37 @@ def process_whole_result_set(
         >>> import pathlib as _pl
         >>> from pytrnsys_process import api
         ...
+        >>> api.global_settings.reader.force_reread_prt = True
+        ...
+        >>> api.global_settings.reader.read_step_files = False
+        ...
         >>> def processing_step_1(sim):
         ...     # Process simulation data
         ...     pass
+        ...
         >>> def processing_step_2(sim):
         ...     # Process simulation data
         ...     pass
-        >>> results = api.process_whole_result_set(
-        ...     _pl.Path("path/to/results"),
+        ...
+        >>> simulations_data = api.process_whole_result_set( # doctest: +ELLIPSIS
+        ...     _pl.Path("tests/pytrnsys_process/data/doctest/results"),
         ...     [processing_step_1, processing_step_2]
         ... )
+        INFO ...
+        >>> simulations_data.simulations["sim-1"].hourly.shape
+        (3, 18)
+        >>> simulations_data.simulations["sim-1"].monthly.shape
+        (14, 11)
+        >>> simulations_data.simulations["sim-1"].step.shape
+        (0, 0)
+        >>> simulations_data.simulations["sim-1"].step.shape
+        (0, 0)
+        >>> simulations_data.simulations["sim-2"].monthly.shape
+        (14, 11)
+        >>> simulations_data.simulations["sim-2"].step.shape
+        (0, 0)
+        >>> simulations_data.scalar.shape
+        (2, 10)
     """
     _validate_folder(results_folder)
     main_logger = log.get_main_logger(results_folder)

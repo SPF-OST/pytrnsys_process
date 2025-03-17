@@ -42,6 +42,8 @@ def main():
 
     _maybe_run_pytest(arguments, test_results_dir_path)
 
+    _maybe_run_doctest(arguments)
+
     _maybe_create_documentation(arguments)
 
 
@@ -101,6 +103,16 @@ def _parse_arguments() -> ap.Namespace:
         const="",
         nargs="?",
         dest="pytestMarkersExpression",
+    )
+    parser.add_argument(
+        "-dt",
+        "--doctest",
+        help="Perform doc tests",
+        type=str,
+        default=None,
+        const="",
+        nargs="?",
+        dest="doctestArguments",
     )
     parser.add_argument(
         "-d",
@@ -221,6 +233,7 @@ def _maybe_run_pytest(arguments, test_results_dir_path):
         and arguments.blackArguments is None
         and arguments.diagramsFormat is None
         and not arguments.shallCreateDocumentation
+        and arguments.doctestArguments is None
     )
     if (
         arguments.shallRunAll
@@ -228,8 +241,11 @@ def _maybe_run_pytest(arguments, test_results_dir_path):
         or was_called_without_arguments
     ):
         _run_unit_tests_with_pytest(arguments, test_results_dir_path)
-        # TODO: re-enable this once the documentation is updated pylint: disable=fixme
-        # _run_doctests_with_pytest()
+
+
+def _maybe_run_doctest(arguments):
+    if arguments.shallRunAll or arguments.doctestArguments is not None:
+        _run_doctests_with_pytest()
 
 
 def _run_unit_tests_with_pytest(arguments, test_results_dir_path):

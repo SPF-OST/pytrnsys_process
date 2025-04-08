@@ -110,6 +110,20 @@ class TestHandleDuplicateColumns:
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 
+    def test_handle_with_conflicting_time_duplicates(self):
+        """Test that conflicting values of the Time column are kicked out, when the import printer column is correct."""
+        df1 = _pd.DataFrame({"Period": [1, 2], "Time": [1, 2], "B": [3, 4]})
+        df2 = _pd.DataFrame({"Period": [1, 2], "Time": [1, 2], "C": [5, 6]})
+        df3 = _pd.DataFrame({"Period": [1, 2], "Time": [3, 2], "D": [7, 8]})
+
+        result = ps.handle_duplicate_columns(
+            _pd.concat([df1, df2, df3], axis=1)
+        )
+        expected = _pd.DataFrame(
+            {"Period": [1, 2], "B": [3, 4], "C": [5, 6], "D": [7, 8]}
+        )
+        _pd.testing.assert_frame_equal(result, expected)
+
     def test_handle_with_matching_none_duplicates(self):
         """Test merging of duplicate columns with null values."""
         df1 = _pd.DataFrame({"A": [None, 2], "B": [3, 4]})

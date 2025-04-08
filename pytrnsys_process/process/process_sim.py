@@ -75,6 +75,7 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
     ____
     https://stackoverflow.com/questions/14984119/python-pandas-remove-duplicate-columns
     """
+    remove_time_as_well = False
     for col in df.columns[df.columns.duplicated(keep=False)]:
         duplicate_cols = df.iloc[:, df.columns == col]
 
@@ -86,11 +87,20 @@ def handle_duplicate_columns(df: _pd.DataFrame) -> _pd.DataFrame:
             )
 
         if not duplicate_cols.apply(lambda x: x.nunique() <= 1, axis=1).all():
+            if col == "Time":
+                remove_time_as_well = True
+                continue
+
             raise ValueError(
                 f"Column '{col}' has conflicting values at same indices"
             )
 
-    df = df.iloc[:, ~df.columns.duplicated()].copy()
+    columns_to_be_removed = df.columns.duplicated()
+    if remove_time_as_well:
+        columns_to_be_removed += df.columns.get_loc("Time")  # type: ignore[arg-type]
+
+    df = df.iloc[:, ~columns_to_be_removed].copy()
+
     return df
 
 

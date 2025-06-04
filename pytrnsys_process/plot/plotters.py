@@ -235,6 +235,7 @@ class ScatterPlot(ChartBase):
             color_map,
             marker_map,
             ax,
+            **kwargs,
         )
 
         if use_legend:
@@ -256,21 +257,21 @@ class ScatterPlot(ChartBase):
     def _prepare_grouping(
         self,
         df: _pd.DataFrame,
-        color: str | None,
-        marker: str | None,
+        by_color: str | None,
+        by_marker: str | None,
     ) -> tuple[
         _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
     ]:
         group_by = []
-        if color:
-            group_by.append(color)
-        if marker:
-            group_by.append(marker)
+        if by_color:
+            group_by.append(by_color)
+        if by_marker:
+            group_by.append(by_marker)
 
         df_grouped = df.groupby(group_by)
 
-        color_values = sorted(df[color].unique()) if color else []
-        marker_values = sorted(df[marker].unique()) if marker else []
+        color_values = sorted(df[by_color].unique()) if by_color else []
+        marker_values = sorted(df[by_marker].unique()) if by_marker else []
 
         return df_grouped, (color_values, marker_values)
 
@@ -299,8 +300,9 @@ class ScatterPlot(ChartBase):
         x_column: str,
         y_column: str,
         color_map: dict[str, _tp.Any],
-        marker_map: dict[str, str],
+        marker_map: dict[str, str] | str,
         ax: _plt.Axes,
+        **kwargs,
     ) -> None:
         ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
         ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
@@ -314,6 +316,8 @@ class ScatterPlot(ChartBase):
                 plot_args["color"] = color_map[val[0]]
             if marker_map:
                 scatter_args["marker"] = marker_map[val[-1]]
+            elif "marker" in kwargs:
+                scatter_args["marker"] = kwargs["marker"]
             ax.plot(x, y, **plot_args)  # type: ignore
             ax.scatter(x, y, **scatter_args)  # type: ignore
 

@@ -1,3 +1,4 @@
+import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
 import pytest
@@ -310,6 +311,7 @@ class TestPlotters:
             "yearly_demand_GWh",
             "ratioDHWtoSH_allSinks",
         )
+        # _plt.show()
         fig.savefig(actual)
 
         # Assert
@@ -333,6 +335,26 @@ class TestPlotters:
             "yearly_demand_GWh",
             "ratioDHWtoSH_allSinks",
             cmap="viridis",
+        )
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
+
+    def test_scatter_compare_plot_groupby_color_only(self, comparison_data):
+        # Setup
+        actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_color_only_with_marker.png"
+        expected = (
+            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_color_only_with_marker.png"
+        )
+
+        # Execute
+        fig, _ = plot.scatter_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            "yearly_demand_GWh",
+            marker='*'
         )
         fig.savefig(actual)
 

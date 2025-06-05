@@ -1,7 +1,7 @@
 import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
-import pytest
+import pytest as _pt
 
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import read
@@ -14,7 +14,7 @@ class TestPlotters:
         False  # Toggle this to enable/disable plot comparison
     )
 
-    @pytest.fixture
+    @_pt.fixture
     def monthly_data(self):
         """Load monthly test data."""
         result_data = (
@@ -22,13 +22,13 @@ class TestPlotters:
         )
         return read.PrtReader().read_monthly(result_data)
 
-    @pytest.fixture
+    @_pt.fixture
     def hourly_data(self):
         """Load hourly test data."""
         result_data = const.DATA_FOLDER / "plotters/data/Src_Hr.Prt"
         return read.PrtReader().read_hourly(result_data)
 
-    @pytest.fixture
+    @_pt.fixture
     def comparison_data(self):
         path_to_json = (
             const.DATA_FOLDER
@@ -39,7 +39,7 @@ class TestPlotters:
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
         if self.SKIP_PLOT_COMPARISON:
-            pytest.skip(
+            _pt.skip(
                 "Plot comparison temporarily disabled during development"
             )
         assert (
@@ -207,6 +207,15 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_file, expected_file)
 
+    def test_scatter_plot_raises(self, monthly_data):
+        with _pt.raises(ValueError):
+            plot.scatter_plot(
+                monthly_data,
+                x_column="QSnk60dQlossTess",
+                y_column="QSnk60dQ",
+                cmap="Reds"
+            )
+
     def test_scatter_plot_for_monthly_color(self, monthly_data):
         # Setup
         actual_file = (
@@ -296,7 +305,7 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_imb_calculated, expected)
 
-    def test_scatter_compare_plot(self, comparison_data):
+    def test_scalar_compare_plot(self, comparison_data):
         # Setup
         actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual.png"
         expected = (
@@ -304,7 +313,7 @@ class TestPlotters:
         )
 
         # Execute
-        fig, _ = plot.scatter_plot(
+        fig, _ = plot.scalar_compare_plot(
             comparison_data,
             "VIceSscaled",
             "VIceRatioMax",
@@ -317,7 +326,7 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual, expected)
 
-    def test_scatter_compare_plot_cmap(self, comparison_data):
+    def test_scalar_compare_plot_cmap(self, comparison_data):
         # Setup
         actual = (
             const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_cmap.png"
@@ -328,18 +337,37 @@ class TestPlotters:
         )
 
         # Execute
-        fig, _ = plot.scatter_plot(
+        fig, _ = plot.scalar_compare_plot(
             comparison_data,
             "VIceSscaled",
             "VIceRatioMax",
             "yearly_demand_GWh",
             "ratioDHWtoSH_allSinks",
-            cmap="viridis",
+            line_kwargs={"cmap": "viridis"},
         )
         fig.savefig(actual)
 
         # Assert
         self.assert_plots_match(actual, expected)
+
+    def test_scalar_compare_plot_with_kwargs_raises(self, comparison_data):
+        with _pt.raises(ValueError):
+            plot.scalar_compare_plot(
+                comparison_data,
+                "VIceSscaled",
+                "VIceRatioMax",
+                "yearly_demand_GWh",
+                "ratioDHWtoSH_allSinks",
+                cmap="viridis",
+            )
+
+    def test_scalar_compare_plot_without_grouping_raises(self, comparison_data):
+        with _pt.raises(ValueError):
+            plot.scalar_compare_plot(
+                comparison_data,
+                "VIceSscaled",
+                "VIceRatioMax",
+            )
 
     def test_scatter_compare_plot_groupby_color_only(self, comparison_data):
         # Setup
@@ -349,13 +377,36 @@ class TestPlotters:
         )
 
         # Execute
-        fig, _ = plot.scatter_plot(
+        fig, _ = plot.scalar_compare_plot(
             comparison_data,
             "VIceSscaled",
             "VIceRatioMax",
             "yearly_demand_GWh",
-            marker='*'
+            scatter_kwargs={"marker": '*'}
         )
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
+
+    def test_scatter_compare_plot_groupby_marker_only(self, comparison_data):
+        # Setup
+        actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_marker_only.png"
+        expected = (
+            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_marker_only.png"
+        )
+        # TODO: add group_by_marker case with colors.
+
+        # Execute
+        fig, _ = plot.scalar_compare_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            # "yearly_demand_GWh",
+            group_by_marker="ratioDHWtoSH_allSinks",
+            line_kwargs={"cmap": "seismic"}
+        )
+        _plt.show()
         fig.savefig(actual)
 
         # Assert
@@ -374,5 +425,5 @@ class TestPlotters:
             + r"\nNo matches found for:\n'DoesNotExist'"
         )
 
-        with pytest.raises(plot.ColumnNotFoundError, match=expected_message):
+        with _pt.raises(plot.ColumnNotFoundError, match=expected_message):
             plot.line_plot(hourly_data, columns)

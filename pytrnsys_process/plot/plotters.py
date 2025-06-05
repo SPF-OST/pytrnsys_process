@@ -185,7 +185,40 @@ class Histogram(ChartBase):
         return fig, ax
 
 
+def _validate_inputs(
+    current_class,
+    columns: list[str],
+) -> None:
+    if len(columns) != 2:
+        raise ValueError(
+            f"{current_class.__name__} requires exactly 2 columns (x and y)"
+        )
+
+
 class ScatterPlot(ChartBase):
+    cmap = "Paired"  # This is ignored when no categorical groupings are used.
+
+    def _do_plot(
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
+    ) -> tuple[_plt.Figure, _plt.Axes]:
+
+        _validate_inputs(self, columns)
+        x_column, y_column = columns
+
+        fig, ax = _plt.subplots(
+            figsize=size,
+            layout="constrained",
+        )
+        df.plot.scatter(x=x_column, y=y_column, ax=ax, **kwargs)
+        return fig, ax
+
+
+class ScalarComparePlot(ChartBase):
     """Handles comparative scatter plots with dual grouping by color and markers."""
 
     cmap = "Paired"  # This is ignored when no categorical groupings are used.
@@ -201,16 +234,10 @@ class ScatterPlot(ChartBase):
         group_by_marker: str | None = None,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        self._validate_inputs(columns)
+
+        _validate_inputs(self, columns)
         x_column, y_column = columns
 
-        if not group_by_color and not group_by_marker:
-            fig, ax = _plt.subplots(
-                figsize=size,
-                layout="constrained",
-            )
-            df.plot.scatter(x=x_column, y=y_column, ax=ax, **kwargs)
-            return fig, ax
         # See: https://stackoverflow.com/questions/4700614/
         # how-to-put-the-legend-outside-the-plot
         # This is required to place the legend in a dedicated subplot
@@ -244,15 +271,6 @@ class ScatterPlot(ChartBase):
             )
 
         return fig, ax
-
-    def _validate_inputs(
-        self,
-        columns: list[str],
-    ) -> None:
-        if len(columns) != 2:
-            raise ValueError(
-                "ScatterComparePlotter requires exactly 2 columns (x and y)"
-            )
 
     def _prepare_grouping(
         self,

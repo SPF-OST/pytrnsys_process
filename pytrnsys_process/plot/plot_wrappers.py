@@ -375,8 +375,8 @@ def scalar_compare_plot(
         group_by_marker: str | None = None,
         use_legend: bool = True,
         size: tuple[float, float] = conf.PlotSizes.A4.value,
-        scatter_kwargs: dict[str, _tp.Any] | None = None,
-        line_kwargs: dict[str, _tp.Any] | None = None,
+        scatter_kwargs: dict[str, _tp.Any] = {},
+        line_kwargs: dict[str, _tp.Any] = {},
         **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     f"""

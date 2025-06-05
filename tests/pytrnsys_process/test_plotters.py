@@ -1,4 +1,3 @@
-import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
 import pytest as _pt
@@ -384,6 +383,7 @@ class TestPlotters:
             "yearly_demand_GWh",
             scatter_kwargs={"marker": '*'}
         )
+        # _plt.show()
         fig.savefig(actual)
 
         # Assert
@@ -395,18 +395,16 @@ class TestPlotters:
         expected = (
             const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_marker_only.png"
         )
-        # TODO: add group_by_marker case with colors.
 
         # Execute
         fig, _ = plot.scalar_compare_plot(
             comparison_data,
             "VIceSscaled",
             "VIceRatioMax",
-            # "yearly_demand_GWh",
             group_by_marker="ratioDHWtoSH_allSinks",
             line_kwargs={"cmap": "seismic"}
         )
-        _plt.show()
+        # _plt.show()
         fig.savefig(actual)
 
         # Assert

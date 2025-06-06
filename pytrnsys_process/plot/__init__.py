@@ -5,6 +5,7 @@ from pytrnsys_process.plot.plot_wrappers import (
     histogram,
     energy_balance,
     scatter_plot,
+    scalar_compare_plot,
 )
 
 # pylint: disable=duplicate-code
@@ -15,4 +16,5 @@ __all__ = [
     "histogram",
     "energy_balance",
     "scatter_plot",
+    "scalar_compare_plot",
 ]

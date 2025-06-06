@@ -14,6 +14,7 @@ from pytrnsys_process.plot import (
     histogram,
     line_plot,
     scatter_plot,
+    scalar_compare_plot,
     stacked_bar_chart,
 )
 from pytrnsys_process.process import (
@@ -37,6 +38,7 @@ __all__ = [
     "histogram",
     "energy_balance",
     "scatter_plot",
+    "scalar_compare_plot",
     "process_whole_result_set_parallel",
     "process_single_simulation",
     "process_whole_result_set",

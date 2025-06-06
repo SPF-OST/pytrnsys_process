@@ -3,15 +3,17 @@ import pathlib as _pl
 from unittest import mock as _mock
 
 import matplotlib.pyplot as _plt
+import matplotlib._pylab_helpers as _helpers
 import pytest as _pt
 
 from pytrnsys_process import process, config
+
 # from pytrnsys_process.process import process_batch as pb
 from tests.pytrnsys_process import constants as const
 
 RESULTS_FOLDER = const.DATA_FOLDER / "processing-functions/results"
 INVALID_RESULTS_FOLDER = (
-        const.DATA_FOLDER / "processing-functions/invalid-results"
+    const.DATA_FOLDER / "processing-functions/invalid-results"
 )
 PICKLE_FOLDER = const.DATA_FOLDER / "processing-functions/pickle"
 
@@ -25,7 +27,7 @@ def setup():
 
 
 def processing_step(
-        simulation: process.Simulation,
+    simulation: process.Simulation,
 ):  # pylint: disable=unused-argument
     pass
 
@@ -36,7 +38,7 @@ def processing_step_failing(simulation: process.Simulation):
 
 
 def comparison_step(
-        simulations_data: process.SimulationsData,
+    simulations_data: process.SimulationsData,
 ):  # pylint: disable=unused-argument
     return
 
@@ -203,11 +205,12 @@ class TestProcessingFunctions:
             process.do_comparison(comparison_step)
 
         assert (
-                str(exc_info.value)
-                == "Either simulations_data or results_folder must be provided to perform comparison"
+            str(exc_info.value)
+            == "Either simulations_data or results_folder must be provided to perform comparison"
         )
 
 
+# pylint: disable=unused-argument
 def processing_step_with_figure(simulation: process.Simulation):
     """Used to check whether figures are closed automatically
     after the processing step finishes."""
@@ -215,14 +218,15 @@ def processing_step_with_figure(simulation: process.Simulation):
     _, _ = _plt.subplots(2, 1)
 
 
+# pylint: disable=unused-argument
 def processing_step_with_figure_shown(simulation: process.Simulation):
     """Used to check whether figures are closed automatically
     after the processing step finishes."""
-    import matplotlib._pylab_helpers as _helpers
     nr_of_active_windows = _helpers.Gcf.get_num_fig_managers()
     assert nr_of_active_windows == 0, "Some windows are still active."
 
 
+# pylint: disable=unused-argument
 def comparison_step_with_figure(simulations: process.SimulationsData):
     """Used to check whether figures are closed automatically
     after the processing step finishes."""
@@ -230,10 +234,10 @@ def comparison_step_with_figure(simulations: process.SimulationsData):
     _, _ = _plt.subplots(2, 1)
 
 
+# pylint: disable=unused-argument
 def comparison_step_with_figure_shown(simulation: process.Simulation):
     """Used to check whether figures are closed automatically
     after the processing step finishes."""
-    import matplotlib._pylab_helpers as _helpers
     nr_of_active_windows = _helpers.Gcf.get_num_fig_managers()
     assert nr_of_active_windows == 0, "Some windows are still active."
 
@@ -242,15 +246,17 @@ class TestProcessingClosesFigures:
     """These tests check whether active figure managers exist in
     a step following a step with a figure.
     """
+
     scenario = [
-                processing_step_with_figure,
-                processing_step_with_figure,
-                processing_step_with_figure_shown,
-            ]
-    comparison_scenario = [comparison_step_with_figure,
-                           comparison_step_with_figure,
-                           comparison_step_with_figure_shown,
-                           ]
+        processing_step_with_figure,
+        processing_step_with_figure,
+        processing_step_with_figure_shown,
+    ]
+    comparison_scenario = [
+        comparison_step_with_figure,
+        comparison_step_with_figure,
+        comparison_step_with_figure_shown,
+    ]
 
     def test_process_single_simulation(self, caplog):
         sim_folder = RESULTS_FOLDER / "sim-1"
@@ -258,7 +264,9 @@ class TestProcessingClosesFigures:
         def run_with_caplog():
             caplog.clear()
             with caplog.at_level(_logging.ERROR):
-                return process.process_single_simulation(sim_folder, self.scenario)
+                return process.process_single_simulation(
+                    sim_folder, self.scenario
+                )
 
         # first pass reading from raw files
         run_with_caplog()
@@ -268,7 +276,9 @@ class TestProcessingClosesFigures:
         def run_with_caplog():
             caplog.clear()
             with caplog.at_level(_logging.ERROR):
-                return process.process_whole_result_set(RESULTS_FOLDER, self.scenario)
+                return process.process_whole_result_set(
+                    RESULTS_FOLDER, self.scenario
+                )
 
         # first pass reading from raw files
         run_with_caplog()
@@ -278,7 +288,9 @@ class TestProcessingClosesFigures:
         def run_with_caplog():
             caplog.clear()
             with caplog.at_level(_logging.INFO):
-                return process.process_whole_result_set_parallel(RESULTS_FOLDER, self.scenario)
+                return process.process_whole_result_set_parallel(
+                    RESULTS_FOLDER, self.scenario
+                )
 
         # first pass reading from raw files
         run_with_caplog()
@@ -288,7 +300,9 @@ class TestProcessingClosesFigures:
         def run_with_caplog():
             caplog.clear()
             with caplog.at_level(_logging.ERROR):
-                return process.do_comparison(self.comparison_scenario, results_folder=RESULTS_FOLDER)
+                return process.do_comparison(
+                    self.comparison_scenario, results_folder=RESULTS_FOLDER
+                )
 
         # first pass reading from raw files
         run_with_caplog()

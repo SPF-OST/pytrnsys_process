@@ -1,18 +1,21 @@
+# pylint: disable=consider-using-from-import
 import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
 import pytest as _pt
 
-import tests.pytrnsys_process.constants as const
-from pytrnsys_process import read
-from pytrnsys_process.config.constants import PlotSizes
-from pytrnsys_process.plot import plot_wrappers as plot
+import pytrnsys_process.config.constants as constants
+import pytrnsys_process.plot.plot_wrappers as plot
 import pytrnsys_process.plot.plotters as plotters
+import pytrnsys_process.read as read
+import tests.pytrnsys_process.constants as const
 
 
 def get_fig_and_ax():
     """helper function"""
-    fig, ax = plotters.ChartBase.get_fig_and_ax({}, PlotSizes.A4.value)
+    fig, ax = plotters.ChartBase.get_fig_and_ax(
+        {}, constants.PlotSizes.A4.value
+    )
     return fig, ax
 
 
@@ -21,6 +24,12 @@ class TestPlotters:
     SKIP_PLOT_COMPARISON = (
         False  # Toggle this to enable/disable plot comparison
     )
+
+    @_pt.fixture(autouse=True)
+    def close_figures_on_teardown(self):
+        # https://github.com/scverse/scanpy/issues/1662
+        yield
+        _plt.close("all")
 
     @_pt.fixture
     def monthly_data(self):
@@ -602,3 +611,41 @@ class TestPlotters:
 
         with _pt.raises(plot.ColumnNotFoundError, match=expected_message):
             plot.line_plot(hourly_data, columns)
+
+    def test_get_figure_with_twin_x_axis(self, monthly_data):
+        # TODO: add to api.  # pylint: disable=fixme
+        # TODO: note be careful with equivalent axis or not.  # pylint: disable=fixme
+        actual = (
+            const.DATA_FOLDER
+            / "plotters/twinx-plot/actual.png"
+        )
+        expected = (
+            const.DATA_FOLDER
+            / "plotters/twinx-plot/expected.png"
+        )
+        fig, lax, rax = plot.get_figure_with_twin_x_axis()
+        plot.line_plot(
+            monthly_data,
+            ["QSnk60P"],
+            ylabel="Power [kWh]",
+            use_legend=False,
+            fig=fig,
+            ax=lax,
+        )
+        plot.line_plot(
+            monthly_data,
+            ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"],
+            marker="*",
+            ylabel="Fluxes [kWh]",
+            use_legend=False,
+            fig=fig,
+            ax=rax,
+        )
+        fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
+
+        # _plt.show()
+        fig.savefig(actual)
+
+        self.assert_plots_match(actual, expected)
+        

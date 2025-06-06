@@ -540,5 +540,43 @@ def _validate_column_exists(
     raise ColumnNotFoundError(error_msg)
 
 
+def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
+    """
+    Used to make figures with different y axes on the left and right.
+    To create such a figure, pass the lax to one plotting method and pass the rax to another.
+
+    Example:
+
+
+    Returns
+    -------
+    fig:
+        Figure object
+
+    lax:
+        Axis object for the data on the left y-axis.
+
+    rax:
+        Axis object for the data on the right y-axis.
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        Twin axis plot
+
+        >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
+        >>> api.line_plot(simulation.monthly_data, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
+        >>> api.histogram(simulation.monthly_data, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], ylabel="Temperature counts [-].",  use_legend=False, fig=fig, ax=rax)
+        >>>
+        >>> fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
+        >>> # https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
+    """
+    fig, lax = pltrs.ChartBase().get_fig_and_ax({}, conf.PlotSizes.A4.value)
+    rax = lax.twinx()
+    return fig, lax, rax
+
+
 class ColumnNotFoundError(Exception):
     """This exception is raised when given column names are not available in the dataframe"""

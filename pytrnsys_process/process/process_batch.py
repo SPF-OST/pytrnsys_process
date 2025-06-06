@@ -463,7 +463,6 @@ def do_comparison(
         _pl.Path(simulations_data.path_to_simulations)
     )
     _process_comparisons(simulations_data, comparison_scenario, main_logger)
-    _plt.close("all")
 
     return simulations_data
 
@@ -484,6 +483,7 @@ def _process_comparisons(
     for step in scenario:
         try:
             step(simulations_data)
+            _plt.close("all")
         except Exception as e:  # pylint: disable=broad-except
             scenario_name = getattr(step, "__name__", str(step))
             main_logger.error(
@@ -558,6 +558,7 @@ def _process_simulation(
             sim_logger.info(
                 "Successfully completed scenario: %s", scenario_name
             )
+            _plt.close("all")
         except Exception as e:  # pylint: disable=broad-except
             failed_scenarios.append(scenario_name)
             sim_logger.error(
@@ -575,7 +576,6 @@ def _process_simulation(
     else:
         sim_logger.info("Simulation completed successfully")
 
-    _plt.close("all")
     return simulation, failed_scenarios
 
 

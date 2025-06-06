@@ -81,14 +81,14 @@ def main():
     ################################################
     # Step 4: Create Comparison Plot
     # ---------------------------------------
-    # Scatter plot showing:
+    # scalar compare plot showing:
     # - X-axis: Scaled ice volume (VIceSscaled)
     # - Y-axis: Maximum ice ratio (VIceRatioMax)
     # - Color: Yearly demand in GWh
     # - Markers: DHW to space heating ratio
     ################################################
 
-    api.scatter_plot(
+    api.scalar_compare_plot(
         simulations_data.scalar,
         "VIceSscaled",
         "VIceRatioMax",

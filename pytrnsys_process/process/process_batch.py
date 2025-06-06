@@ -446,6 +446,13 @@ def do_comparison(
             simulations_data = util.load_simulations_data_from_pickle(
                 path_to_simulations_data
             )
+            # Moving locations of files breaks the paths.
+            # If the pickle file is found, then we know the new path is correct.
+            # The original path is saved for later retrieval.
+            simulations_data.path_to_simulations_original = simulations_data.path_to_simulations
+            if not simulations_data.path_to_simulations == str(results_folder):
+                simulations_data.path_to_simulations = str(results_folder)
+
         else:
             simulations_data = process_whole_result_set_parallel(
                 results_folder, []

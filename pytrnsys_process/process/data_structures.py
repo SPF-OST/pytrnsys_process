@@ -97,3 +97,4 @@ class SimulationsData:
     simulations: dict[str, Simulation] = _dc.field(default_factory=dict)
     scalar: _pd.DataFrame = _dc.field(default_factory=_pd.DataFrame)
     path_to_simulations: str = _dc.field(default_factory=str)
+    path_to_simulations_original: str = _dc.field(init=False)

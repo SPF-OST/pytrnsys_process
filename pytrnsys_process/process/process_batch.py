@@ -449,7 +449,9 @@ def do_comparison(
             # Moving locations of files breaks the paths.
             # If the pickle file is found, then we know the new path is correct.
             # The original path is saved for later retrieval.
-            simulations_data.path_to_simulations_original = simulations_data.path_to_simulations
+            simulations_data.path_to_simulations_original = (
+                simulations_data.path_to_simulations
+            )
             if not simulations_data.path_to_simulations == str(results_folder):
                 simulations_data.path_to_simulations = str(results_folder)
 

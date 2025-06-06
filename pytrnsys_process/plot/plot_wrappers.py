@@ -17,11 +17,11 @@ from pytrnsys_process.plot import plotters as pltrs
 
 
 def line_plot(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a line plot using the provided DataFrame columns.
@@ -63,11 +63,11 @@ def line_plot(
 
 
 def bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a bar chart with multiple columns displayed as grouped bars.
@@ -110,11 +110,11 @@ def bar_chart(
 
 
 def stacked_bar_chart(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Bar chart with stacked bars
@@ -156,12 +156,12 @@ def stacked_bar_chart(
 
 
 def histogram(
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        bins: int = 50,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    columns: list[str],
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    bins: int = 50,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a histogram from the given DataFrame columns.
@@ -206,13 +206,13 @@ def histogram(
 
 
 def energy_balance(
-        df: _pd.DataFrame,
-        q_in_columns: list[str],
-        q_out_columns: list[str],
-        q_imb_column: _tp.Optional[str] = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    q_in_columns: list[str],
+    q_out_columns: list[str],
+    q_imb_column: _tp.Optional[str] = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
@@ -264,9 +264,9 @@ def energy_balance(
         >>> )
     """
     all_columns_vor_validation = (
-            q_in_columns
-            + q_out_columns
-            + ([q_imb_column] if q_imb_column is not None else [])
+        q_in_columns
+        + q_out_columns
+        + ([q_imb_column] if q_imb_column is not None else [])
     )
     _validate_column_exists(df, all_columns_vor_validation)
 
@@ -279,7 +279,7 @@ def energy_balance(
         q_imb_column = "Qimb"
         df_modified[q_imb_column] = df_modified[
             q_in_columns + q_out_columns
-            ].sum(axis=1)
+        ].sum(axis=1)
 
     columns_to_plot = q_in_columns + q_out_columns + [q_imb_column]
 
@@ -294,12 +294,12 @@ def energy_balance(
 
 
 def scatter_plot(
-        df: _pd.DataFrame,
-        x_column: str,
-        y_column: str,
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    x_column: str,
+    y_column: str,
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
     Create a scatter plot to show numerical relationships between x and y variables.
@@ -350,8 +350,10 @@ def scatter_plot(
 
     """
     if "cmap" in kwargs:
-        raise ValueError(f"\nscatter_plot does not take a 'cmap'."
-                         f"\nPlease use color instead.")
+        raise ValueError(
+            "\nscatter_plot does not take a 'cmap'."
+            "\nPlease use color instead."
+        )
 
     columns_to_validate = [x_column, y_column]
     _validate_column_exists(df, [x_column, y_column])
@@ -367,19 +369,20 @@ def scatter_plot(
     )
 
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def scalar_compare_plot(
-        df: _pd.DataFrame,
-        x_column: str,
-        y_column: str,
-        group_by_color: str | None = None,
-        group_by_marker: str | None = None,
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        scatter_kwargs: dict[str, _tp.Any] = {},
-        line_kwargs: dict[str, _tp.Any] = {},
-        **kwargs: _tp.Any,
+    df: _pd.DataFrame,
+    x_column: str,
+    y_column: str,
+    group_by_color: str | None = None,
+    group_by_marker: str | None = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    scatter_kwargs: dict[str, _tp.Any] | None = None,
+    line_kwargs: dict[str, _tp.Any] | None = None,
+    **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
-    f"""
+    """
     Create a scalar comparison plot with up to two grouping variables.
     This visualization allows simultaneous analysis of:
 
@@ -391,12 +394,12 @@ def scalar_compare_plot(
     ____
     To change the figure properties a separation is included.
     scatter_kwargs are used to change the markers.
-    line_kwargs are used to change the lines. 
-    
-    See: 
+    line_kwargs are used to change the lines.
+
+    See:
     - markers: https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html
     - lines: https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html
-    
+
 
     Parameters
     __________
@@ -420,19 +423,19 @@ def scalar_compare_plot(
 
     size: tuple of (float, float)
         size of the figure (width, height)
-    
+
     line_kwargs:
         Additional keyword arguments to pass on to
         :meth:`matplotlib.axes.Axes.plot`.
-        
-    scatter_kwargs: 
+
+    scatter_kwargs:
         Additional keyword arguments to pass on to
         :meth:`matplotlib.axes.Axes.scatter`.
-        
+
     **kwargs :
         Should never be used!
-        Use 'line_kwargs' or 'scatter_kwargs' instead. 
-        
+        Use 'line_kwargs' or 'scatter_kwargs' instead.
+
 
     Returns
     _______
@@ -456,14 +459,18 @@ def scalar_compare_plot(
 
     """
     if kwargs:
-        raise ValueError(f"\nTo adjust the figure properties, \nplease use the scatter_kwargs "
-                         f"to change the marker properties, \nand please use the line_kwargs "
-                         f"to change the line properties."
-                         f"\nReceived: {kwargs}")
+        raise ValueError(
+            f"\nTo adjust the figure properties, \nplease use the scatter_kwargs "
+            f"to change the marker properties, \nand please use the line_kwargs "
+            f"to change the line properties."
+            f"\nReceived: {kwargs}"
+        )
 
     if not group_by_marker and not group_by_color:
-        raise ValueError("\nAt least one of 'group_by_marker' or 'group_by_color' has to be set."
-                         f"\nFor a normal scatter plot, please use '{scatter_plot.__name__}'.")
+        raise ValueError(
+            "\nAt least one of 'group_by_marker' or 'group_by_color' has to be set."
+            f"\nFor a normal scatter plot, please use '{scatter_plot.__name__}'."
+        )
 
     columns_to_validate = [x_column, y_column]
     if group_by_color:
@@ -486,7 +493,7 @@ def scalar_compare_plot(
 
 
 def _validate_column_exists(
-        df: _pd.DataFrame, columns: _abc.Sequence[str]
+    df: _pd.DataFrame, columns: _abc.Sequence[str]
 ) -> None:
     """Validate that all requested columns exist in the DataFrame.
 

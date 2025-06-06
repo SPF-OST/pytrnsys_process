@@ -25,22 +25,22 @@ class ChartBase:
     cmap: str | None = None
 
     def plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            **kwargs,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = self._do_plot(df, columns, **kwargs)
         return fig, ax
 
     @abstractmethod
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
 
@@ -69,12 +69,12 @@ class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
             figsize=size,
@@ -99,12 +99,12 @@ class BarChart(ChartBase):
     cmap = None
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         # TODO: deal with colors  # pylint: disable=fixme
         fig, ax = _plt.subplots(
@@ -139,12 +139,12 @@ class LinePlot(ChartBase):
     cmap: str | None = None
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
             figsize=size,
@@ -166,12 +166,12 @@ class Histogram(ChartBase):
     bins: int = 50
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = _plt.subplots(
             figsize=size,
@@ -189,8 +189,8 @@ class Histogram(ChartBase):
 
 
 def _validate_inputs(
-        current_class,
-        columns: list[str],
+    current_class,
+    columns: list[str],
 ) -> None:
     if len(columns) != 2:
         raise ValueError(
@@ -202,12 +202,12 @@ class ScatterPlot(ChartBase):
     cmap = "Paired"  # This is ignored when no categorical groupings are used.
 
     def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            **kwargs: _tp.Any,
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         _validate_inputs(self, columns)
         x_column, y_column = columns
@@ -225,21 +225,30 @@ class ScalarComparePlot(ChartBase):
 
     cmap = "Paired"  # This is ignored when no categorical groupings are used.
 
-    # pylint: disable=too-many-arguments,too-many-locals
-    def _do_plot(
-            self,
-            df: _pd.DataFrame,
-            columns: list[str],
-            use_legend: bool = True,
-            size: tuple[float, float] = conf.PlotSizes.A4.value,
-            group_by_color: str | None = None,
-            group_by_marker: str | None = None,
-            line_kwargs: dict[str, _tp.Any] = {},
-            scatter_kwargs: dict[str, _tp.Any] = {},
+    # pylint: disable=too-many-arguments,too-many-locals, too-many-positional-arguments
+    def _do_plot(  # type: ignore[override]
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        group_by_color: str | None = None,
+        group_by_marker: str | None = None,
+        line_kwargs: dict[str, _tp.Any] | None = None,
+        scatter_kwargs: dict[str, _tp.Any] | None = None,
     ) -> tuple[_plt.Figure, _plt.Axes]:
 
         _validate_inputs(self, columns)
         x_column, y_column = columns
+
+        # ===========================================
+        # The following simplifies the code later on,
+        # while being compatible with linting.
+        if not line_kwargs:
+            line_kwargs = {}
+        if not scatter_kwargs:
+            scatter_kwargs = {}
+        # ===========================================
 
         if group_by_color and group_by_marker:
             # See: https://stackoverflow.com/questions/4700614/
@@ -256,7 +265,8 @@ class ScalarComparePlot(ChartBase):
             secondary_axis_used = False
             fig, ax = _plt.subplots(
                 layout="constrained",
-                figsize=size,)
+                figsize=size,
+            )
             lax = ax
 
         df_grouped, group_values = self._prepare_grouping(
@@ -284,7 +294,12 @@ class ScalarComparePlot(ChartBase):
 
         if use_legend:
             self._create_legends(
-                lax, color_map, marker_map, group_by_color, group_by_marker, use_color_legend=use_color_legend,
+                lax,
+                color_map,
+                marker_map,
+                group_by_color,
+                group_by_marker,
+                use_color_legend=use_color_legend,
                 secondary_axis_used=secondary_axis_used,
             )
 
@@ -292,9 +307,9 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _prepare_grouping(
-            df: _pd.DataFrame,
-            by_color: str | None,
-            by_marker: str | None,
+        df: _pd.DataFrame,
+        by_color: str | None,
+        by_marker: str | None,
     ) -> tuple[
         _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
     ]:
@@ -313,9 +328,9 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _create_style_mappings(
-            color_values: list[str],
-            marker_values: list[str],
-            cmap: str | None,
+        color_values: list[str],
+        marker_values: list[str],
+        cmap: str | None,
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
             cm = _plt.get_cmap(cmap, len(color_values))
@@ -333,14 +348,14 @@ class ScalarComparePlot(ChartBase):
     # pylint: disable=too-many-arguments
     @staticmethod
     def _plot_groups(
-            df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
-            x_column: str,
-            y_column: str,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str] | str,
-            ax: _plt.Axes,
-            line_kwargs: dict[str, _tp.Any],
-            scatter_kwargs: dict[str, _tp.Any],
+        df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
+        x_column: str,
+        y_column: str,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str] | str,
+        ax: _plt.Axes,
+        line_kwargs: dict[str, _tp.Any],
+        scatter_kwargs: dict[str, _tp.Any],
     ) -> None:
         ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
         ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
@@ -371,39 +386,45 @@ class ScalarComparePlot(ChartBase):
             ax.scatter(x, y, **scatter_args)  # type: ignore
 
     def _create_legends(
-            self,
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            marker_map: dict[str, str],
-            color_legend_title: str | None,
-            marker_legend_title: str | None,
-            use_color_legend: bool,
-            secondary_axis_used: bool,
+        self,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        marker_map: dict[str, str],
+        color_legend_title: str | None,
+        marker_legend_title: str | None,
+        use_color_legend: bool,
+        secondary_axis_used: bool,
     ) -> None:
 
         if secondary_axis_used:
-            """
-            Secondary axis should be turned off.
-            Primary axis should stay the same.
-            """
+            # Secondary axis should be turned off.
+            # Primary axis should stay the same.
             lax.axis("off")
 
         if use_color_legend:
             self._create_color_legend(
-                lax, color_map, color_legend_title, bool(marker_map), secondary_axis_used
+                lax,
+                color_map,
+                color_legend_title,
+                bool(marker_map),
+                secondary_axis_used,
             )
         if marker_map:
             self._create_marker_legend(
-                lax, marker_map, marker_legend_title, bool(use_color_legend), secondary_axis_used
+                lax,
+                marker_map,
+                marker_legend_title,
+                bool(use_color_legend),
+                secondary_axis_used,
             )
 
     @staticmethod
     def _create_color_legend(
-            lax: _plt.Axes,
-            color_map: dict[str, _tp.Any],
-            color_legend_title: str | None,
-            has_markers: bool,
-            secondary_axis_used: bool,
+        lax: _plt.Axes,
+        color_map: dict[str, _tp.Any],
+        color_legend_title: str | None,
+        has_markers: bool,
+        secondary_axis_used: bool,
     ) -> None:
         color_handles = [
             _plt.Line2D([], [], color=color, linestyle="-", label=label)
@@ -432,11 +453,11 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _create_marker_legend(
-            lax: _plt.Axes,
-            marker_map: dict[str, str],
-            marker_legend_title: str | None,
-            has_colors: bool,
-            secondary_axis_used: bool,
+        lax: _plt.Axes,
+        marker_map: dict[str, str],
+        marker_legend_title: str | None,
+        has_colors: bool,
+        secondary_axis_used: bool,
     ) -> None:
         marker_position = 0.7 if has_colors else 1
         marker_handles = [

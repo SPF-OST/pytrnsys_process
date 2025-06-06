@@ -38,9 +38,7 @@ class TestPlotters:
     def assert_plots_match(self, actual_file, expected_file, tolerance=0.001):
         """Compare two plot images for equality."""
         if self.SKIP_PLOT_COMPARISON:
-            _pt.skip(
-                "Plot comparison temporarily disabled during development"
-            )
+            _pt.skip("Plot comparison temporarily disabled during development")
         assert (
             _mpltc.compare_images(
                 str(expected_file), str(actual_file), tol=tolerance
@@ -136,8 +134,9 @@ class TestPlotters:
         ]
 
         # Execute
-        fig, _ = plot.bar_chart(monthly_data, columns,
-                                nothing=True)  # kwargs are ignored entirely!
+        fig, _ = plot.bar_chart(
+            monthly_data, columns, nothing=True
+        )  # kwargs are ignored entirely!
         fig.savefig(actual_file)
 
         # Assert
@@ -213,7 +212,7 @@ class TestPlotters:
                 monthly_data,
                 x_column="QSnk60dQlossTess",
                 y_column="QSnk60dQ",
-                cmap="Reds"
+                cmap="Reds",
             )
 
     def test_scatter_plot_for_monthly_color(self, monthly_data):
@@ -361,7 +360,9 @@ class TestPlotters:
                 cmap="viridis",
             )
 
-    def test_scalar_compare_plot_without_grouping_raises(self, comparison_data):
+    def test_scalar_compare_plot_without_grouping_raises(
+        self, comparison_data
+    ):
         with _pt.raises(ValueError):
             plot.scalar_compare_plot(
                 comparison_data,
@@ -371,9 +372,13 @@ class TestPlotters:
 
     def test_scatter_compare_plot_groupby_color_only(self, comparison_data):
         # Setup
-        actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_color_only_with_marker.png"
+        actual = (
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/actual_color_only_with_marker.png"
+        )
         expected = (
-            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_color_only_with_marker.png"
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/expected_color_only_with_marker.png"
         )
 
         # Execute
@@ -382,7 +387,7 @@ class TestPlotters:
             "VIceSscaled",
             "VIceRatioMax",
             "yearly_demand_GWh",
-            scatter_kwargs={"marker": '*'}
+            scatter_kwargs={"marker": "*"},
         )
         # _plt.show()
         fig.savefig(actual)
@@ -392,9 +397,13 @@ class TestPlotters:
 
     def test_scatter_compare_plot_groupby_marker_only(self, comparison_data):
         # Setup
-        actual = const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_marker_only.png"
+        actual = (
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/actual_marker_only.png"
+        )
         expected = (
-            const.DATA_FOLDER / "plotters/scatter-compare-plot/expected_marker_only.png"
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/expected_marker_only.png"
         )
 
         # Execute
@@ -403,7 +412,7 @@ class TestPlotters:
             "VIceSscaled",
             "VIceRatioMax",
             group_by_marker="ratioDHWtoSH_allSinks",
-            line_kwargs={"cmap": "seismic"}
+            line_kwargs={"cmap": "seismic"},
         )
         # _plt.show()
         fig.savefig(actual)
@@ -414,7 +423,8 @@ class TestPlotters:
     def test_scalar_compare_plot_other_kwargs(self, comparison_data):
         # Setup
         actual = (
-            const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_other_kwargs.png"
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/actual_other_kwargs.png"
         )
         expected = (
             const.DATA_FOLDER
@@ -429,7 +439,7 @@ class TestPlotters:
             "yearly_demand_GWh",
             "ratioDHWtoSH_allSinks",
             line_kwargs={"cmap": "viridis", "linestyle": "--"},
-            scatter_kwargs={"marker": "*", "s": 100}
+            scatter_kwargs={"marker": "*", "s": 100},
         )
         fig.savefig(actual)
 

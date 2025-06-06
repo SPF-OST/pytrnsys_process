@@ -136,7 +136,8 @@ class TestPlotters:
         ]
 
         # Execute
-        fig, _ = plot.bar_chart(monthly_data, columns)
+        fig, _ = plot.bar_chart(monthly_data, columns,
+                                nothing=True)  # kwargs are ignored entirely!
         fig.savefig(actual_file)
 
         # Assert
@@ -405,6 +406,31 @@ class TestPlotters:
             line_kwargs={"cmap": "seismic"}
         )
         # _plt.show()
+        fig.savefig(actual)
+
+        # Assert
+        self.assert_plots_match(actual, expected)
+
+    def test_scalar_compare_plot_other_kwargs(self, comparison_data):
+        # Setup
+        actual = (
+            const.DATA_FOLDER / "plotters/scatter-compare-plot/actual_other_kwargs.png"
+        )
+        expected = (
+            const.DATA_FOLDER
+            / "plotters/scatter-compare-plot/expected_other_kwargs.png"
+        )
+
+        # Execute
+        fig, _ = plot.scalar_compare_plot(
+            comparison_data,
+            "VIceSscaled",
+            "VIceRatioMax",
+            "yearly_demand_GWh",
+            "ratioDHWtoSH_allSinks",
+            line_kwargs={"cmap": "viridis", "linestyle": "--"},
+            scatter_kwargs={"marker": "*", "s": 100}
+        )
         fig.savefig(actual)
 
         # Assert

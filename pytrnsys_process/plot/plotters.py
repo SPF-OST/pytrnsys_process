@@ -62,7 +62,7 @@ class ChartBase:
         if "colormap" in kwargs:
             return kwargs["colormap"]
 
-        raise ValueError
+        raise ValueError  # pragma: no cover
 
 
 class StackedBarChart(ChartBase):

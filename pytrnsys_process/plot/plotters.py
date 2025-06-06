@@ -64,6 +64,19 @@ class ChartBase:
 
         raise ValueError  # pragma: no cover
 
+    @staticmethod
+    def get_fig_and_ax(kwargs, size):
+        if "fig" not in kwargs and "ax" not in kwargs:
+            fig, ax = _plt.subplots(
+                figsize=size,
+                layout="constrained",
+            )
+            kwargs["ax"] = ax
+        else:
+            fig = kwargs["fig"]
+            ax = kwargs["ax"]
+        return fig, ax
+
 
 class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"
@@ -76,14 +89,11 @@ class StackedBarChart(ChartBase):
         size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(
-            figsize=size,
-            layout="constrained",
-        )
+        fig, ax = self.get_fig_and_ax(kwargs, size)
+
         plot_kwargs = {
             "stacked": True,
             "legend": use_legend,
-            "ax": ax,
             **kwargs,
         }
         self.check_for_cmap(kwargs, plot_kwargs)
@@ -107,10 +117,8 @@ class BarChart(ChartBase):
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         # TODO: deal with colors  # pylint: disable=fixme
-        fig, ax = _plt.subplots(
-            figsize=size,
-            layout="constrained",
-        )
+        fig, ax = self.get_fig_and_ax(kwargs, size)
+
         x = _np.arange(len(df.index))
         width = 0.8 / len(columns)
 
@@ -146,13 +154,10 @@ class LinePlot(ChartBase):
         size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(
-            figsize=size,
-            layout="constrained",
-        )
+        fig, ax = self.get_fig_and_ax(kwargs, size)
+
         plot_kwargs = {
             "legend": use_legend,
-            "ax": ax,
             **kwargs,
         }
         self.check_for_cmap(kwargs, plot_kwargs)
@@ -173,13 +178,10 @@ class Histogram(ChartBase):
         size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
-        fig, ax = _plt.subplots(
-            figsize=size,
-            layout="constrained",
-        )
+        fig, ax = self.get_fig_and_ax(kwargs, size)
+
         plot_kwargs = {
             "legend": use_legend,
-            "ax": ax,
             "bins": self.bins,
             **kwargs,
         }
@@ -194,7 +196,7 @@ def _validate_inputs(
 ) -> None:
     if len(columns) != 2:
         raise ValueError(
-            f"{current_class.__name__} requires exactly 2 columns (x and y)"
+            f"\n{type(current_class).__name__} requires exactly 2 columns (x and y)"
         )
 
 
@@ -212,11 +214,9 @@ class ScatterPlot(ChartBase):
         _validate_inputs(self, columns)
         x_column, y_column = columns
 
-        fig, ax = _plt.subplots(
-            figsize=size,
-            layout="constrained",
-        )
-        df.plot.scatter(x=x_column, y=y_column, ax=ax, **kwargs)
+        fig, ax = self.get_fig_and_ax(kwargs, size)
+        df.plot.scatter(x=x_column, y=y_column, **kwargs)
+
         return fig, ax
 
 
@@ -263,10 +263,7 @@ class ScalarComparePlot(ChartBase):
             secondary_axis_used = True
         else:
             secondary_axis_used = False
-            fig, ax = _plt.subplots(
-                layout="constrained",
-                figsize=size,
-            )
+            fig, ax = self.get_fig_and_ax({}, size)
             lax = ax
 
         df_grouped, group_values = self._prepare_grouping(

@@ -613,14 +613,8 @@ class TestPlotters:
             plot.line_plot(hourly_data, columns)
 
     def test_get_figure_with_twin_x_axis(self, monthly_data):
-        actual = (
-            const.DATA_FOLDER
-            / "plotters/twinx-plot/actual.png"
-        )
-        expected = (
-            const.DATA_FOLDER
-            / "plotters/twinx-plot/expected.png"
-        )
+        actual = const.DATA_FOLDER / "plotters/twinx-plot/actual.png"
+        expected = const.DATA_FOLDER / "plotters/twinx-plot/expected.png"
         fig, lax, rax = plot.get_figure_with_twin_x_axis()
         plot.line_plot(
             monthly_data,

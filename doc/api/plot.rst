@@ -30,4 +30,5 @@ Plot Wrappers
     pytrnsys_process.plot.plot_wrappers.histogram
     pytrnsys_process.plot.plot_wrappers.energy_balance
     pytrnsys_process.plot.plot_wrappers.scatter_plot
+    pytrnsys_process.plot.plot_wrappers.get_figure_with_twin_x_axis
 

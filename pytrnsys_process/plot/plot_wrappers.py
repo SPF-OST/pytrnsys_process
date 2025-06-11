@@ -580,7 +580,7 @@ def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         >>> fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
         >>> # https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
     """
-    fig, lax = pltrs.ChartBase().get_fig_and_ax({}, conf.PlotSizes.A4.value)
+    fig, lax = pltrs.ChartBase.get_fig_and_ax({}, conf.PlotSizes.A4.value)
     rax = lax.twinx()
     return fig, lax, rax
 

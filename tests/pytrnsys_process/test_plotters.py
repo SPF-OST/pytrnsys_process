@@ -642,8 +642,12 @@ class TestPlotters:
         self.assert_plots_match(actual, expected)
 
     def test_get_figure_with_twin_x_axis_separate_legends(self, monthly_data):
-        actual = const.DATA_FOLDER / "plotters/twinx-plot/actual_two_legends.png"
-        expected = const.DATA_FOLDER / "plotters/twinx-plot/expected_two_legends.png"
+        actual = (
+            const.DATA_FOLDER / "plotters/twinx-plot/actual_two_legends.png"
+        )
+        expected = (
+            const.DATA_FOLDER / "plotters/twinx-plot/expected_two_legends.png"
+        )
         fig, lax, rax = plot.get_figure_with_twin_x_axis()
         plot.line_plot(
             monthly_data,

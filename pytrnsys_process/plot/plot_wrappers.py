@@ -293,30 +293,22 @@ def energy_balance(
     )
 
 
-# pylint: disable=too-many-arguments
 def scatter_plot(
     df: _pd.DataFrame,
     x_column: str,
     y_column: str,
-    group_by_color: str | None = None,
-    group_by_marker: str | None = None,
     use_legend: bool = True,
     size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
 ) -> tuple[_plt.Figure, _plt.Axes]:
     """
-    Create a scatter plot with up to two grouping variables.
-    This visualization allows simultaneous analysis of:
-
-    - Numerical relationships between x and y variables
-    - Categorical grouping through color encoding
-    - Secondary categorical grouping through marker styles
+    Create a scatter plot to show numerical relationships between x and y variables.
 
     Note
     ____
-    The way to changing colors depends on how this function is used.
-    Categorical grouping -> use eg: cmap="viridis"
-    No grouping          -> use eg: color="red"
+    Use color and not cmap!
+
+    See: https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.plot.scatter.html
 
 
     Parameters
@@ -330,11 +322,6 @@ def scatter_plot(
     y_column: str
         coloumn name for y-axis values
 
-    group_by_color: str, optional
-        column name for color grouping
-
-    group_by_marker: str, optional
-        column name for marker style grouping
 
     use_legend: bool, default 'True'
         whether to show the legend or not
@@ -344,7 +331,7 @@ def scatter_plot(
 
     **kwargs :
         Additional keyword arguments to pass on to
-        :meth:`pandas.DataFrame.plot`.
+        :meth:`pandas.DataFrame.plot.scatter`.
 
     Returns
     _______
@@ -361,21 +348,130 @@ def scatter_plot(
         ...     simulation.monthly, x_column="QSnk60dQlossTess", y_column="QSnk60dQ"
         ... )
 
+    """
+    if "cmap" in kwargs:
+        raise ValueError(
+            "\nscatter_plot does not take a 'cmap'."
+            "\nPlease use color instead."
+        )
+
+    columns_to_validate = [x_column, y_column]
+    _validate_column_exists(df, [x_column, y_column])
+    df = df[columns_to_validate]
+    plotter = pltrs.ScatterPlot()
+
+    return plotter.plot(
+        df,
+        columns=[x_column, y_column],
+        use_legend=use_legend,
+        size=size,
+        **kwargs,
+    )
+
+
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+def scalar_compare_plot(
+    df: _pd.DataFrame,
+    x_column: str,
+    y_column: str,
+    group_by_color: str | None = None,
+    group_by_marker: str | None = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    scatter_kwargs: dict[str, _tp.Any] | None = None,
+    line_kwargs: dict[str, _tp.Any] | None = None,
+    **kwargs: _tp.Any,
+) -> tuple[_plt.Figure, _plt.Axes]:
+    """
+    Create a scalar comparison plot with up to two grouping variables.
+    This visualization allows simultaneous analysis of:
+
+    - Numerical relationships between x and y variables
+    - Categorical grouping through color encoding
+    - Secondary categorical grouping through marker styles
+
+    Note
+    ____
+    To change the figure properties a separation is included.
+    scatter_kwargs are used to change the markers.
+    line_kwargs are used to change the lines.
+
+    See:
+    - markers: https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html
+    - lines: https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html
+
+
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
+
+    x_column: str
+        column name for x-axis values
+
+    y_column: str
+        column name for y-axis values
+
+    group_by_color: str, optional
+        column name for color grouping
+
+    group_by_marker: str, optional
+        column name for marker style grouping
+
+    use_legend: bool, default 'True'
+        whether to show the legend or not
+
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    line_kwargs:
+        Additional keyword arguments to pass on to
+        :meth:`matplotlib.axes.Axes.plot`.
+
+    scatter_kwargs:
+        Additional keyword arguments to pass on to
+        :meth:`matplotlib.axes.Axes.scatter`.
+
+    **kwargs :
+        Should never be used!
+        Use 'line_kwargs' or 'scatter_kwargs' instead.
+
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
     .. plot::
         :context: close-figs
 
         Compare plot
 
-        >>> api.scatter_plot(
+        >>> api.scalar_compare_plot(
         ...     comparison_data,
-        ...     "VIceSscaled",
-        ...     "VIceRatioMax",
-        ...     "yearly_demand_GWh",
-        ...     "ratioDHWtoSH_allSinks",
+        ...     x_column="VIceSscaled",
+        ...     y_column="VIceRatioMax",
+        ...     group_by_color="yearly_demand_GWh",
+        ...     group_by_marker="ratioDHWtoSH_allSinks",
         ... )
 
 
     """
+    if kwargs:
+        raise ValueError(
+            f"\nTo adjust the figure properties, \nplease use the scatter_kwargs "
+            f"to change the marker properties, \nand please use the line_kwargs "
+            f"to change the line properties."
+            f"\nReceived: {kwargs}"
+        )
+
+    if not group_by_marker and not group_by_color:
+        raise ValueError(
+            "\nAt least one of 'group_by_marker' or 'group_by_color' has to be set."
+            f"\nFor a normal scatter plot, please use '{scatter_plot.__name__}'."
+        )
+
     columns_to_validate = [x_column, y_column]
     if group_by_color:
         columns_to_validate.append(group_by_color)
@@ -383,7 +479,7 @@ def scatter_plot(
         columns_to_validate.append(group_by_marker)
     _validate_column_exists(df, columns_to_validate)
     df = df[columns_to_validate]
-    plotter = pltrs.ScatterPlot()
+    plotter = pltrs.ScalarComparePlot()
     return plotter.plot(
         df,
         columns=[x_column, y_column],
@@ -391,7 +487,8 @@ def scatter_plot(
         group_by_marker=group_by_marker,
         use_legend=use_legend,
         size=size,
-        **kwargs,
+        scatter_kwargs=scatter_kwargs,
+        line_kwargs=line_kwargs,
     )
 
 
@@ -441,6 +538,69 @@ def _validate_column_exists(
 
     error_msg = "Column validation failed. " + "".join(parts)
     raise ColumnNotFoundError(error_msg)
+
+
+def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
+    """
+    Used to make figures with different y axes on the left and right.
+    To create such a figure, pass the lax to one plotting method and pass the rax to another.
+
+    Warning
+    _______
+    Be careful when combining plots. MatPlotLib will not complain when you provide incompatible x-axes.
+    An example:
+    combining a time-series with dates with a histogram with temperatures.
+    In this case, the histogram will disappear without any feedback.
+
+    Note
+    ____
+    The legend of a twin_x plot is a special case:
+    To have all entries into a single plot, use `fig.legend`
+    https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
+
+    To instead have two separate legends, one for each y-axis, use `lax.legend` and `rax.legend`.
+    https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html
+
+
+    Returns
+    -------
+    fig:
+        Figure object
+
+    lax:
+        Axis object for the data on the left y-axis.
+
+    rax:
+        Axis object for the data on the right y-axis.
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        Twin axis plot with a single legend
+
+        >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
+        >>> api.line_plot(simulation.monthly, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
+        >>> api.line_plot(simulation.monthly, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*",
+        ...     ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
+        >>> fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
+
+    .. plot::
+        :context: close-figs
+
+        Twin axis plot with two legends
+
+        >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
+        >>> api.line_plot(simulation.monthly, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
+        >>> api.line_plot(simulation.monthly, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*",
+        ...     ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
+        >>> lax.legend(loc="center left")
+        >>> rax.legend(loc="center right")
+    """
+    fig, lax = pltrs.ChartBase.get_fig_and_ax({}, conf.PlotSizes.A4.value)
+    rax = lax.twinx()
+    return fig, lax, rax
 
 
 class ColumnNotFoundError(Exception):

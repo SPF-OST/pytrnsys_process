@@ -184,7 +184,7 @@ def process_single_simulation(
             Path to the simulation folder to process
 
         processing_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
-            They should containd the processing logic for a simulation.
+            They should contain the processing logic for a simulation.
             Each callable should take a Simulation object as its only parameter and modify it in place.
 
     Returns
@@ -446,6 +446,15 @@ def do_comparison(
             simulations_data = util.load_simulations_data_from_pickle(
                 path_to_simulations_data
             )
+            # Moving locations of files breaks the paths.
+            # If the pickle file is found, then we know the new path is correct.
+            # The original path is saved for later retrieval.
+            simulations_data.path_to_simulations_original = (
+                simulations_data.path_to_simulations
+            )
+            if not simulations_data.path_to_simulations == str(results_folder):
+                simulations_data.path_to_simulations = str(results_folder)
+
         else:
             simulations_data = process_whole_result_set_parallel(
                 results_folder, []
@@ -454,7 +463,6 @@ def do_comparison(
         _pl.Path(simulations_data.path_to_simulations)
     )
     _process_comparisons(simulations_data, comparison_scenario, main_logger)
-    _plt.close("all")
 
     return simulations_data
 
@@ -475,6 +483,7 @@ def _process_comparisons(
     for step in scenario:
         try:
             step(simulations_data)
+            _plt.close("all")
         except Exception as e:  # pylint: disable=broad-except
             scenario_name = getattr(step, "__name__", str(step))
             main_logger.error(
@@ -549,6 +558,7 @@ def _process_simulation(
             sim_logger.info(
                 "Successfully completed scenario: %s", scenario_name
             )
+            _plt.close("all")
         except Exception as e:  # pylint: disable=broad-except
             failed_scenarios.append(scenario_name)
             sim_logger.error(
@@ -566,7 +576,6 @@ def _process_simulation(
     else:
         sim_logger.info("Simulation completed successfully")
 
-    _plt.close("all")
     return simulation, failed_scenarios
 
 

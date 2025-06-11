@@ -14,5 +14,6 @@ This page should provide you solutions to the most common problems
     access_trnsys_data_inside_processing_steps
     do_calculations_on_data
     use_plots
+    make_plots_with_two_y_axes
 
 

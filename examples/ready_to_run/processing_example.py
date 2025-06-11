@@ -126,7 +126,7 @@ def comparison_of_scalar_data(
     simulations_data = calc_v_ice_ratio_max_per_sim(simulations_data)
 
     # Create a scatter plot for comparison comparing:
-    fig, _ = api.scatter_plot(
+    fig, _ = api.scalar_compare_plot(
         simulations_data.scalar,
         "VIceSscaled",
         "VIceRatioMax",
@@ -183,4 +183,4 @@ def main():
 
 # This is required since we would like to run the script directly
 if __name__ == "__main__":
-    main()
+    main()  # pragma: no cover

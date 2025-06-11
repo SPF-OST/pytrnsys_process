@@ -104,7 +104,7 @@ def do_calc(simulations_data: api.SimulationsData):
 def plot_comparison(simulations_data: api.SimulationsData):
     simulations_data = do_calc(simulations_data)
 
-    fig, _ = api.scatter_plot(
+    fig, _ = api.scalar_compare_plot(
         simulations_data.scalar,
         "VIceSscaled",
         "VIceRatioMax",

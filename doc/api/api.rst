@@ -17,6 +17,7 @@ Plotting
     pytrnsys_process.api.histogram
     pytrnsys_process.api.energy_balance
     pytrnsys_process.api.scatter_plot
+    pytrnsys_process.api.scalar_compare_plot
     pytrnsys_process.api.get_figure_with_twin_x_axis
 
 Processing

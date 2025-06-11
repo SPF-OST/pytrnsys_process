@@ -184,7 +184,7 @@ def process_single_simulation(
             Path to the simulation folder to process
 
         processing_scenario: collections.abc.Callable or collections.abc.Sequence of collections.abc.Callable
-            They should containd the processing logic for a simulation.
+            They should contain the processing logic for a simulation.
             Each callable should take a Simulation object as its only parameter and modify it in place.
 
     Returns

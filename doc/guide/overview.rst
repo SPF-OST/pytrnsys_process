@@ -3,6 +3,15 @@
 Overview
 ========
 
+Installation
+------------
+pytrnsys-process can be installed via PyPi.
+
+.. code-block::
+
+    pip install pytrnsys-process
+
+
 What is the point of the package?
 ---------------------------------
     - Providing processing tools for (py-)trnsys users.

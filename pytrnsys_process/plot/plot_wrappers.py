@@ -545,7 +545,12 @@ def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
     Used to make figures with different y axes on the left and right.
     To create such a figure, pass the lax to one plotting method and pass the rax to another.
 
-    Example:
+    NOTE:
+    -----
+    Be careful when combining plots. MatPlotLib will not complain when you provide incompatible x-axes.
+    An example:
+    combining a time-series with dates with a histogram with temperatures.
+    In this case, the histogram will disappear without any feedback.
 
 
     Returns
@@ -567,8 +572,10 @@ def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         Twin axis plot
 
         >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
-        >>> api.line_plot(simulation.monthly_data, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
-        >>> api.histogram(simulation.monthly_data, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], ylabel="Temperature counts [-].",  use_legend=False, fig=fig, ax=rax)
+        >>> api.line_plot(simulation.monthly_data, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False,
+        >>>     fig=fig, ax=lax)
+        >>> api.line_plot(simulation.monthly_data, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"],
+        >>>     marker="*", ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
         >>>
         >>> fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
         >>> # https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html

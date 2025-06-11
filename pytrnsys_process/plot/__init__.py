@@ -6,6 +6,7 @@ from pytrnsys_process.plot.plot_wrappers import (
     energy_balance,
     scatter_plot,
     scalar_compare_plot,
+    get_figure_with_twin_x_axis,
 )
 
 # pylint: disable=duplicate-code
@@ -17,4 +18,5 @@ __all__ = [
     "energy_balance",
     "scatter_plot",
     "scalar_compare_plot",
+    "get_figure_with_twin_x_axis",
 ]

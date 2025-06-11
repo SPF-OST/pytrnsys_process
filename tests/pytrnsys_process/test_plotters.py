@@ -613,8 +613,6 @@ class TestPlotters:
             plot.line_plot(hourly_data, columns)
 
     def test_get_figure_with_twin_x_axis(self, monthly_data):
-        # TODO: add to api.  # pylint: disable=fixme
-        # TODO: note be careful with equivalent axis or not.  # pylint: disable=fixme
         actual = (
             const.DATA_FOLDER
             / "plotters/twinx-plot/actual.png"
@@ -648,4 +646,3 @@ class TestPlotters:
         fig.savefig(actual)
 
         self.assert_plots_match(actual, expected)
-        

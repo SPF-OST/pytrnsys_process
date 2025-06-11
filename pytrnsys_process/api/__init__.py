@@ -16,6 +16,7 @@ from pytrnsys_process.plot import (
     scatter_plot,
     scalar_compare_plot,
     stacked_bar_chart,
+    get_figure_with_twin_x_axis,
 )
 from pytrnsys_process.process import (
     Simulation,
@@ -39,6 +40,7 @@ __all__ = [
     "energy_balance",
     "scatter_plot",
     "scalar_compare_plot",
+    "get_figure_with_twin_x_axis",
     "process_whole_result_set_parallel",
     "process_single_simulation",
     "process_whole_result_set",

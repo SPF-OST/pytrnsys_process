@@ -1,7 +1,7 @@
 .. _make_plots_with_two_y_axes:
 
 *******************************
-How to make_plots_with_two_y_axes
+How to make plots with two y-axes
 *******************************
 
 There are multiple plots available to use in your processing steps.

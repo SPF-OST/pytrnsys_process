@@ -640,3 +640,32 @@ class TestPlotters:
         fig.savefig(actual)
 
         self.assert_plots_match(actual, expected)
+
+    def test_get_figure_with_twin_x_axis_separate_legends(self, monthly_data):
+        actual = const.DATA_FOLDER / "plotters/twinx-plot/actual_two_legends.png"
+        expected = const.DATA_FOLDER / "plotters/twinx-plot/expected_two_legends.png"
+        fig, lax, rax = plot.get_figure_with_twin_x_axis()
+        plot.line_plot(
+            monthly_data,
+            ["QSnk60P"],
+            ylabel="Power [kWh]",
+            use_legend=False,
+            fig=fig,
+            ax=lax,
+        )
+        plot.line_plot(
+            monthly_data,
+            ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"],
+            marker="*",
+            ylabel="Fluxes [kWh]",
+            use_legend=False,
+            fig=fig,
+            ax=rax,
+        )
+        lax.legend(loc="center left")
+        rax.legend(loc="center right")
+
+        # _plt.show()
+        fig.savefig(actual)
+
+        self.assert_plots_match(actual, expected)

@@ -555,7 +555,11 @@ def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
     Note
     ____
     The legend of a twin_x plot is a special case:
+    To have all entries into a single plot, use `fig.legend`
     https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
+
+    To instead have two separate legends, one for each y-axis, use `lax.legend` and `rax.legend`.
+    https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html
 
 
     Returns
@@ -574,12 +578,25 @@ def get_figure_with_twin_x_axis() -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
     .. plot::
         :context: close-figs
 
-        Twin axis plot
+        Twin axis plot with a single legend
 
         >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
         >>> api.line_plot(simulation.monthly, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
-        >>> api.line_plot(simulation.monthly, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*", ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
+        >>> api.line_plot(simulation.monthly, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*",
+        ...     ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
         >>> fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
+
+    .. plot::
+        :context: close-figs
+
+        Twin axis plot with two legends
+
+        >>> fig, lax, rax = api.get_figure_with_twin_x_axis()
+        >>> api.line_plot(simulation.monthly, ["QSnk60P",], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
+        >>> api.line_plot(simulation.monthly, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*",
+        ...     ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
+        >>> lax.legend(loc="center left")
+        >>> rax.legend(loc="center right")
     """
     fig, lax = pltrs.ChartBase.get_fig_and_ax({}, conf.PlotSizes.A4.value)
     rax = lax.twinx()

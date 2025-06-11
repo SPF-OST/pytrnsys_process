@@ -9,8 +9,8 @@ Here you can find examples for a line plot and a stacked bar chart.
 The required arguments for most plots are the dataframe and the columns you would like to plot.
 
 
-Line Plot
-_________
+Line Plot with a single legend
+______________________________
 
 
 .. code-block:: python
@@ -19,7 +19,6 @@ _________
     plot.line_plot(monthly_data, ["QSnk60P"], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
     plot.line_plot(monthly_data, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*", ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
     fig.legend(loc="center", bbox_to_anchor=(0.6, 0.7))
-    # https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
 
 .. image:: ../_static/twin_x_plot.png
 
@@ -36,8 +35,18 @@ _________
     https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
 
     To instead have two separate legends, one for each y-axis, use `lax.legend` and `rax.legend`.
+    https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html
 
+Line Plot with two legends
+__________________________
+.. code-block:: python
 
+    fig, lax, rax = plot.get_figure_with_twin_x_axis()
+    plot.line_plot(monthly_data, ["QSnk60P"], ylabel="Power [kWh]", use_legend=False, fig=fig, ax=lax)
+    plot.line_plot(monthly_data, ["QSnk60qImbTess", "QSnk60dQlossTess", "QSnk60dQ"], marker="*", ylabel="Fluxes [kWh]", use_legend=False, fig=fig, ax=rax)
+    lax.legend(loc="center left")
+    rax.legend(loc="center right")
 
+.. image:: ../_static/twin_x_plot_two_legends.png
 
 

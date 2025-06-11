@@ -23,13 +23,19 @@ _________
 
 .. image:: ../_static/twin_x_plot.png
 
-.. Note::
+.. Warning::
     Be careful when combining plots. MatPlotLib will not complain when you provide incompatible x-axes.
 
     An example:
     combining a time-series with dates with a histogram with temperatures.
     In this case, the histogram will disappear without any feedback.
 
+.. Note::
+    The legend of a twin_x plot is a special case.
+    To have all entries into a single plot, use `fig.legend`
+    https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.legend.html
+
+    To instead have two separate legends, one for each y-axis, use `lax.legend` and `rax.legend`.
 
 
 

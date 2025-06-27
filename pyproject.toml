@@ -1,17 +1,17 @@
 [project]
 name = "pytrnsys_process"
-version = "0.0.25"
+version = "0.0.26"
 authors = [
-    { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },
     { name="Alex Hobé", email="alex.hobe@ost.ch" },
+    { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },
     { name="Damian Birchler", email="damian.birchler@ost.ch" },
 ]
 description = "Post processing for pytrnsys"
 readme = "pypi-readme.md"
 requires-python = ">=3.12"
+license = "GPL-3.0-or-later"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
 ]
 dynamic = ["dependencies"]

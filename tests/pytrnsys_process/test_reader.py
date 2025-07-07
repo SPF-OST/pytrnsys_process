@@ -45,11 +45,20 @@ class TestReader:
         assert timestamps[-1].year == 1991
         assert timestamps[-1].month == 12
 
-    def test_read_step_hydraulic(self):
+    def test_read_step_hydraulic_hourly(self):
         step_file_path = self.STEP_DIR_PATH / "Icegrid_ARA_existing_2022_T.prt"
         actual_df = read.PrtReader().read_step(step_file_path)
 
         expected_file_path = self.STEP_DIR_PATH / "expected.csv"
+        expected_df = read.CsvReader().read_csv(expected_file_path)
+
+        _pd.testing.assert_frame_equal(actual_df, expected_df)
+
+    def test_read_step_hydraulic(self):
+        step_file_path = self.STEP_DIR_PATH / "actual_dt.Prt"
+        actual_df = read.PrtReader().read_step(step_file_path)
+
+        expected_file_path = self.STEP_DIR_PATH / "expected_actual_dt.csv"
         expected_df = read.CsvReader().read_csv(expected_file_path)
 
         _pd.testing.assert_frame_equal(actual_df, expected_df)
@@ -64,6 +73,7 @@ class TestReader:
 
         expected_file_path = self.STEP_DIR_PATH / "expected_other.csv"
         expected_df = read.CsvReader().read_csv(expected_file_path)
+
         _pd.testing.assert_frame_equal(actual_df, expected_df)
 
 

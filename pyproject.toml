@@ -1,6 +1,6 @@
 [project]
 name = "pytrnsys_process"
-version = "0.0.26"
+version = "0.0.27"
 authors = [
     { name="Alex Hobé", email="alex.hobe@ost.ch" },
     { name="Sebastian Swoboda", email="sebastian@swoboda.ch" },

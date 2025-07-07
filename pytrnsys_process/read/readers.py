@@ -192,7 +192,7 @@ class PrtReader(ReaderBase):
         _______
             Series of datetime objects with minute intervals
         """
-        minutes = [_dt.timedelta(minutes=float(m)) for m in minutes_elapsed]
+        minutes = [_dt.timedelta(hours=float(m)) for m in minutes_elapsed]
         start_of_year = _dt.datetime(day=1, month=1, year=starting_year)
         return _pd.Series([start_of_year + m for m in minutes])
 

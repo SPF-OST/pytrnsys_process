@@ -6,6 +6,7 @@ from pytrnsys_process import util
 from pytrnsys_process.process import process_sim as ps
 
 PATH_TO_RESULTS = const.DATA_FOLDER / "process-sim/sim-1"
+PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim/sim-2"
 
 
 class TestProcessSim:
@@ -57,7 +58,18 @@ class TestProcessSim:
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)
 
-    def do_assert(self, simulation):
+    def test_process_sim_type_25_step(self, monkeypatch):
+        monkeypatch.setattr(
+            "pytrnsys_process.config.global_settings.reader.read_step_files",
+            True,
+        )
+        sim_files = util.get_files([PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False)
+        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS_2)
+
+        assert simulation.step.shape == (5, 5)
+
+    @staticmethod
+    def do_assert(simulation):
         assert simulation.hourly.shape == (3, 18)
         assert simulation.monthly.shape == (14, 11)
         assert simulation.step.shape == (5, 142)

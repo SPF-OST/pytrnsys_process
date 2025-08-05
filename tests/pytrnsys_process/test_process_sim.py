@@ -25,7 +25,7 @@ class TestProcessSim:
         log_file_path = PATH_TO_RESULTS / "processing.log"
         if not log_file_path.exists():
             raise FileNotFoundError("Log file not found.")
-        
+
         with open(log_file_path, encoding="utf-8") as f:
             logging_text = f.read()
 

@@ -12,6 +12,11 @@ PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim" / "sim-2"
 
 
 class TestProcessSim:
+    @staticmethod
+    def run_process_sim_with_caplog(files, results_path, caplog):
+        caplog.clear()
+        with caplog.at_level(_logging.INFO):
+            return ps.process_sim(files, results_path)
 
     def test_process_sim_prt(self, monkeypatch, caplog):
         # The following monkeypatch is needed, as otherwise these tests do not
@@ -22,12 +27,7 @@ class TestProcessSim:
         )
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
 
-        def run_with_caplog(files):
-            caplog.clear()
-            with caplog.at_level(_logging.INFO):
-                return ps.process_sim(files, PATH_TO_RESULTS)
-
-        simulation = run_with_caplog(sim_files)
+        simulation = self.run_process_sim_with_caplog(sim_files, PATH_TO_RESULTS, caplog)
 
         assert (
             "don-not-process.xlsx: No columns to parse from file"
@@ -67,7 +67,7 @@ class TestProcessSim:
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)
 
-    def test_process_sim_type_25_step(self, monkeypatch):
+    def test_process_sim_type_25_step(self, monkeypatch, caplog):
         monkeypatch.setattr(
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
@@ -75,7 +75,8 @@ class TestProcessSim:
         sim_files = util.get_files(
             [PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False
         )
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS_2)
+        simulation = self.run_process_sim_with_caplog(sim_files, PATH_TO_RESULTS_2, caplog)
+        assert "KeyError: 'Month'" in caplog.text
 
         assert simulation.step.shape == (5, 5)
 

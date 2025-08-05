@@ -1,5 +1,6 @@
 import pandas as _pd
 import pytest as _pt
+import logging as _logging
 
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import util
@@ -11,27 +12,22 @@ PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim" / "sim-2"
 
 class TestProcessSim:
 
-    def test_process_sim_prt(self, monkeypatch):
-        if not PATH_TO_RESULTS.exists():
-            raise FileNotFoundError("Files themselves not found.")
-
+    def test_process_sim_prt(self, monkeypatch, caplog):
         monkeypatch.setattr(
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
         )
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        log_file_path = PATH_TO_RESULTS / "processing.log"
-        if not log_file_path.exists():
-            raise FileNotFoundError("Log file not found.")
-
-        with open(log_file_path, encoding="utf-8") as f:
-            logging_text = f.read()
+        def run_with_caplog(files):
+            caplog.clear()
+            with caplog.at_level(_logging.INFO):
+                return ps.process_sim(files, PATH_TO_RESULTS)
+        simulation = run_with_caplog(sim_files)
 
         assert (
             "don-not-process.xlsx: No columns to parse from file"
-            in logging_text
+            in caplog.text
         )
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)

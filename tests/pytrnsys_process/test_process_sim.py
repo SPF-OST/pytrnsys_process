@@ -12,6 +12,9 @@ PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim" / "sim-2"
 class TestProcessSim:
 
     def test_process_sim_prt(self, monkeypatch):
+        if not PATH_TO_RESULTS.exists():
+            raise FileNotFoundError("Files themselves not found.")
+
         monkeypatch.setattr(
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
@@ -19,7 +22,11 @@ class TestProcessSim:
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        with open(PATH_TO_RESULTS / "processing.log", encoding="utf-8") as f:
+        log_file_path = PATH_TO_RESULTS / "processing.log"
+        if not log_file_path.exists():
+            raise FileNotFoundError("Log file not found.")
+        
+        with open(log_file_path, encoding="utf-8") as f:
             logging_text = f.read()
 
         assert (

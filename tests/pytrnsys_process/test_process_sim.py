@@ -19,11 +19,10 @@ class TestProcessSim:
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        with _pt.raises(Exception) as exc_info:
-            assert (
-                "don-not-process.xlsx: No columns to parse from file"
-                in str(exc_info.value)
-            )
+        with open(PATH_TO_RESULTS / "processing.log") as f:
+            logging_text = f.read()
+
+        assert "don-not-process.xlsx: No columns to parse from file" not in logging_text
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)
 
@@ -117,8 +116,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [3, 2], "D": [7, 8]})
 
         with _pt.raises(
-            ValueError,
-            match="Column 'A' has conflicting values at same indices",
+                ValueError,
+                match="Column 'A' has conflicting values at same indices",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 
@@ -156,8 +155,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [None, 2], "C": [5, 6]})
 
         with _pt.raises(
-            ValueError,
-            match="Column 'A' has NaN values in one column while having actual values in another",
+                ValueError,
+                match="Column 'A' has NaN values in one column while having actual values in another",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 

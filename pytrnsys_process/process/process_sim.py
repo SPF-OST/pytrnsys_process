@@ -186,9 +186,16 @@ def _process_file(
         file_type == conf.FileType.TIMESTEP
         and conf.global_settings.reader.read_step_files
     ):
-        simulation_data_collector.step.append(
-            _read_file(file_path, conf.FileType.TIMESTEP)
-        )
+        # There are two ways to have a step file:
+        # - using type 25
+        # - using type 46
+        # The user can copy and paste both, and they would like to use '_step.prt'.
+        # Here we try both, as a temporary solution, till the file reading is fully refactored.
+        try:
+            step_df = _read_file(file_path, conf.FileType.TIMESTEP)
+        except KeyError:
+            step_df = _read_file(file_path, conf.FileType.HYDRAULIC)
+        simulation_data_collector.step.append(step_df)
     elif (
         file_type == conf.FileType.HYDRAULIC
         and conf.global_settings.reader.read_step_files

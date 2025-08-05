@@ -124,7 +124,7 @@ class BarChart(ChartBase):
 
         cmap = self.get_cmap(kwargs)
         if cmap:
-            cm = _plt.cm.get_cmap(cmap)
+            cm = _plt.get_cmap(cmap)
             colors = cm(_np.linspace(0, 1, len(columns)))
         else:
             colors = [None] * len(columns)

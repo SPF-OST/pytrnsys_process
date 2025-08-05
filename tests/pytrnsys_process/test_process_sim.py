@@ -1,3 +1,5 @@
+import logging as _logging
+
 import pandas as _pd
 import pytest as _pt
 
@@ -5,24 +7,34 @@ import tests.pytrnsys_process.constants as const
 from pytrnsys_process import util
 from pytrnsys_process.process import process_sim as ps
 
-PATH_TO_RESULTS = const.DATA_FOLDER / "process-sim/sim-1"
+PATH_TO_RESULTS = const.DATA_FOLDER / "process-sim" / "sim-1"
+PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim" / "sim-2"
 
 
 class TestProcessSim:
+    @staticmethod
+    def run_process_sim_with_caplog(files, results_path, caplog):
+        caplog.clear()
+        with caplog.at_level(_logging.INFO):
+            return ps.process_sim(files, results_path)
 
-    def test_process_sim_prt(self, monkeypatch):
+    def test_process_sim_prt(self, monkeypatch, caplog):
+        # The following monkeypatch is needed, as otherwise these tests do not
+        # incorporate the changed setting properly.
         monkeypatch.setattr(
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
         )
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
-        simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        with _pt.raises(Exception) as exc_info:
-            assert (
-                "don-not-process.xlsx: No columns to parse from file"
-                in str(exc_info.value)
-            )
+        simulation = self.run_process_sim_with_caplog(
+            sim_files, PATH_TO_RESULTS, caplog
+        )
+
+        assert (
+            "don-not-process.xlsx: No columns to parse from file"
+            in caplog.text
+        )
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)
 
@@ -57,7 +69,23 @@ class TestProcessSim:
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
         assert simulation.scalar.shape == (0, 0)
 
-    def do_assert(self, simulation):
+    def test_process_sim_type_25_step(self, monkeypatch, caplog):
+        monkeypatch.setattr(
+            "pytrnsys_process.config.global_settings.reader.read_step_files",
+            True,
+        )
+        sim_files = util.get_files(
+            [PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False
+        )
+        simulation = self.run_process_sim_with_caplog(
+            sim_files, PATH_TO_RESULTS_2, caplog
+        )
+        assert "KeyError: 'Month'" in caplog.text
+
+        assert simulation.step.shape == (5, 5)
+
+    @staticmethod
+    def do_assert(simulation):
         assert simulation.hourly.shape == (3, 18)
         assert simulation.monthly.shape == (14, 11)
         assert simulation.step.shape == (5, 142)

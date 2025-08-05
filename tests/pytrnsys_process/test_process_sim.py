@@ -1,6 +1,7 @@
+import logging as _logging
+
 import pandas as _pd
 import pytest as _pt
-import logging as _logging
 
 import tests.pytrnsys_process.constants as const
 from pytrnsys_process import util
@@ -13,6 +14,8 @@ PATH_TO_RESULTS_2 = const.DATA_FOLDER / "process-sim" / "sim-2"
 class TestProcessSim:
 
     def test_process_sim_prt(self, monkeypatch, caplog):
+        # The following monkeypatch is needed, as otherwise these tests do not
+        # incorporate the changed setting properly.
         monkeypatch.setattr(
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
@@ -23,6 +26,7 @@ class TestProcessSim:
             caplog.clear()
             with caplog.at_level(_logging.INFO):
                 return ps.process_sim(files, PATH_TO_RESULTS)
+
         simulation = run_with_caplog(sim_files)
 
         assert (

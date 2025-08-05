@@ -27,7 +27,9 @@ class TestProcessSim:
         )
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
 
-        simulation = self.run_process_sim_with_caplog(sim_files, PATH_TO_RESULTS, caplog)
+        simulation = self.run_process_sim_with_caplog(
+            sim_files, PATH_TO_RESULTS, caplog
+        )
 
         assert (
             "don-not-process.xlsx: No columns to parse from file"
@@ -75,7 +77,9 @@ class TestProcessSim:
         sim_files = util.get_files(
             [PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False
         )
-        simulation = self.run_process_sim_with_caplog(sim_files, PATH_TO_RESULTS_2, caplog)
+        simulation = self.run_process_sim_with_caplog(
+            sim_files, PATH_TO_RESULTS_2, caplog
+        )
         assert "KeyError: 'Month'" in caplog.text
 
         assert simulation.step.shape == (5, 5)

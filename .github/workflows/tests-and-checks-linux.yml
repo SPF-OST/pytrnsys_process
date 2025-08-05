@@ -25,15 +25,15 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install wheel
           pip install -r requirements/test.txt
-#      - name: Syntax checking with black
-#        run: python dev-tools/dev_tools.py --black --keep-results
-#      - name: Static type checking with mypy
-#        run: python dev-tools/dev_tools.py --type
-#      - name: Lint with pylint
-#        run: python dev-tools/dev_tools.py --lint --keep-results
-#      - name: Generate class and package diagrams
-#        run: |
-#          python dev-tools/dev_tools.py --diagram --keep-results
+      - name: Syntax checking with black
+        run: python dev-tools/dev_tools.py --black --keep-results
+      - name: Static type checking with mypy
+        run: python dev-tools/dev_tools.py --type
+      - name: Lint with pylint
+        run: python dev-tools/dev_tools.py --lint --keep-results
+      - name: Generate class and package diagrams
+        run: |
+          python dev-tools/dev_tools.py --diagram --keep-results
       - name: Test with pytest
         run: python dev-tools/dev_tools.py --unit "not manual and not windows and not tool" --keep-results
       - name: Build documentation

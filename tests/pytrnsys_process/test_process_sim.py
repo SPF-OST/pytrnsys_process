@@ -19,10 +19,13 @@ class TestProcessSim:
         sim_files = util.get_files([PATH_TO_RESULTS], get_mfr_and_t=True)
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS)
 
-        with open(PATH_TO_RESULTS / "processing.log") as f:
+        with open(PATH_TO_RESULTS / "processing.log", encoding="utf-8") as f:
             logging_text = f.read()
 
-        assert "don-not-process.xlsx: No columns to parse from file" not in logging_text
+        assert (
+            "don-not-process.xlsx: No columns to parse from file"
+            in logging_text
+        )
         self.do_assert(simulation)
         assert simulation.scalar.shape == (1, 10)
 
@@ -62,7 +65,9 @@ class TestProcessSim:
             "pytrnsys_process.config.global_settings.reader.read_step_files",
             True,
         )
-        sim_files = util.get_files([PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False)
+        sim_files = util.get_files(
+            [PATH_TO_RESULTS_2], get_mfr_and_t=False, read_deck_files=False
+        )
         simulation = ps.process_sim(sim_files, PATH_TO_RESULTS_2)
 
         assert simulation.step.shape == (5, 5)
@@ -116,8 +121,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [3, 2], "D": [7, 8]})
 
         with _pt.raises(
-                ValueError,
-                match="Column 'A' has conflicting values at same indices",
+            ValueError,
+            match="Column 'A' has conflicting values at same indices",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 
@@ -155,8 +160,8 @@ class TestHandleDuplicateColumns:
         df3 = _pd.DataFrame({"A": [None, 2], "C": [5, 6]})
 
         with _pt.raises(
-                ValueError,
-                match="Column 'A' has NaN values in one column while having actual values in another",
+            ValueError,
+            match="Column 'A' has NaN values in one column while having actual values in another",
         ):
             ps.handle_duplicate_columns(_pd.concat([df1, df2, df3], axis=1))
 

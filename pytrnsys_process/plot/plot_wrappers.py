@@ -281,6 +281,9 @@ def energy_balance(
             q_in_columns + q_out_columns
         ].sum(axis=1)
 
+    # imbalance is visually added where it is missing.
+    df_modified[q_imb_column] *= -1
+
     columns_to_plot = q_in_columns + q_out_columns + [q_imb_column]
 
     plotter = pltrs.StackedBarChart()

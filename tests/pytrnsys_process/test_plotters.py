@@ -383,6 +383,7 @@ class TestPlotters:
         self.assert_plots_match(actual_imb_given, expected)
 
     def test_energy_balance_imb_calculated(self, monthly_data):
+        """Exaggerating dQ to really make imbalance show up."""
         # Setup
         actual_imb_calculated = (
             const.DATA_FOLDER
@@ -392,6 +393,7 @@ class TestPlotters:
             const.DATA_FOLDER
             / "plotters/energy-balance/expected_calculated.png"
         )
+        monthly_data["QSnk60dQ"] *= 100
 
         # Execute
         fig, _ = plot.energy_balance(
@@ -416,6 +418,8 @@ class TestPlotters:
             / "plotters/energy-balance/expected_calculated.png"
         )
         fig, ax = get_fig_and_ax()
+
+        monthly_data["QSnk60dQ"] *= 100
 
         # Execute
         _, _ = plot.energy_balance(

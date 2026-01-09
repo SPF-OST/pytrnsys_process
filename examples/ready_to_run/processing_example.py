@@ -157,8 +157,10 @@ def main():
     ]
 
     # run the scenarios on a whole result using multiple processes
+    results_dir = _pl.Path(__file__).parent / "data" / "results"
+
     simulations_data = api.process_whole_result_set_parallel(
-        _pl.Path(api.REPO_ROOT / "examples/ready_to_run/data/results"),
+        results_dir,
         processing_scenarios,
     )
 
@@ -168,10 +170,7 @@ def main():
     # run the single scenario on a single simulation
     (
         api.process_single_simulation(
-            _pl.Path(
-                api.REPO_ROOT
-                / "examples/ready_to_run/data/results/complete-0-SnkScale0.8000-StoreScale10"
-            ),
+            results_dir / "complete-0-SnkScale0.8000-StoreScale10",
             # ===============================================================
             processing_for_histogram,
             # do not add round brackets when linking your processing step

@@ -150,6 +150,7 @@ class EnergyBalanceChart(ChartBase):
         fig, lax, rax = self._do_plot(df, columns, **kwargs)
         return fig, lax, rax
 
+    # pylint: disable=too-many-locals, too-many-statements
     def _do_plot(  # typing: ignore[override]
         self,
         df: _pd.DataFrame,
@@ -181,6 +182,7 @@ class EnergyBalanceChart(ChartBase):
 
         data_frequency = get_frequency_of_data(df)
 
+        bar_width = None
         if data_frequency == "step":
             bar_width = 0.0008
         elif data_frequency == "hourly":
@@ -661,30 +663,34 @@ def get_date_time_axis_locator_and_formatter(
     """
     sub_hour_interval = 15  # minutes
 
-    def formatter_hourly_with_midnight_date(x, pos):
+    def formatter_hourly_with_midnight_date(
+        x, pos
+    ):  # pylint: disable=unused-argument
         dt = _dates.num2date(x)
         if dt.hour == 0:
             return dt.strftime("%b-%d")
 
         return dt.strftime("%H")
 
-    def formatter_sub_hour_with_midnight_date(x, pos):
+    def formatter_sub_hour_with_midnight_date(
+        x, pos
+    ):  # pylint: disable=unused-argument
         dt = _dates.num2date(x)
         if dt.hour == 0 and dt.minute < sub_hour_interval:
             return dt.strftime("%b-%d")
 
         return dt.strftime("%H:%M")
 
-    def formatter_monthly(
+    def formatter_monthly(  # pylint: disable=unused-argument
         x, pos
     ) -> _tp.Tuple[_dates.RRuleLocator, _tick.FuncFormatter]:
         dt = _dates.num2date(x, tz=None)
         return dt.strftime("%b")
 
+    date_locator: _dates.RRuleLocator | None = None
+    formatter_function = None
     if data_frequency == "step":
-        date_locator: _dates.RRuleLocator = _dates.MinuteLocator(
-            interval=sub_hour_interval
-        )
+        date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
         formatter_function = formatter_sub_hour_with_midnight_date
     elif data_frequency == "hourly":
         date_locator = _dates.HourLocator()
@@ -692,8 +698,10 @@ def get_date_time_axis_locator_and_formatter(
     elif data_frequency == "monthly":
         date_locator = _dates.MonthLocator()
         formatter_function = formatter_monthly
+    else:
+        raise ValueError(f"Incorrect data frequency: {data_frequency}")
 
-    formatter = _tick.FuncFormatter(formatter_function)
+    formatter = _tick.FuncFormatter(formatter_function)  # type: ignore[arg-type]
 
     return date_locator, formatter
 
@@ -706,12 +714,17 @@ def get_frequency_of_data(
     Can return 'step', 'hourly', and 'monthly'.
     """
     delta_time = df.index[1] - df.index[0]
+    data_frequency = None
     if delta_time < _pd.Timedelta(hours=1):
         data_frequency = "step"
     elif delta_time == _pd.Timedelta(hours=1):
         data_frequency = "hourly"
     elif delta_time >= _pd.Timedelta(days=28):
         data_frequency = "monthly"
+    else:
+        raise ValueError(
+            f"Timesteps should be hourly, monthly, or less then hourly, recieved: {delta_time}"
+        )
 
     return data_frequency  # type: ignore[return-value]
 

@@ -188,7 +188,7 @@ class TestPlotters:
         line_columns = ["QSrc1TIn", "QSrc1TOut"]
         day_data = hourly_data.iloc[0:24, :]
 
-        fig, lax, rax = plot.energy_balance_with_lines(
+        fig, _, _ = plot.energy_balance_with_lines(
             day_data,
             q_in_columns=["QSrc1TIn"],
             q_out_columns=["QSrc1TOut", "QSrc1dT"],
@@ -217,7 +217,7 @@ class TestPlotters:
         line_columns = ["d"]
         # day_data = step_data.iloc[0:24, :]
 
-        fig, lax, rax = plot.energy_balance_with_lines(
+        fig, _, _ = plot.energy_balance_with_lines(
             step_data,
             q_in_columns=["a"],
             q_out_columns=["b", "c"],
@@ -246,7 +246,7 @@ class TestPlotters:
             const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
         )
 
-        fig, lax, rax = plot.energy_balance_with_lines(
+        fig, _, _ = plot.energy_balance_with_lines(
             monthly_data,
             q_in_columns=["QSnk60PauxCondSwitch_kW"],
             q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],

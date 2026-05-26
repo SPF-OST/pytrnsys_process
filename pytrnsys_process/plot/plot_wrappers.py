@@ -296,6 +296,7 @@ def energy_balance(
     )
 
 
+# pylint: disable=too-many-arguments
 def energy_balance_with_lines(
     df: _pd.DataFrame,
     q_in_columns: list[str],

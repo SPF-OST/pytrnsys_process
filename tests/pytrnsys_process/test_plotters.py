@@ -49,8 +49,8 @@ class TestPlotters:
     @_pt.fixture
     def step_data(self):
         """Load hourly test data."""
-        result_data = const.DATA_FOLDER / "plotters/data/dummy_step.Prt"
-        return read.PrtReader().read_hourly(result_data)
+        result_data = const.DATA_FOLDER / "plotters/data/dummy_dt.Prt"
+        return read.PrtReader().read_step(result_data)
 
     @_pt.fixture
     def comparison_data(self):
@@ -178,7 +178,6 @@ class TestPlotters:
 
     def test_create_dual_plot_line_and_energy_balance(self, hourly_data):
         # Setup
-        # TODO: test warning.
         expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_hourly.png"
         actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
         line_columns = ["QSrc1TIn", "QSrc1TOut"]
@@ -188,6 +187,30 @@ class TestPlotters:
             day_data,
             q_in_columns=["QSrc1TIn"],
             q_out_columns=["QSrc1TOut", "QSrc1dT"],
+            line_columns=line_columns,
+            use_legend=True,
+            xlabel="time",
+            energy_balance_ylabel="power [kWh]",
+            line_ylabel="Temperature [°C]",
+        )
+
+        fig.savefig(actual_fig)
+        # _plt.show()
+
+        # Assert
+        self.assert_plots_match(actual_fig, expected_fig)
+
+    def test_create_dual_plot_line_and_energy_balance_step(self, step_data):
+        # Setup
+        expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_step.png"
+        actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        line_columns = ["d"]
+        # day_data = step_data.iloc[0:24, :]
+
+        fig, lax, rax = plot.energy_balance_with_lines(
+            step_data,
+            q_in_columns=["a"],
+            q_out_columns=["b", "c"],
             line_columns=line_columns,
             use_legend=True,
             xlabel="time",

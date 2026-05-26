@@ -102,8 +102,9 @@ class ChartBase:
         return fig, ax, leg_ax
 
     @staticmethod
-    def _get_date_time_axis_locator_and_formatter(df):
+    def _get_date_time_axis_locator_and_formatter(df, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
         # TODO: make this available to the User.
+        sub_hour_interval = 15  # minutes
         def formatter_hourly_with_midnight_date(x, pos):
             dt = _dates.num2date(x)
             if dt.hour == 0:
@@ -113,7 +114,7 @@ class ChartBase:
 
         def formatter_sub_hour_with_midnight_date(x, pos):
             dt = _dates.num2date(x)
-            if dt.hour == 0:
+            if dt.hour == 0 and dt.minute < sub_hour_interval:
                 return dt.strftime("%b-%d")
 
             return dt.strftime("%H:%M")
@@ -125,19 +126,31 @@ class ChartBase:
 
             return dt.strftime("%H:%M")
 
-        delta_time = df.index[1] - df.index[0]
-        if delta_time < _pd.Timedelta(hours=1):
-            date_locator = _dates.MinuteLocator(interval=15)  # minutes
+        if data_frequency == "step":
+            date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
             formatter_function = formatter_sub_hour_with_midnight_date
-        elif delta_time == _pd.Timedelta(hours=1):
+        elif data_frequency == "hourly":
             date_locator = _dates.HourLocator()
             formatter_function = formatter_hourly_with_midnight_date
-        elif delta_time >= _pd.Timedelta(days=28):
+        elif data_frequency == "monthly":
             date_locator = _dates.MonthLocator()
             formatter_function = formatter_monthly
+
         formatter = _tick.FuncFormatter(formatter_function)
 
         return date_locator, formatter
+
+    @staticmethod
+    def get_frequency_of_data(df: _pd.DataFrame) -> str:
+        delta_time = df.index[1] - df.index[0]
+        if delta_time < _pd.Timedelta(hours=1):
+            data_frequency = "step"
+        elif delta_time == _pd.Timedelta(hours=1):
+            data_frequency = "hourly"
+        elif delta_time >= _pd.Timedelta(days=28):
+            data_frequency = "monthly"
+
+        return data_frequency
 
 
 class StackedBarChart(ChartBase):
@@ -180,9 +193,6 @@ class EnergyBalanceChart(ChartBase):
         return fig, lax, rax
 
     def _do_plot(
-            # TODO: add positive and negative columns
-            # TODO: add qImb column
-            # TODO:
             self,
             df: _pd.DataFrame,
             columns: dict[str],
@@ -192,6 +202,7 @@ class EnergyBalanceChart(ChartBase):
     ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         fig, lax, rax, leg_ax = self.get_fig_and_multi_ax(kwargs, size)
 
+        # TODO: implement other kwargs?
         plot_kwargs = {
             **kwargs,
         }
@@ -210,7 +221,16 @@ class EnergyBalanceChart(ChartBase):
 
         date_time = _dates.date2num(df.index)
 
-        bar_width = 0.02
+        data_frequency = self.get_frequency_of_data(df)
+
+        self._format_date_time_twin_axis(df, fig, lax, rax, data_frequency)
+
+        if data_frequency == "step":
+            bar_width = 0.0008
+        elif data_frequency == "hourly":
+            bar_width = 0.02
+        elif data_frequency == "monthly":
+            bar_width = None
 
         # build positive stack
         i_color = 0
@@ -239,7 +259,7 @@ class EnergyBalanceChart(ChartBase):
 
         lax.axhline(0, color="black")
 
-        self._format_date_time_twin_axis(df, fig, lax, rax)
+
 
         if use_legend:
             balance_handles, _ = lax.get_legend_handles_labels()
@@ -258,9 +278,9 @@ class EnergyBalanceChart(ChartBase):
 
         return fig, lax, rax
 
-    def _format_date_time_twin_axis(self, df, fig, lax, rax):
+    def _format_date_time_twin_axis(self, df, fig, lax, rax, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
         # TODO: make this available to the user.
-        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(df)
+        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(df, data_frequency)
         lax.xaxis_date()
         lax.xaxis.set_major_formatter(formatter)
         lax.xaxis.set_major_locator(date_locator)

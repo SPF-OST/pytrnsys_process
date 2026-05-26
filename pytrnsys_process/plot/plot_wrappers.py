@@ -392,7 +392,7 @@ def energy_balance_with_lines(
         "q_in_columns": q_in_columns,
         "q_out_columns": q_out_columns,
         "q_imb_column": q_imb_column,
-        "line_columns": line_columns
+        "line_columns": line_columns,
     }
 
     plotter = pltrs.EnergyBalanceChart()

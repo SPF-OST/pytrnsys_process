@@ -178,8 +178,13 @@ class TestPlotters:
 
     def test_create_dual_plot_line_and_energy_balance(self, hourly_data):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_hourly.png"
-        actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        expected_fig = (
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/expected_hourly.png"
+        )
+        actual_fig = (
+            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        )
         line_columns = ["QSrc1TIn", "QSrc1TOut"]
         day_data = hourly_data.iloc[0:24, :]
 
@@ -202,8 +207,13 @@ class TestPlotters:
 
     def test_create_dual_plot_line_and_energy_balance_step(self, step_data):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_step.png"
-        actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        expected_fig = (
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/expected_step.png"
+        )
+        actual_fig = (
+            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        )
         line_columns = ["d"]
         # day_data = step_data.iloc[0:24, :]
 
@@ -224,10 +234,17 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_fig, expected_fig)
 
-    def test_create_dual_plot_line_and_energy_balance_monthly(self, monthly_data):
+    def test_create_dual_plot_line_and_energy_balance_monthly(
+        self, monthly_data
+    ):
         # Setup
-        expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_monthly.png"
-        actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        expected_fig = (
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/expected_monthly.png"
+        )
+        actual_fig = (
+            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+        )
 
         fig, lax, rax = plot.energy_balance_with_lines(
             monthly_data,

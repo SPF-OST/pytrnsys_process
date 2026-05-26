@@ -11,12 +11,16 @@ from pytrnsys_process.config import REPO_ROOT, Defaults, global_settings
 from pytrnsys_process.plot import (
     bar_chart,
     energy_balance,
+    energy_balance_with_lines,
     histogram,
     line_plot,
     scatter_plot,
     scalar_compare_plot,
     stacked_bar_chart,
     get_figure_with_twin_x_axis,
+    get_date_time_axis_locator_and_formatter,
+    get_frequency_of_data,
+    format_date_time_twin_axis,
 )
 from pytrnsys_process.process import (
     Simulation,
@@ -38,6 +42,7 @@ __all__ = [
     "stacked_bar_chart",
     "histogram",
     "energy_balance",
+    "energy_balance_with_lines",
     "scatter_plot",
     "scalar_compare_plot",
     "get_figure_with_twin_x_axis",
@@ -53,4 +58,7 @@ __all__ = [
     "SimulationsData",
     "load_simulations_data_from_pickle",
     "load_simulation_from_pickle",
+    "get_date_time_axis_locator_and_formatter",
+    "get_frequency_of_data",
+    "format_date_time_twin_axis",
 ]

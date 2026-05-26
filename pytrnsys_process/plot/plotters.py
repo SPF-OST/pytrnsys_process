@@ -101,55 +101,6 @@ class ChartBase:
         )
         return fig, ax, leg_ax
 
-    @staticmethod
-    def _get_date_time_axis_locator_and_formatter(data_frequency: _tp.Literal["step", "hourly", "monthly"]):
-        # TODO: make this available to the User.
-        sub_hour_interval = 15  # minutes
-
-        def formatter_hourly_with_midnight_date(x, pos):
-            dt = _dates.num2date(x)
-            if dt.hour == 0:
-                return dt.strftime("%b-%d")
-
-            return dt.strftime("%H")
-
-        def formatter_sub_hour_with_midnight_date(x, pos):
-            dt = _dates.num2date(x)
-            if dt.hour == 0 and dt.minute < sub_hour_interval:
-                return dt.strftime("%b-%d")
-
-            return dt.strftime("%H:%M")
-
-        def formatter_monthly(x, pos):
-            dt = _dates.num2date(x, tz=None)
-            return dt.strftime("%b")
-
-        if data_frequency == "step":
-            date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
-            formatter_function = formatter_sub_hour_with_midnight_date
-        elif data_frequency == "hourly":
-            date_locator = _dates.HourLocator()
-            formatter_function = formatter_hourly_with_midnight_date
-        elif data_frequency == "monthly":
-            date_locator = _dates.MonthLocator()
-            formatter_function = formatter_monthly
-
-        formatter = _tick.FuncFormatter(formatter_function)
-
-        return date_locator, formatter
-
-    @staticmethod
-    def get_frequency_of_data(df: _pd.DataFrame) -> str:
-        delta_time = df.index[1] - df.index[0]
-        if delta_time < _pd.Timedelta(hours=1):
-            data_frequency = "step"
-        elif delta_time == _pd.Timedelta(hours=1):
-            data_frequency = "hourly"
-        elif delta_time >= _pd.Timedelta(days=28):
-            data_frequency = "monthly"
-
-        return data_frequency
-
 
 class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"
@@ -200,7 +151,7 @@ class EnergyBalanceChart(ChartBase):
     ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         fig, lax, rax, leg_ax = self.get_fig_and_multi_ax(kwargs, size)
 
-        # TODO: implement other kwargs?
+        # TODO: implement other kwargs?  # pylint: disable=fixme
         plot_kwargs = {
             **kwargs,
         }
@@ -219,9 +170,7 @@ class EnergyBalanceChart(ChartBase):
 
         date_time = _dates.date2num(df.index)
 
-        data_frequency = self.get_frequency_of_data(df)
-
-
+        data_frequency = get_frequency_of_data(df)
 
         if data_frequency == "step":
             bar_width = 0.0008
@@ -257,7 +206,7 @@ class EnergyBalanceChart(ChartBase):
 
         lax.axhline(0, color="black")
 
-        self._format_date_time_twin_axis(lax, rax, data_frequency)
+        format_date_time_twin_axis(lax, rax, data_frequency)
 
         if use_legend:
             balance_handles, _ = lax.get_legend_handles_labels()
@@ -275,17 +224,6 @@ class EnergyBalanceChart(ChartBase):
             rax.set_ylabel(kwargs["line_ylabel"])
 
         return fig, lax, rax
-
-    def _format_date_time_twin_axis(self, lax, rax, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
-        # TODO: make this available to the user.
-        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(data_frequency)
-        lax.xaxis_date()
-        lax.xaxis.set_major_formatter(formatter)
-        lax.xaxis.set_major_locator(date_locator)
-        rax.xaxis_date()
-        rax.xaxis.set_major_formatter(formatter)
-        rax.xaxis.set_major_locator(date_locator)
-        lax.tick_params(axis="x", rotation=90)
 
 
 class BarChart(ChartBase):
@@ -661,3 +599,90 @@ class ScalarComparePlot(ChartBase):
             fontsize=plot_settings.legend_font_size,
             borderaxespad=0,
         )
+
+
+def get_date_time_axis_locator_and_formatter(data_frequency: _tp.Literal["step", "hourly", "monthly"]):
+    """
+    Method to prepare an axis locator and a date time formattter to adjust the date time formatting.
+    Can be used as follows:
+    ax.xaxis.set_major_formatter(formatter)
+    ax.xaxis.set_major_locator(date_locator)
+
+    Parameters
+    ----------
+    data_frequency: str
+        Size of the timestep. This can be 'step', 'hourly', and 'monthly'.
+    """
+    sub_hour_interval = 15  # minutes
+
+    def formatter_hourly_with_midnight_date(x, pos):
+        dt = _dates.num2date(x)
+        if dt.hour == 0:
+            return dt.strftime("%b-%d")
+
+        return dt.strftime("%H")
+
+    def formatter_sub_hour_with_midnight_date(x, pos):
+        dt = _dates.num2date(x)
+        if dt.hour == 0 and dt.minute < sub_hour_interval:
+            return dt.strftime("%b-%d")
+
+        return dt.strftime("%H:%M")
+
+    def formatter_monthly(x, pos):
+        dt = _dates.num2date(x, tz=None)
+        return dt.strftime("%b")
+
+    if data_frequency == "step":
+        date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
+        formatter_function = formatter_sub_hour_with_midnight_date
+    elif data_frequency == "hourly":
+        date_locator = _dates.HourLocator()
+        formatter_function = formatter_hourly_with_midnight_date
+    elif data_frequency == "monthly":
+        date_locator = _dates.MonthLocator()
+        formatter_function = formatter_monthly
+
+    formatter = _tick.FuncFormatter(formatter_function)
+
+    return date_locator, formatter
+
+
+def get_frequency_of_data(df: _pd.DataFrame) -> str:
+    """
+    Method to identify the timestep size of the give dataframe.
+    Can return 'step', 'hourly', and 'monthly'.
+    """
+    delta_time = df.index[1] - df.index[0]
+    if delta_time < _pd.Timedelta(hours=1):
+        data_frequency = "step"
+    elif delta_time == _pd.Timedelta(hours=1):
+        data_frequency = "hourly"
+    elif delta_time >= _pd.Timedelta(days=28):
+        data_frequency = "monthly"
+
+    return data_frequency
+
+
+def format_date_time_twin_axis(lax: _plt.Axes, rax: _plt.Axes, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
+    """Method to update dateTime formatting for twin axes.
+
+    Parameters
+    ----------
+    lax: _plt.Axes
+        left-axis handle
+
+    rax: _plt.Axes
+        right-axis handle
+
+    data_frequency: str
+        Size of the timestep. This can be 'step', 'hourly', and 'monthly'.
+    """
+    date_locator, formatter = get_date_time_axis_locator_and_formatter(data_frequency)
+    lax.xaxis_date()
+    lax.xaxis.set_major_formatter(formatter)
+    lax.xaxis.set_major_locator(date_locator)
+    rax.xaxis_date()
+    rax.xaxis.set_major_formatter(formatter)
+    rax.xaxis.set_major_locator(date_locator)
+    lax.tick_params(axis="x", rotation=90)

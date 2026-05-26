@@ -3,6 +3,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 import matplotlib.pyplot as _plt
+import matplotlib.dates as _dates
+
 import numpy as _np
 import pandas as _pd
 
@@ -77,6 +79,20 @@ class ChartBase:
             ax = kwargs["ax"]
         return fig, ax
 
+    @staticmethod
+    def get_fig_and_multi_ax(kwargs, size):
+        if "fig" not in kwargs and "lax" not in kwargs and "rax" not in kwargs:
+            fig, lax = _plt.subplots(
+                figsize=size,
+                layout="constrained",
+            )
+            rax = lax.twinx()
+        else:
+            fig = kwargs["fig"]
+            lax = kwargs["lax"]
+            rax = kwargs["rax"]
+        return fig, lax, rax
+
 
 class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"
@@ -103,6 +119,117 @@ class StackedBarChart(ChartBase):
         )
 
         return fig, ax
+
+
+class EnergyBalanceChart(ChartBase):
+    cmap: str | None = "inferno_r"
+
+    def plot(
+        self,
+        df: _pd.DataFrame,
+        columns: list[str],
+        **kwargs,
+    ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
+        fig, lax, rax = self._do_plot(df, columns, **kwargs)
+        return fig, lax, rax
+
+    def _do_plot(
+        # TODO: add positive and negative columns
+        # TODO: add qImb column
+        # TODO:
+        self,
+        df: _pd.DataFrame,
+        columns: dict[str],
+        use_legend: bool = True,
+        size: tuple[float, float] = conf.PlotSizes.A4.value,
+        **kwargs: _tp.Any,
+    ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
+        fig, lax, rax = self.get_fig_and_multi_ax(kwargs, size)
+
+
+
+
+        plot_kwargs = {
+            "legend": use_legend,
+            **kwargs,
+        }
+
+        q_in_columns = columns["q_in_columns"]
+        q_out_columns = columns["q_out_columns"]
+        q_imb_column = columns["q_imb_column"]
+        line_columns = columns["line_columns"]
+
+        pos_bottom = _np.zeros(len(df))
+        neg_bottom = _np.zeros(len(df))
+        self.check_for_cmap(kwargs, plot_kwargs)
+        n_colors = len(q_in_columns) + len(q_out_columns) + 1
+        cmap = self.get_cmap(kwargs)
+        cm = _plt.get_cmap(cmap, n_colors)
+
+        date_time = _dates.date2num(df.index)
+
+        bar_width = 0.02
+
+        # TODO: deal with "ax" in kwargs
+        # build positive stack
+        i_color = 0
+        for column in q_in_columns:
+            values = df[column].clip(lower=0)
+            lax.bar(date_time, values, bottom=pos_bottom, label=column, width=bar_width, color=cm(i_color))
+            pos_bottom += values
+            i_color += 1
+
+        # build negative stack
+        for column in q_out_columns:
+            values = df[column].clip(upper=0)
+            lax.bar(date_time, values, bottom=neg_bottom, label=column, width=bar_width, color=cm(i_color))
+            neg_bottom += values
+            i_color += 1
+
+        values = df[q_imb_column]
+        lax.bar(date_time, values.clip(lower=0), bottom=pos_bottom, label=q_imb_column, width=bar_width, color="black")
+        pos_bottom += values.clip(lower=0)  # used for legend location
+        i_color += 1
+        lax.bar(date_time, values.clip(upper=0), bottom=neg_bottom, width=bar_width, color="black")
+        neg_bottom += values.clip(upper=0)  # used for legend location
+
+        for column in line_columns:
+            rax.plot(date_time, df[column], label=f"{column}")
+
+        # TODO: pass formatting to function
+        # TODO: use 2nd subplot for legends.
+
+        lax.xaxis_date()
+        formatter = _dates.DateFormatter('%m-%d %H:%M')
+        date_locator = _dates.AutoDateLocator()
+        lax.xaxis.set_major_formatter(formatter)
+        lax.xaxis.set_major_locator(date_locator)
+        rax.xaxis_date()
+        rax.xaxis.set_major_formatter(formatter)
+        rax.xaxis.set_major_locator(date_locator)
+        fig.autofmt_xdate()
+
+        x_min, x_max = lax.get_xlim()
+        x_diff = x_max - x_min
+        lax.set_xlim(x_min, x_max + 0.25 * x_diff)
+        rax.set_xlim(x_min, x_max + 0.25 * x_diff)
+        lax.hlines(0, color="black", xmin=x_min, xmax=max(date_time) + bar_width)
+
+        if use_legend:
+            lax.legend(loc="upper right", bbox_to_anchor=(1, 1))
+            rax.legend(loc="lower right", bbox_to_anchor=(1, 0))
+
+
+
+
+
+
+        # ax = df[columns].plot.bar(**plot_kwargs)
+        # ax.set_xticklabels(
+        #     _pd.to_datetime(df.index).strftime(plot_settings.date_format)
+        # )
+
+        return fig, lax, rax
 
 
 class BarChart(ChartBase):

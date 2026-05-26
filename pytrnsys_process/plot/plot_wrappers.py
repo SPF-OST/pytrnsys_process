@@ -296,6 +296,109 @@ def energy_balance(
     )
 
 
+def energy_balance_with_lines(
+    df: _pd.DataFrame,
+    q_in_columns: list[str],
+    q_out_columns: list[str],
+    line_columns: list[str],
+    q_imb_column: _tp.Optional[str] = None,
+    use_legend: bool = True,
+    size: tuple[float, float] = conf.PlotSizes.A4.value,
+    **kwargs: _tp.Any,
+) -> tuple[_plt.Figure, _plt.Axes]:
+    """
+    Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
+    On top of which one or more lines will be plotted.
+
+    This function creates an energy balance visualization where:
+
+    - Input energies are shown as positive values
+    - Output energies are shown as negative values
+    - Energy imbalance is either provided or calculated as (sum of inputs + sum of outputs)
+
+    Parameters
+    __________
+    df : pandas.DataFrame
+        the dataframe to plot
+
+    q_in_columns: list of str
+        column names representing energy inputs
+
+    q_out_columns: list of str
+        column names representing energy outputs
+
+    q_imb_column: list of str, optional
+        column name containing pre-calculated energy imbalance
+
+    line_columns: list of str
+        column names that should be plotted as line on top of the energy balance.
+
+    use_legend: bool, default 'True'
+        whether to show the legend or not
+
+    size: tuple of (float, float)
+        size of the figure (width, height)
+
+    **kwargs :
+        Additional keyword arguments to pass on to
+        :meth:`pandas.DataFrame.plot`.
+
+    Returns
+    _______
+    tuple of (:class:`matplotlib.figure.Figure`, :class:`matplotlib.axes.Axes`)
+
+    Examples
+    ________
+    .. plot::
+        :context: close-figs
+
+        >>> api.energy_balance_with_lines(
+        >>> simulation.monthly,
+        >>> q_in_columns=["QSnk60PauxCondSwitch_kW"],
+        >>> q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+        >>> q_imb_column="QSnk60qImbTess",
+        >>> xlabel=""
+        >>> )
+    """
+    all_columns_vor_validation = (
+        q_in_columns
+        + q_out_columns
+        + line_columns
+        + ([q_imb_column] if q_imb_column is not None else [])
+    )
+    _validate_column_exists(df, all_columns_vor_validation)
+
+    df_modified = df.copy()
+
+    for col in q_out_columns:
+        df_modified[col] = -df_modified[col]
+
+    if q_imb_column is None:
+        q_imb_column = "Qimb"
+        df_modified[q_imb_column] = df_modified[
+            q_in_columns + q_out_columns
+        ].sum(axis=1)
+
+    # imbalance is visually added where it is missing.
+    df_modified[q_imb_column] *= -1
+
+    columns_to_plot = {
+        "q_in_columns": q_in_columns,
+        "q_out_columns": q_out_columns,
+        "q_imb_column": q_imb_column,
+        "line_columns": line_columns
+    }
+
+    plotter = pltrs.EnergyBalanceChart()
+    return plotter.plot(
+        df_modified,
+        columns_to_plot,
+        use_legend=use_legend,
+        size=size,
+        **kwargs,
+    )
+
+
 def scatter_plot(
     df: _pd.DataFrame,
     x_column: str,

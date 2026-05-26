@@ -1,4 +1,5 @@
 # pylint: disable=consider-using-from-import
+import matplotlib.dates as _dates
 import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
@@ -168,6 +169,28 @@ class TestPlotters:
 
         # Assert
         self.assert_plots_match(actual_fig, expected_fig)
+
+    def test_create_dual_plot_line_and_energy_balance(self, hourly_data):
+        # Setup
+        expected_fig = const.DATA_FOLDER / "plotters/line-plot/expected.png"
+        actual_fig = const.DATA_FOLDER / "plotters/line-plot/actual.png"
+        line_columns = ["QSrc1TIn", "QSrc1TOut"]
+        day_data = hourly_data.iloc[0:24, :]
+
+        fig, lax, rax = plot.energy_balance_with_lines(
+            day_data,
+            q_in_columns=["QSrc1TIn"],
+            q_out_columns=["QSrc1TOut", "QSrc1dT"],
+            line_columns=line_columns,
+            xlabel="",
+            use_legend=True
+        )
+
+        # fig.savefig(actual_fig)
+        _plt.show()
+
+        # Assert
+        # self.assert_plots_match(actual_fig, expected_fig)
 
     def test_create_line_plot_for_hourly_cmap(self, hourly_data):
         # Setup

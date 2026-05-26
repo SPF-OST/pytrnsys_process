@@ -224,6 +224,28 @@ class TestPlotters:
         # Assert
         self.assert_plots_match(actual_fig, expected_fig)
 
+    def test_create_dual_plot_line_and_energy_balance_monthly(self, monthly_data):
+        # Setup
+        expected_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/expected_monthly.png"
+        actual_fig = const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual.png"
+
+        fig, lax, rax = plot.energy_balance_with_lines(
+            monthly_data,
+            q_in_columns=["QSnk60PauxCondSwitch_kW"],
+            q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],
+            line_columns=["QSnk60P"],
+            use_legend=True,
+            xlabel="time",
+            energy_balance_ylabel="power [kWh]",
+            line_ylabel="Temperature [°C]",
+        )
+
+        fig.savefig(actual_fig)
+        # _plt.show()
+
+        # Assert
+        self.assert_plots_match(actual_fig, expected_fig)
+
     def test_create_line_plot_for_hourly_cmap(self, hourly_data):
         # Setup
         expected_fig = (

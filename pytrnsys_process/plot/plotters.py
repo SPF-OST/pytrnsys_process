@@ -102,9 +102,10 @@ class ChartBase:
         return fig, ax, leg_ax
 
     @staticmethod
-    def _get_date_time_axis_locator_and_formatter(df, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
+    def _get_date_time_axis_locator_and_formatter(data_frequency: _tp.Literal["step", "hourly", "monthly"]):
         # TODO: make this available to the User.
         sub_hour_interval = 15  # minutes
+
         def formatter_hourly_with_midnight_date(x, pos):
             dt = _dates.num2date(x)
             if dt.hour == 0:
@@ -120,11 +121,8 @@ class ChartBase:
             return dt.strftime("%H:%M")
 
         def formatter_monthly(x, pos):
-            dt = _dates.num2date(x)
-            if dt.hour == 0:
-                return dt.strftime("%b-%d")
-
-            return dt.strftime("%H:%M")
+            dt = _dates.num2date(x, tz=None)
+            return dt.strftime("%b")
 
         if data_frequency == "step":
             date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
@@ -223,14 +221,14 @@ class EnergyBalanceChart(ChartBase):
 
         data_frequency = self.get_frequency_of_data(df)
 
-        self._format_date_time_twin_axis(df, fig, lax, rax, data_frequency)
+
 
         if data_frequency == "step":
             bar_width = 0.0008
         elif data_frequency == "hourly":
             bar_width = 0.02
         elif data_frequency == "monthly":
-            bar_width = None
+            bar_width = 25
 
         # build positive stack
         i_color = 0
@@ -259,7 +257,7 @@ class EnergyBalanceChart(ChartBase):
 
         lax.axhline(0, color="black")
 
-
+        self._format_date_time_twin_axis(lax, rax, data_frequency)
 
         if use_legend:
             balance_handles, _ = lax.get_legend_handles_labels()
@@ -278,16 +276,15 @@ class EnergyBalanceChart(ChartBase):
 
         return fig, lax, rax
 
-    def _format_date_time_twin_axis(self, df, fig, lax, rax, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
+    def _format_date_time_twin_axis(self, lax, rax, data_frequency: _tp.Literal["step", "hourly", "monthly"]):
         # TODO: make this available to the user.
-        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(df, data_frequency)
+        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(data_frequency)
         lax.xaxis_date()
         lax.xaxis.set_major_formatter(formatter)
         lax.xaxis.set_major_locator(date_locator)
         rax.xaxis_date()
         rax.xaxis.set_major_formatter(formatter)
         rax.xaxis.set_major_locator(date_locator)
-        fig.autofmt_xdate()
         lax.tick_params(axis="x", rotation=90)
 
 

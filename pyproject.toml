@@ -41,3 +41,6 @@ include = ["pytrnsys_process*"]  # package names should match these glob pattern
 filterwarnings = [
     "ignore::DeprecationWarning:dateutil.tz.tz:37",
 ]
+
+[tool.mypy]
+disable_error_code = ["override"]

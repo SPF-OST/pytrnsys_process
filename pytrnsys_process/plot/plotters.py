@@ -141,19 +141,19 @@ class StackedBarChart(ChartBase):
 class EnergyBalanceChart(ChartBase):
     cmap: str | None = "inferno_r"
 
-    def plot(
+    def plot(  # type: ignore[override]
         self,
         df: _pd.DataFrame,
-        columns: list[str],
+        columns: dict[_tp.Any, _tp.Any],  # type: ignore[arg-type]
         **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         fig, lax, rax = self._do_plot(df, columns, **kwargs)
         return fig, lax, rax
 
-    def _do_plot(
+    def _do_plot(  # typing: ignore[override]
         self,
         df: _pd.DataFrame,
-        columns: dict[str],
+        columns: dict[_tp.Any, _tp.Any],
         use_legend: bool = True,
         size: tuple[float, float] = conf.PlotSizes.A4.value,
         **kwargs: _tp.Any,
@@ -675,12 +675,16 @@ def get_date_time_axis_locator_and_formatter(
 
         return dt.strftime("%H:%M")
 
-    def formatter_monthly(x, pos):
+    def formatter_monthly(
+        x, pos
+    ) -> _tp.Tuple[_dates.RRuleLocator, _tick.FuncFormatter]:
         dt = _dates.num2date(x, tz=None)
         return dt.strftime("%b")
 
     if data_frequency == "step":
-        date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
+        date_locator: _dates.RRuleLocator = _dates.MinuteLocator(
+            interval=sub_hour_interval
+        )
         formatter_function = formatter_sub_hour_with_midnight_date
     elif data_frequency == "hourly":
         date_locator = _dates.HourLocator()
@@ -694,7 +698,9 @@ def get_date_time_axis_locator_and_formatter(
     return date_locator, formatter
 
 
-def get_frequency_of_data(df: _pd.DataFrame) -> str:
+def get_frequency_of_data(
+    df: _pd.DataFrame,
+) -> _tp.Literal["step", "hourly", "monthly"]:
     """
     Method to identify the timestep size of the give dataframe.
     Can return 'step', 'hourly', and 'monthly'.
@@ -707,7 +713,7 @@ def get_frequency_of_data(df: _pd.DataFrame) -> str:
     elif delta_time >= _pd.Timedelta(days=28):
         data_frequency = "monthly"
 
-    return data_frequency
+    return data_frequency  # type: ignore[return-value]
 
 
 def format_date_time_twin_axis(

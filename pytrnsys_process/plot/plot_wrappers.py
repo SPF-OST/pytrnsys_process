@@ -396,7 +396,7 @@ def energy_balance_with_lines(
     }
 
     plotter = pltrs.EnergyBalanceChart()
-    return plotter.plot(
+    return plotter.plot(  # type: ignore[return-value]
         df_modified,
         columns_to_plot,
         use_legend=use_legend,

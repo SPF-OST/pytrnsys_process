@@ -339,6 +339,12 @@ def energy_balance_with_lines(
     size: tuple of (float, float)
         size of the figure (width, height)
 
+    energy_balance_ylabel: str
+        y-axis label for the energy balance.
+
+    line_ylabel: str
+        y-axis label for the lines.
+
     **kwargs :
         Additional keyword arguments to pass on to
         :meth:`pandas.DataFrame.plot`.

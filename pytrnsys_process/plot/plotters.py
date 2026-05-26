@@ -1,12 +1,12 @@
 import typing as _tp
+import warnings
 from abc import abstractmethod
 from dataclasses import dataclass
 
-import matplotlib.pyplot as _plt
-import matplotlib.dates as _dates
-
 import numpy as _np
 import pandas as _pd
+import matplotlib.pyplot as _plt
+from matplotlib import dates as _dates, ticker as _tick
 
 from pytrnsys_process import config as conf
 
@@ -27,22 +27,22 @@ class ChartBase:
     cmap: str | None = None
 
     def plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        **kwargs,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = self._do_plot(df, columns, **kwargs)
         return fig, ax
 
     @abstractmethod
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         """Implement actual plotting logic in subclasses"""
 
@@ -79,31 +79,77 @@ class ChartBase:
             ax = kwargs["ax"]
         return fig, ax
 
+    def get_fig_and_multi_ax(self, kwargs, size):
+        if "fig" in kwargs or "lax" in kwargs or "rax" in kwargs or "ax" in kwargs:
+            warnings.warn("get_fig_and_multi_ax does not pass the figure handle, nor the axis handles.")
+
+        fig, lax, leg_ax = self.prep_subplots_for_legend_outside_of_plot(size)
+        rax = lax.twinx()
+
+        return fig, lax, rax, leg_ax
+
     @staticmethod
-    def get_fig_and_multi_ax(kwargs, size):
-        if "fig" not in kwargs and "lax" not in kwargs and "rax" not in kwargs:
-            fig, lax = _plt.subplots(
-                figsize=size,
-                layout="constrained",
-            )
-            rax = lax.twinx()
-        else:
-            fig = kwargs["fig"]
-            lax = kwargs["lax"]
-            rax = kwargs["rax"]
-        return fig, lax, rax
+    def prep_subplots_for_legend_outside_of_plot(size) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
+        # See: https://stackoverflow.com/questions/4700614/
+        # how-to-put-the-legend-outside-the-plot
+        # This is required to place the legend in a dedicated subplot
+        fig, (ax, leg_ax) = _plt.subplots(
+            layout="constrained",
+            figsize=size,
+            ncols=2,
+            gridspec_kw={"width_ratios": [4, 1]},
+        )
+        return fig, ax, leg_ax
+
+    @staticmethod
+    def _get_date_time_axis_locator_and_formatter(df):
+        # TODO: make this available to the User.
+        def formatter_hourly_with_midnight_date(x, pos):
+            dt = _dates.num2date(x)
+            if dt.hour == 0:
+                return dt.strftime("%b-%d")
+
+            return dt.strftime("%H")
+
+        def formatter_sub_hour_with_midnight_date(x, pos):
+            dt = _dates.num2date(x)
+            if dt.hour == 0:
+                return dt.strftime("%b-%d")
+
+            return dt.strftime("%H:%M")
+
+        def formatter_monthly(x, pos):
+            dt = _dates.num2date(x)
+            if dt.hour == 0:
+                return dt.strftime("%b-%d")
+
+            return dt.strftime("%H:%M")
+
+        delta_time = df.index[1] - df.index[0]
+        if delta_time < _pd.Timedelta(hours=1):
+            date_locator = _dates.MinuteLocator(interval=15)  # minutes
+            formatter_function = formatter_sub_hour_with_midnight_date
+        elif delta_time == _pd.Timedelta(hours=1):
+            date_locator = _dates.HourLocator()
+            formatter_function = formatter_hourly_with_midnight_date
+        elif delta_time >= _pd.Timedelta(days=28):
+            date_locator = _dates.MonthLocator()
+            formatter_function = formatter_monthly
+        formatter = _tick.FuncFormatter(formatter_function)
+
+        return date_locator, formatter
 
 
 class StackedBarChart(ChartBase):
     cmap: str | None = "inferno_r"
 
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = self.get_fig_and_ax(kwargs, size)
 
@@ -125,32 +171,28 @@ class EnergyBalanceChart(ChartBase):
     cmap: str | None = "inferno_r"
 
     def plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        **kwargs,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            **kwargs,
     ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
         fig, lax, rax = self._do_plot(df, columns, **kwargs)
         return fig, lax, rax
 
     def _do_plot(
-        # TODO: add positive and negative columns
-        # TODO: add qImb column
-        # TODO:
-        self,
-        df: _pd.DataFrame,
-        columns: dict[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            # TODO: add positive and negative columns
+            # TODO: add qImb column
+            # TODO:
+            self,
+            df: _pd.DataFrame,
+            columns: dict[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
-        fig, lax, rax = self.get_fig_and_multi_ax(kwargs, size)
-
-
-
+        fig, lax, rax, leg_ax = self.get_fig_and_multi_ax(kwargs, size)
 
         plot_kwargs = {
-            "legend": use_legend,
             **kwargs,
         }
 
@@ -170,7 +212,6 @@ class EnergyBalanceChart(ChartBase):
 
         bar_width = 0.02
 
-        # TODO: deal with "ax" in kwargs
         # build positive stack
         i_color = 0
         for column in q_in_columns:
@@ -196,52 +237,50 @@ class EnergyBalanceChart(ChartBase):
         for column in line_columns:
             rax.plot(date_time, df[column], label=f"{column}")
 
-        # TODO: pass formatting to function
-        # TODO: use 2nd subplot for legends.
+        lax.axhline(0, color="black")
 
+        self._format_date_time_twin_axis(df, fig, lax, rax)
+
+        if use_legend:
+            balance_handles, _ = lax.get_legend_handles_labels()
+            line_handles, _ = rax.get_legend_handles_labels()
+            line_legend = leg_ax.legend(handles=line_handles, loc="upper left", bbox_to_anchor=(0, 0, 1, 1))
+            leg_ax.add_artist(line_legend)
+            leg_ax.legend(handles=balance_handles, loc="upper left", bbox_to_anchor=(0, 0, 1, 0.7))
+            leg_ax.axis("off")
+
+        if "xlabel" in kwargs:
+            lax.set_xlabel(kwargs["xlabel"])
+        if "energy_balance_ylabel" in kwargs:
+            lax.set_ylabel(kwargs["energy_balance_ylabel"])
+        if "line_ylabel" in kwargs:
+            rax.set_ylabel(kwargs["line_ylabel"])
+
+        return fig, lax, rax
+
+    def _format_date_time_twin_axis(self, df, fig, lax, rax):
+        # TODO: make this available to the user.
+        date_locator, formatter = self._get_date_time_axis_locator_and_formatter(df)
         lax.xaxis_date()
-        formatter = _dates.DateFormatter('%m-%d %H:%M')
-        date_locator = _dates.AutoDateLocator()
         lax.xaxis.set_major_formatter(formatter)
         lax.xaxis.set_major_locator(date_locator)
         rax.xaxis_date()
         rax.xaxis.set_major_formatter(formatter)
         rax.xaxis.set_major_locator(date_locator)
         fig.autofmt_xdate()
-
-        x_min, x_max = lax.get_xlim()
-        x_diff = x_max - x_min
-        lax.set_xlim(x_min, x_max + 0.25 * x_diff)
-        rax.set_xlim(x_min, x_max + 0.25 * x_diff)
-        lax.hlines(0, color="black", xmin=x_min, xmax=max(date_time) + bar_width)
-
-        if use_legend:
-            lax.legend(loc="upper right", bbox_to_anchor=(1, 1))
-            rax.legend(loc="lower right", bbox_to_anchor=(1, 0))
-
-
-
-
-
-
-        # ax = df[columns].plot.bar(**plot_kwargs)
-        # ax.set_xticklabels(
-        #     _pd.to_datetime(df.index).strftime(plot_settings.date_format)
-        # )
-
-        return fig, lax, rax
+        lax.tick_params(axis="x", rotation=90)
 
 
 class BarChart(ChartBase):
     cmap = None
 
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         # TODO: deal with colors  # pylint: disable=fixme
         fig, ax = self.get_fig_and_ax(kwargs, size)
@@ -274,12 +313,12 @@ class LinePlot(ChartBase):
     cmap: str | None = None
 
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = self.get_fig_and_ax(kwargs, size)
 
@@ -298,12 +337,12 @@ class Histogram(ChartBase):
     bins: int = 50
 
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         fig, ax = self.get_fig_and_ax(kwargs, size)
 
@@ -318,8 +357,8 @@ class Histogram(ChartBase):
 
 
 def _validate_inputs(
-    current_class,
-    columns: list[str],
+        current_class,
+        columns: list[str],
 ) -> None:
     if len(columns) != 2:
         raise ValueError(
@@ -331,12 +370,12 @@ class ScatterPlot(ChartBase):
     cmap = "Paired"  # This is ignored when no categorical groupings are used.
 
     def _do_plot(
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        **kwargs: _tp.Any,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            **kwargs: _tp.Any,
     ) -> tuple[_plt.Figure, _plt.Axes]:
         _validate_inputs(self, columns)
         x_column, y_column = columns
@@ -354,15 +393,15 @@ class ScalarComparePlot(ChartBase):
 
     # pylint: disable=too-many-arguments,too-many-locals, too-many-positional-arguments
     def _do_plot(  # type: ignore[override]
-        self,
-        df: _pd.DataFrame,
-        columns: list[str],
-        use_legend: bool = True,
-        size: tuple[float, float] = conf.PlotSizes.A4.value,
-        group_by_color: str | None = None,
-        group_by_marker: str | None = None,
-        line_kwargs: dict[str, _tp.Any] | None = None,
-        scatter_kwargs: dict[str, _tp.Any] | None = None,
+            self,
+            df: _pd.DataFrame,
+            columns: list[str],
+            use_legend: bool = True,
+            size: tuple[float, float] = conf.PlotSizes.A4.value,
+            group_by_color: str | None = None,
+            group_by_marker: str | None = None,
+            line_kwargs: dict[str, _tp.Any] | None = None,
+            scatter_kwargs: dict[str, _tp.Any] | None = None,
     ) -> tuple[_plt.Figure, _plt.Axes]:
 
         _validate_inputs(self, columns)
@@ -378,15 +417,7 @@ class ScalarComparePlot(ChartBase):
         # ===========================================
 
         if group_by_color and group_by_marker:
-            # See: https://stackoverflow.com/questions/4700614/
-            # how-to-put-the-legend-outside-the-plot
-            # This is required to place the legend in a dedicated subplot
-            fig, (ax, lax) = _plt.subplots(
-                layout="constrained",
-                figsize=size,
-                ncols=2,
-                gridspec_kw={"width_ratios": [4, 1]},
-            )
+            fig, ax, lax = self.prep_subplots_for_legend_outside_of_plot(size)
             secondary_axis_used = True
         else:
             secondary_axis_used = False
@@ -431,9 +462,9 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _prepare_grouping(
-        df: _pd.DataFrame,
-        by_color: str | None,
-        by_marker: str | None,
+            df: _pd.DataFrame,
+            by_color: str | None,
+            by_marker: str | None,
     ) -> tuple[
         _pd.core.groupby.generic.DataFrameGroupBy, tuple[list[str], list[str]]
     ]:
@@ -452,9 +483,9 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _create_style_mappings(
-        color_values: list[str],
-        marker_values: list[str],
-        cmap: str | None,
+            color_values: list[str],
+            marker_values: list[str],
+            cmap: str | None,
     ) -> tuple[dict[str, _tp.Any], dict[str, str]]:
         if color_values:
             cm = _plt.get_cmap(cmap, len(color_values))
@@ -472,14 +503,14 @@ class ScalarComparePlot(ChartBase):
     # pylint: disable=too-many-arguments
     @staticmethod
     def _plot_groups(
-        df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
-        x_column: str,
-        y_column: str,
-        color_map: dict[str, _tp.Any],
-        marker_map: dict[str, str] | str,
-        ax: _plt.Axes,
-        line_kwargs: dict[str, _tp.Any],
-        scatter_kwargs: dict[str, _tp.Any],
+            df_grouped: _pd.core.groupby.generic.DataFrameGroupBy,
+            x_column: str,
+            y_column: str,
+            color_map: dict[str, _tp.Any],
+            marker_map: dict[str, str] | str,
+            ax: _plt.Axes,
+            line_kwargs: dict[str, _tp.Any],
+            scatter_kwargs: dict[str, _tp.Any],
     ) -> None:
         ax.set_xlabel(x_column, fontsize=plot_settings.label_font_size)
         ax.set_ylabel(y_column, fontsize=plot_settings.label_font_size)
@@ -510,14 +541,14 @@ class ScalarComparePlot(ChartBase):
             ax.scatter(x, y, **scatter_args)  # type: ignore
 
     def _create_legends(
-        self,
-        lax: _plt.Axes,
-        color_map: dict[str, _tp.Any],
-        marker_map: dict[str, str],
-        color_legend_title: str | None,
-        marker_legend_title: str | None,
-        use_color_legend: bool,
-        secondary_axis_used: bool,
+            self,
+            lax: _plt.Axes,
+            color_map: dict[str, _tp.Any],
+            marker_map: dict[str, str],
+            color_legend_title: str | None,
+            marker_legend_title: str | None,
+            use_color_legend: bool,
+            secondary_axis_used: bool,
     ) -> None:
 
         if secondary_axis_used:
@@ -544,11 +575,11 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _create_color_legend(
-        lax: _plt.Axes,
-        color_map: dict[str, _tp.Any],
-        color_legend_title: str | None,
-        has_markers: bool,
-        secondary_axis_used: bool,
+            lax: _plt.Axes,
+            color_map: dict[str, _tp.Any],
+            color_legend_title: str | None,
+            has_markers: bool,
+            secondary_axis_used: bool,
     ) -> None:
         color_handles = [
             _plt.Line2D([], [], color=color, linestyle="-", label=label)
@@ -577,11 +608,11 @@ class ScalarComparePlot(ChartBase):
 
     @staticmethod
     def _create_marker_legend(
-        lax: _plt.Axes,
-        marker_map: dict[str, str],
-        marker_legend_title: str | None,
-        has_colors: bool,
-        secondary_axis_used: bool,
+            lax: _plt.Axes,
+            marker_map: dict[str, str],
+            marker_legend_title: str | None,
+            has_colors: bool,
+            secondary_axis_used: bool,
     ) -> None:
         marker_position = 0.7 if has_colors else 1
         marker_handles = [

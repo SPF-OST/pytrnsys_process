@@ -239,22 +239,28 @@ class EnergyBalanceChart(ChartBase):
         )
         neg_bottom += values.clip(upper=0)  # used for legend location
 
-        for column in line_columns:
-            rax.plot(date_time, df[column], label=f"{column}")
-
         lax.axhline(0, color="black")
 
+        if line_columns is not None:
+            for column in line_columns:
+                rax.plot(date_time, df[column], label=f"{column}")
+
         format_date_time_twin_axis(lax, rax, data_frequency)
+
+        if line_columns is None:
+            y_min, y_max = lax.get_ylim()
+            rax.set_ylim(y_min, y_max)
 
         if use_legend:
             balance_handles, _ = lax.get_legend_handles_labels()
             line_handles, _ = rax.get_legend_handles_labels()
-            line_legend = leg_ax.legend(
-                handles=line_handles,
-                loc="upper left",
-                bbox_to_anchor=(0, 0, 1, 1),
-            )
-            leg_ax.add_artist(line_legend)
+            if line_columns is not None:
+                line_legend = leg_ax.legend(
+                    handles=line_handles,
+                    loc="upper left",
+                    bbox_to_anchor=(0, 0, 1, 1),
+                )
+                leg_ax.add_artist(line_legend)
             leg_ax.legend(
                 handles=balance_handles,
                 loc="upper left",
@@ -661,9 +667,7 @@ def get_date_time_axis_locator_and_formatter(
     data_frequency: str
         Size of the timestep. This can be 'step', 'hourly', and 'monthly'.
     """
-    # TODO: check if this passes mypy and linting, otherwise, reactivate.
-    # date_locator: _dates.AutoDateLocator | None = None
-    # formattter: _dates.ConciseDateFormatter | None = None
+    # TODO: rewrite the original energy balance function, to use the current implementation.
 
     if data_frequency == "step":
         date_locator = _dates.AutoDateLocator(minticks=4, maxticks=30)
@@ -726,13 +730,16 @@ def get_frequency_of_data(
     Can return 'step', 'hourly', and 'monthly'.
     """
     delta_time = df.index[1] - df.index[0]
-    data_frequency = None
+
     if delta_time < _pd.Timedelta(hours=1):
         data_frequency = "step"
+
     elif delta_time == _pd.Timedelta(hours=1):
         data_frequency = "hourly"
+
     elif delta_time >= _pd.Timedelta(days=28):
         data_frequency = "monthly"
+
     else:
         raise ValueError(
             f"Timesteps should be hourly, monthly, or less then hourly, recieved: {delta_time}"

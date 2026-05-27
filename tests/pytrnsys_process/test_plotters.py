@@ -472,6 +472,7 @@ class TestPlotters:
             xlabel="",
         )
         fig.savefig(actual_imb_given)
+        # _plt.show()
 
         # Assert
         self.assert_plots_match(actual_imb_given, expected)
@@ -502,6 +503,7 @@ class TestPlotters:
         self.assert_plots_match(actual_imb_calculated, expected)
 
     def test_energy_balance_fig_and_ax(self, monthly_data):
+        """In this case the figure and axis handles are ignored."""
         # Setup
         actual_imb_calculated = (
             const.DATA_FOLDER
@@ -516,7 +518,7 @@ class TestPlotters:
         monthly_data["QSnk60dQ"] *= 100
 
         # Execute
-        _, _ = plot.energy_balance(
+        fig, _ = plot.energy_balance(
             monthly_data,
             q_in_columns=["QSnk60PauxCondSwitch_kW"],
             q_out_columns=["QSnk60P", "QSnk60dQlossTess", "QSnk60dQ"],

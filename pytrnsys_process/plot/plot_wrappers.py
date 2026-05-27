@@ -263,37 +263,23 @@ def energy_balance(
         >>> xlabel=""
         >>> )
     """
-    all_columns_vor_validation = (
-        q_in_columns
-        + q_out_columns
-        + ([q_imb_column] if q_imb_column is not None else [])
-    )
-    _validate_column_exists(df, all_columns_vor_validation)
+    line_columns = None
 
-    df_modified = df.copy()
+    if "ylabel" in kwargs:
+        kwargs["energy_balance_ylabel"] = kwargs["ylabel"]
 
-    for col in q_out_columns:
-        df_modified[col] = -df_modified[col]
-
-    if q_imb_column is None:
-        q_imb_column = "Qimb"
-        df_modified[q_imb_column] = df_modified[
-            q_in_columns + q_out_columns
-        ].sum(axis=1)
-
-    # imbalance is visually added where it is missing.
-    df_modified[q_imb_column] *= -1
-
-    columns_to_plot = q_in_columns + q_out_columns + [q_imb_column]
-
-    plotter = pltrs.StackedBarChart()
-    return plotter.plot(
-        df_modified,
-        columns_to_plot,
-        use_legend=use_legend,
-        size=size,
+    fig, lax, rax = energy_balance_with_lines(
+        df,
+        q_in_columns,
+        q_out_columns,
+        line_columns,
+        q_imb_column,
+        use_legend,
+        size,
         **kwargs,
     )
+
+    return fig, lax
 
 
 # pylint: disable=too-many-arguments
@@ -367,13 +353,13 @@ def energy_balance_with_lines(
         >>> xlabel=""
         >>> )
     """
-    all_columns_vor_validation = (
+    all_columns_for_validation = (
         q_in_columns
         + q_out_columns
-        + line_columns
+        + ([line_columns] if line_columns is not None else [])
         + ([q_imb_column] if q_imb_column is not None else [])
     )
-    _validate_column_exists(df, all_columns_vor_validation)
+    _validate_column_exists(df, all_columns_for_validation)
 
     df_modified = df.copy()
 

@@ -6,10 +6,14 @@ jobs:
   test-windows:
     runs-on:
       - self-hosted
-      - Etzel
+      - Etna
     env:
       PY_COLORS: "1"
     steps:
+      - name: test_pwsh
+        shell: pwsh
+        run: |
+          exit 1
       - uses: actions/checkout@v4
       - name: Remove old venv
         run: |

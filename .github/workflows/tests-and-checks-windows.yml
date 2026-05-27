@@ -6,7 +6,7 @@ jobs:
   test-windows:
     runs-on:
       - self-hosted
-      - spf-windows-gh-runners
+      - Etna
     env:
       PY_COLORS: "1"
     steps:

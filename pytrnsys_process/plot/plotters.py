@@ -649,7 +649,7 @@ class ScalarComparePlot(ChartBase):
 
 def get_date_time_axis_locator_and_formatter(
     data_frequency: _tp.Literal["step", "hourly", "monthly"],
-):
+) -> _tp.Tuple[_dates.AutoDateLocator, _dates.ConciseDateFormatter]:
     """
     Method to prepare an axis locator and a date time formattter to adjust the date time formatting.
     Can be used as follows:
@@ -661,47 +661,59 @@ def get_date_time_axis_locator_and_formatter(
     data_frequency: str
         Size of the timestep. This can be 'step', 'hourly', and 'monthly'.
     """
-    sub_hour_interval = 15  # minutes
+    # TODO: check if this passes mypy and linting, otherwise, reactivate.
+    # date_locator: _dates.AutoDateLocator | None = None
+    # formattter: _dates.ConciseDateFormatter | None = None
 
-    def formatter_hourly_with_midnight_date(
-        x, pos
-    ):  # pylint: disable=unused-argument
-        dt = _dates.num2date(x)
-        if dt.hour == 0:
-            return dt.strftime("%b-%d")
-
-        return dt.strftime("%H")
-
-    def formatter_sub_hour_with_midnight_date(
-        x, pos
-    ):  # pylint: disable=unused-argument
-        dt = _dates.num2date(x)
-        if dt.hour == 0 and dt.minute < sub_hour_interval:
-            return dt.strftime("%b-%d")
-
-        return dt.strftime("%H:%M")
-
-    def formatter_monthly(  # pylint: disable=unused-argument
-        x, pos
-    ) -> _tp.Tuple[_dates.RRuleLocator, _tick.FuncFormatter]:
-        dt = _dates.num2date(x, tz=None)
-        return dt.strftime("%b")
-
-    date_locator: _dates.RRuleLocator | None = None
-    formatter_function = None
     if data_frequency == "step":
-        date_locator = _dates.MinuteLocator(interval=sub_hour_interval)
-        formatter_function = formatter_sub_hour_with_midnight_date
+        date_locator = _dates.AutoDateLocator(minticks=4, maxticks=30)
+        date_locator.intervald = {
+            _dates.YEARLY:   [],
+            _dates.MONTHLY:  [1],
+            _dates.DAILY:    [1],
+            _dates.HOURLY:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            _dates.MINUTELY: [0, 2, 4, 6, 8],  # disable
+            _dates.SECONDLY: [60],  # disable
+        }
+
+        formatter = _dates.ConciseDateFormatter(date_locator)
+        formatter.formats[3] = "%H"  # sub-hours
+        formatter.zero_formats[3] = "%b %d %H"  # on the hour
+        formatter.formats[4] = "%H:%M"  # sub-minutes
+        formatter.zero_formats[4] = "%d %b %H:%M"  # on the hour
+
     elif data_frequency == "hourly":
-        date_locator = _dates.HourLocator()
-        formatter_function = formatter_hourly_with_midnight_date
+        # hourly
+        date_locator = _dates.AutoDateLocator(minticks=4, maxticks=36)
+        date_locator.intervald = {
+            _dates.YEARLY:   [],
+            _dates.MONTHLY:  [1],
+            _dates.DAILY:    [1],
+            _dates.HOURLY:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            _dates.MINUTELY: [60],  # disable minutes completely
+            _dates.SECONDLY: [3600],  # disable seconds completely
+        }
+
+        formatter = _dates.ConciseDateFormatter(date_locator)
+        formatter.formats[3] = "%H"
+        formatter.zero_formats[3] = "%b %d"
+
     elif data_frequency == "monthly":
-        date_locator = _dates.MonthLocator()
-        formatter_function = formatter_monthly
+        date_locator = _dates.AutoDateLocator(minticks=4, maxticks=36)
+        date_locator.intervald = {
+            _dates.YEARLY:   [],
+            _dates.MONTHLY:  [1],
+            _dates.DAILY:    [31],  # disable
+            _dates.HOURLY:   [31*24],  # disable
+            _dates.MINUTELY: [31*24*60],  # disable
+            _dates.SECONDLY: [31*24*3600],  # disable
+        }
+
+        formatter = _dates.ConciseDateFormatter(date_locator)
+        formatter.formats[1] = "%b"  # leave out year value
+        formatter.zero_formats[1] = "%b"  # leave out year value
     else:
         raise ValueError(f"Incorrect data frequency: {data_frequency}")
-
-    formatter = _tick.FuncFormatter(formatter_function)  # type: ignore[arg-type]
 
     return date_locator, formatter
 
@@ -757,3 +769,5 @@ def format_date_time_twin_axis(
     rax.xaxis.set_major_formatter(formatter)
     rax.xaxis.set_major_locator(date_locator)
     lax.tick_params(axis="x", rotation=90)
+    rax.xaxis.get_offset_text().set_visible(False)
+    lax.xaxis.get_offset_text().set_visible(False)

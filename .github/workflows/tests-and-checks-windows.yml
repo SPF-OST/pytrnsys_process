@@ -6,7 +6,7 @@ jobs:
   test-windows:
     runs-on:
       - self-hosted
-      - Etna
+      - Etzel
     env:
       PY_COLORS: "1"
     steps:

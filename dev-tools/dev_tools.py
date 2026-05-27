@@ -240,7 +240,7 @@ def _run_unit_tests_with_pytest(arguments, test_results_dir_path):
     cmd = [
         _SCRIPTS_DIR / "pytest",
         "-v",
-        "-n 1",
+        # "-n 1",
         # "--dist=loadfile",
         "--benchmark-skip",
         "--cov=pytrnsys_process",

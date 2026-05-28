@@ -268,7 +268,7 @@ def energy_balance(
     if "ylabel" in kwargs:
         kwargs["energy_balance_ylabel"] = kwargs["ylabel"]
 
-    fig, lax, rax = energy_balance_with_lines(
+    fig, lax, _ = energy_balance_with_lines(
         df,
         q_in_columns,
         q_out_columns,
@@ -287,12 +287,12 @@ def energy_balance_with_lines(
     df: _pd.DataFrame,
     q_in_columns: list[str],
     q_out_columns: list[str],
-    line_columns: list[str],
+    line_columns: _tp.Optional[list[str]] = None,
     q_imb_column: _tp.Optional[str] = None,
     use_legend: bool = True,
     size: tuple[float, float] = conf.PlotSizes.A4.value,
     **kwargs: _tp.Any,
-) -> tuple[_plt.Figure, _plt.Axes]:
+) -> tuple[_plt.Figure, _plt.Axes, _plt.Axes]:
     """
     Create a stacked bar chart showing energy balance with inputs, outputs and imbalance.
     On top of which one or more lines will be plotted.
@@ -356,7 +356,7 @@ def energy_balance_with_lines(
     all_columns_for_validation = (
         q_in_columns
         + q_out_columns
-        + ([line_columns] if line_columns is not None else [])
+        + (line_columns if line_columns is not None else [])
         + ([q_imb_column] if q_imb_column is not None else [])
     )
     _validate_column_exists(df, all_columns_for_validation)

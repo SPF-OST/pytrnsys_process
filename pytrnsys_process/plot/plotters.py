@@ -251,6 +251,25 @@ class EnergyBalanceChart(ChartBase):
             y_min, y_max = lax.get_ylim()
             rax.set_ylim(y_min, y_max)
 
+        self._maybe_add_legend(use_legend, line_columns, lax, rax, leg_ax)
+
+        if "xlabel" in kwargs:
+            lax.set_xlabel(kwargs["xlabel"])
+        if "energy_balance_ylabel" in kwargs:
+            lax.set_ylabel(kwargs["energy_balance_ylabel"])
+        if "line_ylabel" in kwargs:
+            rax.set_ylabel(kwargs["line_ylabel"])
+
+        return fig, lax, rax
+
+    @staticmethod
+    def _maybe_add_legend(
+        use_legend: bool,
+        line_columns: _tp.Optional[list[str]],
+        lax: _plt.Axes,
+        rax: _plt.Axes,
+        leg_ax: _plt.Axes,
+    ):
         if use_legend:
             balance_handles, _ = lax.get_legend_handles_labels()
             line_handles, _ = rax.get_legend_handles_labels()
@@ -267,15 +286,6 @@ class EnergyBalanceChart(ChartBase):
                 bbox_to_anchor=(0, 0, 1, 0.7),
             )
             leg_ax.axis("off")
-
-        if "xlabel" in kwargs:
-            lax.set_xlabel(kwargs["xlabel"])
-        if "energy_balance_ylabel" in kwargs:
-            lax.set_ylabel(kwargs["energy_balance_ylabel"])
-        if "line_ylabel" in kwargs:
-            rax.set_ylabel(kwargs["line_ylabel"])
-
-        return fig, lax, rax
 
 
 class BarChart(ChartBase):
@@ -672,10 +682,10 @@ def get_date_time_axis_locator_and_formatter(
     if data_frequency == "step":
         date_locator = _dates.AutoDateLocator(minticks=4, maxticks=30)
         date_locator.intervald = {
-            _dates.YEARLY:   [],
-            _dates.MONTHLY:  [1],
-            _dates.DAILY:    [1],
-            _dates.HOURLY:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            _dates.YEARLY: [],
+            _dates.MONTHLY: [1],
+            _dates.DAILY: [1],
+            _dates.HOURLY: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             _dates.MINUTELY: [0, 2, 4, 6, 8],  # disable
             _dates.SECONDLY: [60],  # disable
         }
@@ -690,10 +700,10 @@ def get_date_time_axis_locator_and_formatter(
         # hourly
         date_locator = _dates.AutoDateLocator(minticks=4, maxticks=36)
         date_locator.intervald = {
-            _dates.YEARLY:   [],
-            _dates.MONTHLY:  [1],
-            _dates.DAILY:    [1],
-            _dates.HOURLY:   [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            _dates.YEARLY: [],
+            _dates.MONTHLY: [1],
+            _dates.DAILY: [1],
+            _dates.HOURLY: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
             _dates.MINUTELY: [60],  # disable minutes completely
             _dates.SECONDLY: [3600],  # disable seconds completely
         }
@@ -705,12 +715,12 @@ def get_date_time_axis_locator_and_formatter(
     elif data_frequency == "monthly":
         date_locator = _dates.AutoDateLocator(minticks=4, maxticks=36)
         date_locator.intervald = {
-            _dates.YEARLY:   [],
-            _dates.MONTHLY:  [1],
-            _dates.DAILY:    [31],  # disable
-            _dates.HOURLY:   [31*24],  # disable
-            _dates.MINUTELY: [31*24*60],  # disable
-            _dates.SECONDLY: [31*24*3600],  # disable
+            _dates.YEARLY: [],
+            _dates.MONTHLY: [1],
+            _dates.DAILY: [31],  # disable
+            _dates.HOURLY: [31 * 24],  # disable
+            _dates.MINUTELY: [31 * 24 * 60],  # disable
+            _dates.SECONDLY: [31 * 24 * 3600],  # disable
         }
 
         formatter = _dates.ConciseDateFormatter(date_locator)

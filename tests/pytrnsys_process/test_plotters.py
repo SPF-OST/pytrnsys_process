@@ -183,7 +183,8 @@ class TestPlotters:
             / "plotters/energy-balance-with-lines/expected_hourly.png"
         )
         actual_fig = (
-            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual_hourly.png"
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/actual_hourly.png"
         )
         line_columns = ["QSrc1TIn", "QSrc1TOut"]
         day_data = hourly_data.iloc[0:24, :]
@@ -212,7 +213,8 @@ class TestPlotters:
             / "plotters/energy-balance-with-lines/expected_step.png"
         )
         actual_fig = (
-            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual_step.png"
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/actual_step.png"
         )
         line_columns = ["d"]
         # day_data = step_data.iloc[0:24, :]
@@ -243,7 +245,8 @@ class TestPlotters:
             / "plotters/energy-balance-with-lines/expected_monthly.png"
         )
         actual_fig = (
-            const.DATA_FOLDER / "plotters/energy-balance-with-lines/actual_monthly.png"
+            const.DATA_FOLDER
+            / "plotters/energy-balance-with-lines/actual_monthly.png"
         )
 
         fig, _, _ = plot.energy_balance_with_lines(

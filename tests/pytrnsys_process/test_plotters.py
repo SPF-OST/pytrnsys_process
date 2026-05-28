@@ -1,5 +1,5 @@
 # pylint: disable=consider-using-from-import
-import matplotlib.dates as _dates
+import matplotlib as _mpl
 import matplotlib.pyplot as _plt
 import matplotlib.testing.compare as _mpltc
 import pandas as _pd
@@ -18,6 +18,16 @@ def get_fig_and_ax():
         {}, constants.PlotSizes.A4.value
     )
     return fig, ax
+
+
+def test_mpl_backend():
+    """
+    Tkinter causes many problems on CI.
+    The conftest.py file enforces a non-Tkinter backend.
+    This test checks if that is running correctly.
+
+    """
+    assert _mpl.get_backend() == "Agg"
 
 
 # pylint: disable=too-many-public-methods
